@@ -12,19 +12,30 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Set up Java
+        uses: actions/setup-java@v2
+        with:
+          java-version: 11
+
+      - name: Install ANTLR4
+        run: |
+          curl -O https://www.antlr.org/download/antlr-4.10-complete.jar
+          sudo cp antlr-4.9.3-complete.jar /usr/local/lib/
+          echo 'export CLASSPATH=".:/usr/local/lib/antlr-4.9.3-complete.jar:$CLASSPATH"' >> $HOME/.bash_profile
+
+      - name: Build with ANTLR4
+        run: |
+          chmod +x ./dev_util/build.sh
+          ./dev_util/build.sh
+
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: '3.10'
 
-      - name: Install dependencies
+      - name: Install test dependencies
         run: |
           pip install -r .github/.mchy_aux_files/test_requirements.txt
-
-      - name: Build ANTLR4
-        run: |
-          chmod +x ./dev_util/build.sh
-          ./dev_util/build.sh
 
       - name: Run tests
         run: |
