@@ -16,6 +16,11 @@ then
     echo "> antlr build succeeded!";
 else
     echo "> antlr build failed!";
+    echo ">> Listing built files"
+    ls -l mchy/built
+    first_file=$(ls | head -n 1)
+    echo ">> Initial contents of '$first_file'"
+    head -n 15 $first_file
     exit 1;
 fi
 
