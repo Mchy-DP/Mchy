@@ -1,0 +1,64 @@
+name: Run Tests
+on:
+  push:
+    branches:
+      - '*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: "17.x"
+
+      - name: Install ANTLR4
+        run: |
+          curl -O https://www.antlr.org/download/antlr-4.10-complete.jar
+          sudo cp antlr-4.10-complete.jar /usr/local/lib/
+          echo 'export CLASSPATH=".:/usr/local/lib/antlr-4.10-complete.jar:$CLASSPATH"' >> $HOME/.bash_profile
+
+      - name: Build with ANTLR4
+        run: |
+          chmod +x ./dev_util/build.sh
+          ./dev_util/build.sh
+        
+      - name: Upload Built ANTLR compiler
+        uses: actions/upload-artifact@master
+        with:
+          name: built_antlr
+          path: mchy/built
+          if-no-files-found: error
+          retention-days: 14
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Download Built ANTLR compiler
+        uses: actions/download-artifact@v3
+        with:
+          name: built_antlr
+          path: mchy/built
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+
+      - name: Install test dependencies
+        run: |
+          pip install -r .github/.mchy_aux_files/test_requirements.txt
+
+      - name: Run tests
+        run: |
+          chmod +x ./dev_util/test.sh
+          ./dev_util/test.sh
