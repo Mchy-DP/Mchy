@@ -4,6 +4,7 @@
 cd "$(dirname "$0")/.."
 
 echo "> clean"
+mkdir -p mchy/built
 touch mchy/built/temp.temp
 rm -r mchy/built/*
 
