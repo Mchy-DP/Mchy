@@ -3,7 +3,6 @@ from typing import Any, Optional, Sequence, Tuple, cast
 from antlr4.CommonTokenStream import CommonTokenStream
 from antlr4.Token import CommonToken
 from antlr4 import ParserRuleContext
-from pyparsing import Sequence
 
 from mchy.built.MchyParser import MchyParser
 from mchy.common.com_loc import ComLoc
