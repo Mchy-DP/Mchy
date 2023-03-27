@@ -9,5 +9,13 @@ touch mchy/built/temp.temp
 rm -r mchy/built/*
 
 echo "> build antlr"
-java -cp "/usr/local/lib/antlr-4.10-complete.jar:$CLASSPATH" org.antlr.v4.Tool -Dlanguage=Python3 -no-listener -visitor -o "mchy/built" "grammar/Mchy.g4" && echo "> antlr built successfully!"
+java -Xmx500M -cp "/usr/local/lib/antlr-4.10-complete.jar:$CLASSPATH" org.antlr.v4.Tool -Dlanguage=Python3 -no-listener -visitor -o "mchy/built" "grammar/Mchy.g4"
+
+if [ -f "mchy/built/MchyParser.py" ] && [ -f "mchy/built/MchyVisitor.py" ];
+then 
+    echo "> antlr build succeeded!";
+else
+    echo "> antlr build failed!";
+    exit 1;
+fi
 
