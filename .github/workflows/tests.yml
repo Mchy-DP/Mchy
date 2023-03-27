@@ -23,8 +23,10 @@ jobs:
 
       - name: Build ANTLR4
         run: |
+          chmod +x ./dev_util/build.sh
           ./dev_util/build.sh
 
       - name: Run tests
         run: |
+          chmod +x ./dev_util/test.sh
           ./dev_util/test.sh
