@@ -9,7 +9,7 @@ touch mchy/built/temp.temp
 rm -r mchy/built/*
 
 echo "> build antlr"
-java -Xmx500M -cp "/usr/local/lib/antlr-4.10-complete.jar:$CLASSPATH" org.antlr.v4.Tool -Dlanguage=Python3 -no-listener -visitor -o "mchy/built" "grammar/Mchy.g4"
+java -Xmx500M -cp "/usr/local/lib/antlr-4.10-complete.jar:$CLASSPATH" org.antlr.v4.Tool -Dlanguage=Python3 -no-listener -visitor -o "mchy/built" "./grammar/Mchy.g4"
 
 if [ -f "mchy/built/MchyParser.py" ] && [ -f "mchy/built/MchyVisitor.py" ];
 then 
@@ -18,9 +18,6 @@ else
     echo "> antlr build failed!";
     echo ">> Listing built files"
     ls -l mchy/built
-
-    ls -l mchy/built/grammar
-
     first_file=$(ls mchy/built| head -n 1)
     echo ">> Initial contents of '$first_file'"
     head -n 15 $first_file
