@@ -20,8 +20,8 @@ jobs:
       - name: Install ANTLR4
         run: |
           curl -O https://www.antlr.org/download/antlr-4.10-complete.jar
-          sudo cp antlr-4.9.3-complete.jar /usr/local/lib/
-          echo 'export CLASSPATH=".:/usr/local/lib/antlr-4.9.3-complete.jar:$CLASSPATH"' >> $HOME/.bash_profile
+          sudo cp antlr-4.10-complete.jar /usr/local/lib/
+          echo 'export CLASSPATH=".:/usr/local/lib/antlr-4.10-complete.jar:$CLASSPATH"' >> $HOME/.bash_profile
 
       - name: Build with ANTLR4
         run: |
