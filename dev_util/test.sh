@@ -3,5 +3,5 @@
 #Force current location
 cd "$(dirname "$0")/.."
 
-echo "> testing:"
+echo "> Running tests (from: $(pwd))"
 python -m pytest "tests/"
