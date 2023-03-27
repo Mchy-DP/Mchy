@@ -1,0 +1,30 @@
+name: Run Tests
+on:
+  push:
+    branches:
+      - '*'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install -r .github/.mchy_aux_files/test_requirements.txt
+
+      - name: Build ANTLR4
+        run: |
+          ./dev_util/build.sh
+
+      - name: Run tests
+        run: |
+          ./dev_util/test.sh
