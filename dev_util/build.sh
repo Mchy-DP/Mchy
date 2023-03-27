@@ -8,7 +8,7 @@ touch mchy/built/temp.temp
 rm -r mchy/built/*
 
 echo "> build antlr"
-cmd "/c antlr4 -Dlanguage=Python3 -no-listener -visitor -o mchy/built grammar/Mchy.g4 "
+java org.antlr.v4.Tool -Dlanguage=Python3 -no-listener -visitor -o mchy/built grammar/Mchy.g4
 
 echo "> antlr built successfully!"
 
