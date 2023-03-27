@@ -27,7 +27,8 @@ jobs:
         run: |
           chmod +x ./dev_util/build.sh
           ./dev_util/build.sh
-          ls mchy/built
+          echo "Listing built files"
+          ls -l mchy/built
 
       - name: Set up Python
         uses: actions/setup-python@v2
