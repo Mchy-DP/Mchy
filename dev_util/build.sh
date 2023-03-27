@@ -12,6 +12,8 @@ echo "> build antlr"
 java -Xmx500M -cp "/usr/local/lib/antlr-4.10-complete.jar:$CLASSPATH" org.antlr.v4.Tool -Dlanguage=Python3 -no-listener -visitor -o "mchy/built" "./grammar/Mchy.g4"
 
 # linix antlr4 puts output in grammar file for no reason -> moving to make consistent between os's (https://github.com/tunnelvisionlabs/antlr4ts/issues/303)
+mkdir -p mchy/built/grammar
+touch mchy/built/grammar/temp.temp
 mv mchy/built/grammar/* mchy/built
 rm -rf mchy/built/grammar
 
