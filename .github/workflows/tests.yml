@@ -90,12 +90,11 @@ jobs:
         run: |
           chmod +x ./dev_util/deploy.sh
           ./dev_util/deploy.sh
-          find ./releases -name mchy.exe -exec cp {} ./releases \;
    
       - name: Upload deployment executable
         uses: actions/upload-artifact@v3
         with:
           name: mchy_exe
-          path: releases/mchy.exe
+          path: releases/latest/mchy.exe
           if-no-files-found: error
           retention-days: 90
