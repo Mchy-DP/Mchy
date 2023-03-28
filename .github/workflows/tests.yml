@@ -29,7 +29,7 @@ jobs:
           ./dev_util/build.sh
         
       - name: Upload Built ANTLR compiler
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v3
         with:
           name: built_antlr
           path: mchy/built
@@ -62,3 +62,40 @@ jobs:
         run: |
           chmod +x ./dev_util/test.sh
           ./dev_util/test.sh
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref_name == "main"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Download Built ANTLR compiler
+        uses: actions/download-artifact@v3
+        with:
+          name: built_antlr
+          path: mchy/built
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+
+      - name: Install deploy dependencies
+        run: |
+          pip install -r .github/.mchy_aux_files/deploy_requirements.txt
+
+      - name: Build deployment executable
+        run: |
+          chmod +x ./dev_util/deploy.sh
+          ./dev_util/deploy.sh
+          find ./releases -name mchy.exe -exec cp {} ./releases \;
+   
+      - name: Upload deployment executable
+        uses: actions/upload-artifact@v3
+        with:
+          name: mchy_exe
+          path: releases/mchy.exe
+          if-no-files-found: error
+          retention-days: 90
