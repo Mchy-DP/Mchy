@@ -35,16 +35,21 @@ def convert(ctx_module: CtxModule, config: Config) -> SmtModule:
     # handle ticking functions
     handle_ticking(ctx_module, smt_module, config)
     # return module
+    smt_module.create_all_lazy_variables()
     return smt_module
 
 
 def handle_ticking(ctx_module: CtxModule, smt_module: SmtModule, config: Config) -> None:
     if config.debug_mode:
         last_tick_failed_var = smt_module.initial_function.new_pseudo_var(InertType(InertCoreTypes.INT))
-        smt_module.ticking_function.func_frag.body.append(SmtConditionalRawCmd([(last_tick_failed_var, True)], runtime_error_tellraw_formatter(
-            "last tick did not complete - is there an infinite loop? Alternatively too many commands in 1 tick, see: `gamerule maxCommandChainLength`"
-        )))
+        smt_module.ticking_function.func_frag.body.append(SmtConditionalRawCmd(
+            [(last_tick_failed_var, True), (smt_module.error_state_variable, False)],
+            runtime_error_tellraw_formatter(
+                "last tick did not complete - is there an infinite loop? Alternatively too many commands in 1 tick, see: `gamerule maxCommandChainLength`"
+            )
+        ))
         smt_module.ticking_function.func_frag.body.append(SmtAssignCmd(last_tick_failed_var, SmtConstInt(1)))
+        smt_module.ticking_function.func_frag.body.append(SmtAssignCmd(smt_module.error_state_variable, SmtConstInt(0)))
     for ticking_func in ctx_module.get_ticking_funcs():
         pseudo_ctx_func_call: CtxExprFuncCall = CtxExprFuncCall(CtxExprLitWorld(src_loc=ComLoc()), ticking_func, [], [], src_loc=ComLoc())
         call_cmds, _ = convert_func_call_expr(pseudo_ctx_func_call, smt_module, smt_module.ticking_function, config)
@@ -62,7 +67,7 @@ def build_global_scope(ctx_module: CtxModule, smt_module: SmtModule, config: Con
     active_frag = convert_stmnts(ctx_module.exec_body, smt_module, smt_module.initial_function, config, active_frag)
     if config.debug_mode:
         active_frag.body.append(SmtAssignCmd(init_var, SmtConstInt(0)))
-        smt_module.ticking_function.func_frag.body.append(SmtConditionalRawCmd([(init_var, True)], runtime_error_tellraw_formatter(
+        smt_module.ticking_function.func_frag.body.append(SmtConditionalRawCmd([(init_var, True), (smt_module.error_state_variable, False)], runtime_error_tellraw_formatter(
             "reload did not complete - is there an infinite loop? Alternatively too many commands in 1 tick, see: `gamerule maxCommandChainLength`"
         )))
         smt_module.ticking_function.func_frag.body.append(SmtAssignCmd(init_var, SmtConstInt(0)))

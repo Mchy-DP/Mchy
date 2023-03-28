@@ -34,6 +34,7 @@ class VirFSNode():
             self._parent = parent
 
     def get_namespace_loc(self) -> str:
+        """Get the minecraft namespace-rooted path to this (e.g. ns:generated/extra/example)"""
         if self._parent is None:
             raise VirtualRepError(f"Attempted to resolve root folders namespace location -> No namespace authority in virtual filesystem.  Error path: {self.fs_name}")
         try:

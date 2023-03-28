@@ -56,6 +56,7 @@ class SmtFunc:
 
     @property
     def fragments(self) -> List[SmtFragment]:
+        """Get function fragments (excluding entrypoint/func_frag fragment)"""
         return self._fragments
 
 

@@ -1,9 +1,10 @@
 
 from typing import Any, Dict, List, Optional, Set, Tuple
 from mchy.cmd_modules.function import CtxIFunc, CtxIParam
+from mchy.common.com_types import InertCoreTypes, InertType
 from mchy.common.config import Config
 from mchy.contextual.struct import CtxMchyFunc
-from mchy.stmnt.struct.atoms import SmtAtom, SmtConstStr, SmtConstFloat, SmtConstNull, SmtConstInt, SmtWorld
+from mchy.stmnt.struct.atoms import SmtAtom, SmtConstStr, SmtConstFloat, SmtConstNull, SmtConstInt, SmtVar, SmtWorld
 from mchy.stmnt.struct.cmds import SmtInvokeFuncCmd
 from mchy.stmnt.struct.function import SmtFunc, SmtMchyFunc, SmtGhostFunc
 from mchy.stmnt.gen_expr import convert_expr
@@ -24,6 +25,19 @@ class SmtModule:
 
         # Ensures before any global scope code runs the imported functions are fully loaded
         self.setup_function.func_frag.body.append(SmtInvokeFuncCmd(self.import_ns_function, self.get_world()))
+
+        # Build key state
+        self._error_state_variable: Optional[SmtVar] = None
+
+    @property
+    def error_state_variable(self) -> SmtVar:
+        # Lazy variable instantiation important for tests to be intuitive (No strange unused variables appearing during unit tests)
+        if self._error_state_variable is None:
+            self._error_state_variable = self.initial_function.new_pseudo_var(InertType(InertCoreTypes.INT))
+        return self._error_state_variable
+
+    def create_all_lazy_variables(self) -> None:
+        _ = self.error_state_variable
 
     def get_smt_func(self, ctx_func: CtxMchyFunc) -> SmtMchyFunc:
         return self._mchy_funcs_link[ctx_func]

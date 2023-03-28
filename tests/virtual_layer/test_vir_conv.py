@@ -18,6 +18,7 @@ def test_plus_conv():
         SmtPlusCmd(pseudo_var_0, SmtConstInt(7)),
         SmtAssignCmd(public_var_foo, pseudo_var_0)
     ])
+    module.create_all_lazy_variables()
 
     virtual_dp = convert(module, config=Config(testing_comments=True))
 
@@ -43,6 +44,7 @@ def test_math_conv():
         SmtModCmd(pseudo_var_0, SmtConstInt(8)),     # 7  = 15 % 8
         SmtAssignCmd(public_var_foo, pseudo_var_0)   # 7
     ])
+    module.create_all_lazy_variables()
 
     virtual_dp = convert(module, config=Config(testing_comments=True))
 
@@ -66,6 +68,7 @@ def test_nullable_int_var_assign_to_nullable_int_var():
     module.initial_function.func_frag.body.extend([
         SmtAssignCmd(public_var_nulla, public_var_nullb)
     ])
+    module.create_all_lazy_variables()
 
     virtual_dp = convert(module, config=Config(testing_comments=True))
 

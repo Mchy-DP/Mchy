@@ -1,5 +1,6 @@
 
 import shutil
+from mchy.common.com_cmd import ComCmd
 from mchy.common.config import Config
 from mchy.stmnt.struct.linker import SmtLinker
 from mchy.virtual.helpers import json_dump
@@ -42,6 +43,7 @@ class VirDP:
         self._tick_master = VirMCHYFile("tick_master.mcfunction", fs_fld_internal_func_root)
         self._mchy_func = VirFolder("mchy_func", fs_fld_internal_func_root)
         fs_fld_extra = VirFolder("extra", fs_fld_internal_func_root)
+        self._extra_compiler_util = VirFolder("compiler_util", fs_fld_extra)
         fs_fld_extra_frags = VirFolder("frags", fs_fld_extra)
         self._extra_frags_init = VirFolder("init_master_load", fs_fld_extra_frags)
         self._extra_frags_tick = VirFolder("tick_master_load", fs_fld_extra_frags)
@@ -87,6 +89,10 @@ class VirDP:
     @property
     def import_param_default_file(self) -> VirMCHYFile:
         return self._import_param_default_init
+
+    @property
+    def compiler_util_fld(self) -> VirFolder:
+        return self._extra_compiler_util
 
     @property
     def linker(self) -> SmtLinker:
