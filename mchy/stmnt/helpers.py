@@ -17,12 +17,14 @@ def smt_get_exec_vdat(executor: SmtAtom, linker: SmtLinker) -> SmtExecVarLinkage
     return exec_vdat
 
 
-def runtime_error_tellraw_formatter(message: str) -> str:
+def runtime_error_tellraw_formatter(message: str, debug: bool = True) -> str:
     return (
         r'''tellraw @p ["",'''
-        + r'''{"text":"DEBUG: ","italic":true,"color":"red","hoverEvent":'''
-          + r'''{"action":"show_text","contents":[{"text":"This message was emitted because the datapack was ran in debug mode","color":"red"}]}'''
-        + r'''},{"text":"Runtime Error: ","bold":true,"color":"red","hoverEvent":'''
+        + ((
+            r'''{"text":"DEBUG: ","italic":true,"color":"red","hoverEvent":'''
+            + r'''{"action":"show_text","contents":[{"text":"This message was emitted because the datapack was ran in debug mode","color":"red"}]}},'''
+        ) if debug else '')
+        + r'''{"text":"Runtime Error: ","bold":true,"color":"red","hoverEvent":'''
           + r'''{"action":"show_text","contents":[{"text":"Debug mode detected a problem that the compiler missed","color":"red"}]}'''
         + r'''},{"text":"'''+message.replace('"', '\\"')+r'''","color":"dark_red"}''' +
         r''']'''

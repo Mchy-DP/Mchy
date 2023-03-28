@@ -1,6 +1,9 @@
 
 from typing import List, Sequence
 from mchy.common.config import Config
+from mchy.stmnt.helpers import runtime_error_tellraw_formatter
+from mchy.stmnt.struct.cmds import SmtRawCmd
+from mchy.stmnt.struct.cmds.assign import SmtAssignCmd
 from mchy.stmnt.struct.linker import SmtLinker, SmtVarFlavour
 from mchy.stmnt.struct import SmtModule, SmtMchyFunc, SmtCmd, SmtCommentCmd, CommentImportance
 from mchy.common.com_cmd import ComCmd
@@ -12,11 +15,12 @@ from mchy.virtual.vir_dp import VirDP
 def convert(smt_module: SmtModule, config: Config = Config()) -> VirDP:
     vir_dp = VirDP(config)
 
+    # ===== Linker Building =====
     # Build function linking
     config.logger.very_verbose(f"VIR: Building function loc linking table")
     vir_dp.linker.add_func(smt_module.import_ns_function, vir_dp.import_param_default_file.get_namespace_loc())
     for smt_func in smt_module.get_smt_mchy_funcs():
-        for rix in range(0, config.recursion_limit):
+        for rix in range(0, config.recursion_limit + 1):  # Plus 1 as the recursion error technically happens 1 stack frame deeper
             vir_dp.linker.add_func(
                 smt_func,
                 f"{vir_dp.mchy_func_fld.get_namespace_loc()}/{smt_func.get_unique_ident()}/s{rix}/",
@@ -44,7 +48,17 @@ def convert(smt_module: SmtModule, config: Config = Config()) -> VirDP:
             else:
                 vir_dp.linker.add_mchy_var(var, smt_func)
 
+    # ===== Command generation =====
     load_master_tag_cleanup: List[ComCmd] = []
+
+    # build core files:
+    # setup error state compiler util
+    _extra_error_state_begin = VirMCHYFile("error_state_begin.mcfunction", vir_dp.compiler_util_fld)
+    _extra_error_state_core = VirMCHYFile("error_state_core.mcfunction", vir_dp.compiler_util_fld)
+    _extra_error_state_begin.extend(convert_smtcmds([SmtAssignCmd(smt_module.error_state_variable, smt_module.get_const_with_val(1))], vir_dp.linker, 0, config))
+    _extra_error_state_begin.append(ComCmd(f"function {_extra_error_state_core.get_namespace_loc()}"))
+    _extra_error_state_core.append(ComCmd(f"function {_extra_error_state_core.get_namespace_loc()}"))
+
     # Add required scoreboard objectives
     config.logger.very_verbose(f"VIR: Adding scoreboard objective creation commands to load_master file")
     vir_dp.load_master_file.extend(SmtCommentCmd("Build Scoreboard", generator="MCHY", importance=CommentImportance.TITLE).virtualize(vir_dp.linker, 0))
@@ -102,22 +116,30 @@ def convert(smt_module: SmtModule, config: Config = Config()) -> VirDP:
 
     # handle functions
     for smt_func in smt_module.get_smt_mchy_funcs():
-        vir_dp.mchy_func_fld.add_child(convert_mchy_func(smt_func, vir_dp, config))
+        vir_dp.mchy_func_fld.add_child(convert_mchy_func(smt_func, vir_dp, config, _extra_error_state_begin))
 
     return vir_dp
 
 
-def convert_mchy_func(smt_func: SmtMchyFunc, vir_dp: VirDP, config: Config) -> VirFolder:
+def convert_mchy_func(smt_func: SmtMchyFunc, vir_dp: VirDP, config: Config, error_endpoint: VirMCHYFile) -> VirFolder:
     func_fld = VirFolder(smt_func.get_unique_ident())
-    for rix in range(0, config.recursion_limit):
+    for rix in range(0, config.recursion_limit + 1):
         sn_fld = VirFolder(f"s{rix}", func_fld)
         fragments = VirFolder("fragments", sn_fld)
         run_file = VirMCHYFile("run.mcfunction", sn_fld)
-        run_file.extend(convert_smtcmds(smt_func.func_frag.body, vir_dp.linker, rix, config))
-        for frag in smt_func.fragments:
-            frag_file = VirMCHYFile(frag.get_frag_name()+".mcfunction", fragments)
-            frag_file.extend(convert_smtcmds(frag.body, vir_dp.linker, rix, config))
-        run_file.extend(convert_smtcmds(get_cleanup_stmnts(smt_func, vir_dp.linker, rix), vir_dp.linker, rix, config))
+        if rix < config.recursion_limit:
+            run_file.extend(convert_smtcmds(smt_func.func_frag.body, vir_dp.linker, rix, config))
+            for frag in smt_func.fragments:
+                frag_file = VirMCHYFile(frag.get_frag_name()+".mcfunction", fragments)
+                frag_file.extend(convert_smtcmds(frag.body, vir_dp.linker, rix, config))
+            run_file.extend(convert_smtcmds(get_cleanup_stmnts(smt_func, vir_dp.linker, rix), vir_dp.linker, rix, config))
+        else:
+            # Recursion limit runtime error:
+            run_file.extend(convert_smtcmds([
+                SmtRawCmd(runtime_error_tellraw_formatter(f"recursion limit ({config.recursion_limit}) reached in function `{smt_func.get_func_name()}`", debug=False)),
+                ], vir_dp.linker, rix, config
+            ))
+            run_file.append(ComCmd(f"function {error_endpoint.get_namespace_loc()}"))
     return func_fld
 
 
