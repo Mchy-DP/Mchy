@@ -66,7 +66,7 @@ jobs:
   deploy:
     runs-on: windows-latest
     needs: build
-    #if: github.ref_name == 'main'
+    if: ${{ github.ref_name == 'main' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
