@@ -21,9 +21,9 @@ then
     cp "releases/$build_dir_name/mchy.exe" ""releases/latest/mchy.exe""
 else
     echo "> deploy executable build failed!";
-    echo ">> Listing releases files"
+    echo ">> Listing 'releases' files"
     ls -l releases
-    echo ">> Listing `releases/$build_dir_name` files"
+    echo ">> Listing 'releases/$build_dir_name' files"
     ls -l "releases/$build_dir_name"
     exit 1;
 fi
