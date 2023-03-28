@@ -52,6 +52,9 @@ class MchyErrorListener(ErrorListener):
         if isinstance(ctx, recognizer.Variable_declContext):
             if expected_toks == {recognizer.COLON}:
                 raise MchySyntaxError(f"Missing type annotation in declaration of variable `{get_token_text(assert_is_token(ctx.var_name))}`")
+        if isinstance(ctx, recognizer.Param_declContext):
+            if expected_toks == {recognizer.COLON}:
+                raise MchySyntaxError(f"Missing type annotation in declaration of param `{get_token_text(assert_is_token(ctx.param_name))}`")
         if isinstance(ctx, recognizer.TypeContext):
             if offendingSymbol.type == recognizer.EQUAL:
                 if get_input(recognizer).LB(1).type == recognizer.COLON:
