@@ -1,5 +1,5 @@
-from os.path import dirname, basename, isfile, join
-import glob
-# Import all functions from this module - Import required in order for user code to access the functions
-__all__ = [basename(file)[:-3] for file in glob.glob(join(dirname(__file__), "*.py")) if isfile(file) and not file.endswith('__init__.py')]
-from . import *
+from mchy.library.std import (
+    chain_entity_selector, chain_meta, chain_rotate, chain_scoreboard, cmd_bool, cmd_cmd, cmd_effect, cmd_fill,
+    cmd_give, cmd_kill, cmd_particle, cmd_playsound, cmd_print, cmd_say, cmd_setblock, cmd_spread, cmd_summon,
+    cmd_tag, cmd_tp, mc_version, ns, struct_color, struct_pos
+)
