@@ -1,0 +1,21 @@
+
+var tick: int = 0
+var y: int! = 3
+
+@ticking
+def main_tick(){
+    tick = tick + 1
+    if (tick % 20) == 0 {
+        # Spam chat once a second!
+        print("1 second")
+    }
+}
+
+def factorial(n: int) -> int {
+    if n == 0 {
+        return 0
+    }
+    return n * factorial(n - 1)
+}
+
+print(world.colors.blue, "The factorial of 5 is: ", factorial(5))
