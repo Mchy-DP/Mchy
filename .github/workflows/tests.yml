@@ -91,12 +91,29 @@ jobs:
         shell: bash
         run: |
           chmod +x ./dev_util/deploy.sh
-          ./dev_util/deploy.sh
+          mchy_build_number=$GITHUB_RUN_NUMBER ./dev_util/deploy.sh
+
+      - name: Test Deployment
+        id: deploy_test
+        shell: bash
+        run: |
+          chmod +x ./dev_util/deploy_test.sh
+          ./dev_util/deploy_test.sh
    
       - name: Upload deployment executable
+        if: steps.deploy_test.outcome == 'success'
         uses: actions/upload-artifact@v3
         with:
           name: mchy_exe
           path: releases/latest/mchy.exe
+          if-no-files-found: error
+          retention-days: 90
+   
+      - name: Upload failure log
+        if: steps.deploy_test.outcome == 'failure'
+        uses: actions/upload-artifact@v3
+        with:
+          name: mchy_log
+          path: releases/latest/dp/mchy.log
           if-no-files-found: error
           retention-days: 90
