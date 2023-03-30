@@ -82,12 +82,18 @@ class ComLogger:
             log_file_handle.addFilter(RecordDataFilter())  # type: ignore  # false positive
             self._logger.addHandler(log_file_handle)
 
+    def _clean_path(self, path: str) -> str:
+        """Make path only contain important info"""
+        # Used to handle the fact that durning pyinstaller compilation the file is converted to pyc which won't log correctly
+        path = os_path.splitext(path)[0]
+        return path
+
     def _update_context(self) -> None:
         try:
             # Type may result in AttributeError's which are caught hence type checker warnings are disabled
-            func_path = __file__
+            func_path = __file__  # initialise with something that will definitely cause the while loop to run
             frame = inspect.currentframe()
-            while func_path == __file__:
+            while self._clean_path(__file__).endswith(self._clean_path(func_path)):
                 frame = frame.f_back  # type: ignore
                 func_path: str = frame.f_code.co_filename  # type: ignore
             func_line: str = str(frame.f_lineno)  # type: ignore
