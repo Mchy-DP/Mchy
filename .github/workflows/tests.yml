@@ -101,7 +101,7 @@ jobs:
           ./dev_util/deploy_test.sh
    
       - name: Upload deployment executable
-        if: steps.deploy_test.outcome == 'success'
+        if: always() && steps.deploy_test.outcome == 'success'
         uses: actions/upload-artifact@v3
         with:
           name: mchy_exe
@@ -110,7 +110,7 @@ jobs:
           retention-days: 90
    
       - name: Upload failure log
-        if: steps.deploy_test.outcome == 'failure'
+        if: always() && steps.deploy_test.outcome == 'failure'
         uses: actions/upload-artifact@v3
         with:
           name: mchy_log
