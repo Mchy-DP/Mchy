@@ -109,7 +109,8 @@ def _build_arg_param_binding(
             source_err_rep: str,
             executing_type: Optional[ExecType],
             module: CtxModule,
-            var_scopes: List[VarScope]
+            var_scopes: List[VarScope],
+            calling_location: ComLoc
         ) -> Tuple[Dict[AbsCtxParam, Optional[CtxExprNode]], List[CtxExprNode]]:
     """Convert a list of parameters and a list of supplied arguments into the param-arg bindings
 
@@ -155,16 +156,16 @@ def _build_arg_param_binding(
                 param = param
                 break
         else:
-            raise ConversionError(f"Argument of name `{ast_args.label}` is not an parameter of `{source_err_rep}`")
+            raise ConversionError(f"Argument of name `{ast_args.label}` is not an parameter of `{source_err_rep}`").with_loc(ast_args.loc)
         if param in param_bindings.keys():
-            raise ConversionError(f"Parameter `{param.get_label()}` of `{source_err_rep}` already has a value")
+            raise ConversionError(f"Parameter `{param.get_label()}` of `{source_err_rep}` already has a value").with_loc(ast_args.loc)
         param_bindings[param] = convert_expr(ast_args.value, executing_type, module, var_scopes)
 
     # handle default args
     for ctx_param in params:
         if ctx_param not in param_bindings.keys():
             if not ctx_param.is_defaulted():
-                raise ConversionError(f"Parameter `{ctx_param.get_label()}` of `{source_err_rep}` has no value")
+                raise ConversionError(f"Parameter `{ctx_param.get_label()}` of `{source_err_rep}` has no value").with_loc(calling_location)
             param_bindings[ctx_param] = None
 
     return param_bindings, extra_bindings
@@ -177,23 +178,27 @@ def convert_func_call(ast_func_call: ExprFuncCall, executing_type: Optional[Exec
     if isinstance(ctx_executor, CtxExprPartialChain):
         chain_link = module.get_chain_link(ctx_executor.peek, ast_func_call.func_name)
         if chain_link is None:
-            raise ConversionError(f"The chained expression `{ctx_executor.render()}` cannot be continued with function of name `{ast_func_call.func_name}`")
+            raise ConversionError(
+                f"The chained expression `{ctx_executor.render()}` cannot be continued with function of name `{ast_func_call.func_name}`"
+            ).with_loc(ast_func_call.func_name_ident.loc)
         if not chain_link.expects_args:
-            raise ConversionError(f"The chained expression `{chain_link.render()}` does not expect arguments, cannot invoke it as a function")
+            raise ConversionError(
+                f"The chained expression `{chain_link.render()}` does not expect arguments, cannot invoke it as a function"
+            ).with_loc(ast_func_call.func_name_ident.loc)
         arg_bindings, extra_bindings = _build_arg_param_binding(
-            list(chain_link.get_ctx_params()), ast_func_call.params, chain_link.allow_extra_args(), chain_link.render(), executing_type, module, var_scopes
+            list(chain_link.get_ctx_params()), ast_func_call.params, chain_link.allow_extra_args(), chain_link.render(), executing_type, module, var_scopes, ast_func_call.loc
         )
         chain_link.set_chain_data(arg_bindings, extra_bindings)
         return ctx_executor.new_with_link(chain_link, ast_func_call.loc)
     # Otherwise confirm that the executor is an Exec type
     ctx_executor_type = ctx_executor.get_type()
     if not isinstance(ctx_executor_type, ExecType):
-        raise ConversionError(f"Cannot run function on non-executing type `{ctx_executor_type.render()}`")
+        raise ConversionError(f"Cannot run function on non-executing type `{ctx_executor_type.render()}`").with_loc(ctx_executor.loc)
 
     # Get called function-like structure:
     if (ctx_func := module.get_function(ctx_executor_type, ast_func_call.func_name)) is not None:
         arg_bindings, extra_bindings = _build_arg_param_binding(
-            list(ctx_func.get_params()), ast_func_call.params, ctx_func.allow_extra_args(), ctx_func.render(), executing_type, module, var_scopes
+            list(ctx_func.get_params()), ast_func_call.params, ctx_func.allow_extra_args(), ctx_func.render(), executing_type, module, var_scopes, ast_func_call.loc
         )
 
         # Build value-list structures
@@ -203,7 +208,7 @@ def convert_func_call(ast_func_call: ExprFuncCall, executing_type: Optional[Exec
                 raise ConversionError(
                     f"Parameter `{ctx_param.get_label()}` from function of name `{ctx_func.get_name()}` is of type " +
                     f"`{binding.get_type().render()}`, `{ctx_param.get_param_type().render()}` expected"
-                )
+                ).with_loc(binding.loc)
             bind_loc = binding.loc if binding is not None else ComLoc()
             param_values.append(CtxExprParamVal(ctx_param, binding, src_loc=bind_loc))
 
@@ -218,15 +223,17 @@ def convert_func_call(ast_func_call: ExprFuncCall, executing_type: Optional[Exec
                     raise ConversionError(
                         f"Extra argument {epix} of function `{ctx_func.render()}` is of type " +
                         f"`{ebind.get_type().render()}`, `{extra_arg_type.render()}` expected"
-                    )
+                    ).with_loc(ebind.loc)
                 extra_pvals.append(CtxExprExtraParamVal(extra_arg_type, ebind, src_loc=ebind.loc))
         # Return function call
         return CtxExprFuncCall(ctx_executor, ctx_func, param_values, extra_pvals, src_loc=ast_func_call.loc)
     elif (chain_link := module.get_chain_link(ctx_executor_type, ast_func_call.func_name)) is not None:
         if not chain_link.expects_args:
-            raise ConversionError(f"The chained expression `{chain_link.render()}` does not expect arguments, cannot invoke it as a function")
+            raise ConversionError(
+                f"The chained expression `{chain_link.render()}` does not expect arguments, cannot invoke it as a function"
+            ).with_loc(ast_func_call.func_name_ident.loc)
         arg_bindings, extra_bindings = _build_arg_param_binding(
-            list(chain_link.get_ctx_params()), ast_func_call.params, chain_link.allow_extra_args(), chain_link.render(), executing_type, module, var_scopes
+            list(chain_link.get_ctx_params()), ast_func_call.params, chain_link.allow_extra_args(), chain_link.render(), executing_type, module, var_scopes, ast_func_call.loc
         )
         chain_link.set_chain_data(arg_bindings, extra_bindings)
         return CtxExprGenericChain.start(ctx_executor).new_with_link(chain_link, ast_func_call.loc)
@@ -235,7 +242,7 @@ def convert_func_call(ast_func_call: ExprFuncCall, executing_type: Optional[Exec
         raise ConversionError(
             f"Function of name `{ast_func_call.func_name}` executing on `{ctx_executor_type.render()}` is not defined" +
             (f".  {did_you_mean}" if did_you_mean is not None else "")
-        )
+        ).with_loc(ast_func_call.func_name_ident.loc)
 
 
 def convert_property_access(ast_prop_access: ExprPropertyAccess, executing_type: Optional[ExecType], module: CtxModule, var_scopes: List[VarScope]) -> CtxExprNode:
@@ -244,9 +251,13 @@ def convert_property_access(ast_prop_access: ExprPropertyAccess, executing_type:
         # If we are building a chain: extend the chain
         chain_link = module.get_chain_link(executor_source.peek, ast_prop_access.property_name)
         if chain_link is None:
-            raise ConversionError(f"The chained expression `{executor_source.render()}` cannot be continued with property of name `{ast_prop_access.property_name}`")
+            raise ConversionError(
+                f"The chained expression `{executor_source.render()}` cannot be continued with property of name `{ast_prop_access.property_name}`"
+            ).with_loc(ast_prop_access.property_name_ident.loc)
         if chain_link.expects_args:
-            raise ConversionError(f"The chained expression `{chain_link.render()}` expects arguments, cannot invoke it as a property")
+            raise ConversionError(
+                f"The chained expression `{chain_link.render()}` expects arguments, cannot invoke it as a property"
+            ).with_loc(ast_prop_access.property_name_ident.loc)
         chain_link.set_chain_data(None)
         return executor_source.new_with_link(chain_link, ast_prop_access.loc)
 
@@ -255,16 +266,20 @@ def convert_property_access(ast_prop_access: ExprPropertyAccess, executing_type:
     if isinstance(exec_type, ExecType):
         pass  # Correct
     else:
-        raise ConversionError(f"Properties can only be accessed on executable types, not `{exec_type.render()}`")
+        raise ConversionError(f"Properties can only be accessed on executable types, not `{exec_type.render()}`").with_loc(executor_source.loc)
     prop = module.get_property(exec_type, ast_prop_access.property_name)
 
     # If it's not a property maybe it is the start of a chain
     if prop is None:
         chain_link = module.get_chain_link(exec_type, ast_prop_access.property_name)
         if chain_link is None:
-            raise ConversionError(f"Property of name `{ast_prop_access.property_name}` executing on `{exec_type.render()}` is not defined")
+            raise ConversionError(
+                f"Property of name `{ast_prop_access.property_name}` executing on `{exec_type.render()}` is not defined"
+            ).with_loc(ast_prop_access.property_name_ident.loc)
         if chain_link.expects_args:
-            raise ConversionError(f"The chained expression `{chain_link.render()}` expects arguments, cannot invoke it as a property")
+            raise ConversionError(
+                f"The chained expression `{chain_link.render()}` expects arguments, cannot invoke it as a property"
+            ).with_loc(ast_prop_access.property_name_ident.loc)
         chain_link.set_chain_data(None)
         return CtxExprGenericChain.start(executor_source).new_with_link(chain_link, ast_prop_access.loc)
     return CtxExprPropertyAccess(executor_source, prop, src_loc=ast_prop_access.loc)
@@ -279,6 +294,6 @@ def convert_lit_ident(ast_lit_ident: ExprLitIdent, module: CtxModule, var_scopes
             break
     else:
         # ctx_var is not a variable in any known scope
-        raise ConversionError(f"Variable `{var_name}` is not defined")
+        raise ConversionError(f"Variable `{var_name}` is not defined").with_loc(ast_lit_ident.loc)
 
     return CtxExprVar(ctx_var, src_loc=ast_lit_ident.loc)

@@ -28,6 +28,27 @@ def func(x: int, y: int, z: int = null) -> int{
     ([], r"""this""", ["this", "cannot be used outside", "function"], ComLoc(1, 0, 1, 4)),
     ([FD], r"""func(x=5, 10)""", ["Positional argument's cannot follow keyword arguments"], ComLoc(1, 10, 1, 12)),
     ([FD], r"""func(1, 2, 3, 4)""", ["only takes 3 arguments, 4 given"], ComLoc(1, 5, 1, 15)),
+    ([FD], r"""func(1, 2, fake=3)""", ["fake", "not an parameter"], ComLoc(1, 11, 1, 17)),
+    ([FD], r"""func(1, 2, 3, z=3)""", ["z", "already has a value"], ComLoc(1, 14, 1, 17)),
+    ([FD], r"""func(1, z=3)""", ["y", "has no value"], ComLoc(1, 0, 1, 12)),
+    ([], r"""world.colors.made_up_color()""", ["colors", "cannot be continued", "made_up_color"], ComLoc(1, 13, 1, 26)),
+    ([], r"""world.colors.made_up_color""", ["colors", "cannot be continued", "made_up_color"], ComLoc(1, 13, 1, 26)),
+    ([], r"""world.colors.red()""", ["red", "cannot invoke it as a function"], ComLoc(1, 13, 1, 16)),
+    ([], r"""world.colors()""", ["colors", "cannot invoke it as a function"], ComLoc(1, 6, 1, 12)),
+    ([], r"""world.colors.hex""", ["hex", "cannot invoke it as a property"], ComLoc(1, 13, 1, 16)),
+    ([], r"""world.get_player""", ["get_player", "cannot invoke it as a property"], ComLoc(1, 6, 1, 16)),
+    ([], r"""4.colors.red""", ["only be accessed", "executable type", "int"], ComLoc(1, 0, 1, 1)),
+    ([], r"""4.colors.hex()""", ["only be accessed", "executable type", "int"], ComLoc(1, 0, 1, 1)),
+    ([], r"""4.made_up_property""", ["only be accessed", "executable type", "int"], ComLoc(1, 0, 1, 1)),
+    ([], r"""world.say(42)""", ["Param", "msg", "int", "str"], ComLoc(1, 10, 1, 12)),
+    ([], r"""world.colors.hex(42)""", ["Param", "color_code", "int", "str"], ComLoc(1, 17, 1, 19)),
+    ([], r"""print(world.pos.constant(0, 1, 2))""", ["Extra argument", "print", "Pos"], ComLoc(1, 6, 1, 33)),
+    ([], r"""world.made_up_function()""", ["made_up_function", "is not defined"], ComLoc(1, 6, 1, 22)),
+    ([], r"""world.made_up_function""", ["made_up_function", "is not defined"], ComLoc(1, 6, 1, 22)),
+    ([], r"""made_up_var""", ["made_up_var", "is not defined"], ComLoc(1, 0, 1, 11)),
+    ([], """@ticking\ndef Player foo(){}""", ["Ticking function", "world", "Player", "Consider deleting executor type"], ComLoc(2, 4, 2, 10)),
+    ([], """@ticking\ndef foo(nope: int){}""", ["Ticking functions cannot have any parameters", "Consider deleting params"], ComLoc(2, 8, 2, 12)),
+    ([], """@ticking\ndef foo() -> int {}""", ["Ticking functions cannot return anything", "Consider deleting return type"], ComLoc(2, 13, 2, 16)),
 ])
 def test_conv_error_expected(test_code: str, expected_msgs: List[str], err_loc: ComLoc, setup_code: List[str]):
     # Fix line numbers
@@ -44,5 +65,7 @@ def test_conv_error_expected(test_code: str, expected_msgs: List[str], err_loc: 
         assert expected_msg in str(err_info.value), f"The string `{expected_msg}` is not in the error message `{repr(err_info.value)}`"
 
     assert err_info.value.loc == err_loc, (
-        f"Location mismatch for code {repr(test_code)}, diff: " + loc_diff(err_info.value.loc, err_loc)
+        f"Location mismatch for code {repr(test_code)},\n" +
+        f"  > which as anticipated raised the error: \"{str(err_info.value)}\"\n" +
+        f"  > Location diff: " + loc_diff(err_info.value.loc, err_loc)
     )
