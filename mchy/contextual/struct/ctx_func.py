@@ -1,6 +1,7 @@
 
 from typing import List, Literal, Optional, Sequence, Union
 from mchy.common.abs_ctx import AbsCtxFunc, AbsCtxParam
+from mchy.common.com_loc import ComLoc
 from mchy.common.com_types import ComType, ExecType, TypeUnion
 from mchy.contextual.struct.stmnt import CtxStmnt, MarkerDeclVar, MarkerParamDefault, MarkerDeclFunc
 from mchy.contextual.struct.var_scope import CtxVar, VarScope
@@ -9,12 +10,13 @@ from mchy.errors import ContextualisationError, UnreachableError
 
 class CtxMchyParam(AbsCtxParam):
 
-    def __init__(self, label: str, param_type: ComType, default_marker: MarkerParamDefault) -> None:
+    def __init__(self, label: str, label_loc: ComLoc, param_type: ComType, default_marker: MarkerParamDefault) -> None:
         self._label: str = label
         self._param_type: ComType = param_type
         self.default_marker: MarkerParamDefault = default_marker
         self.linking_decl_mark: MarkerDeclVar = MarkerDeclVar()
         self.linked_scope_var: Optional[CtxVar] = None
+        self.label_loc: ComLoc = label_loc
 
     def get_label(self) -> str:
         return self._label
@@ -28,7 +30,16 @@ class CtxMchyParam(AbsCtxParam):
 
 class CtxMchyFunc(AbsCtxFunc):
 
-    def __init__(self, executor: ExecType, name: str, params: List[CtxMchyParam], return_type: ComType, decl_marker: MarkerDeclFunc) -> None:
+    def __init__(
+                self,
+                executor: ExecType,
+                executor_loc: ComLoc,
+                name: str,
+                params: List[CtxMchyParam],
+                return_type: ComType,
+                return_loc: ComLoc,
+                decl_marker: MarkerDeclFunc
+            ) -> None:
         self._executor: ExecType = executor
         self._name: str = name
         self._params: List[CtxMchyParam] = params
@@ -36,6 +47,8 @@ class CtxMchyFunc(AbsCtxFunc):
         self.decl_marker: MarkerDeclFunc = decl_marker
         self.func_scope: VarScope = VarScope()
         self.exec_body: List[CtxStmnt] = []
+        self.executor_loc: ComLoc = executor_loc
+        self.return_loc: ComLoc = return_loc
 
         for param in self._params:
             param.linking_decl_mark.with_enclosing_function(self)

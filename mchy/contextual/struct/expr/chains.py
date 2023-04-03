@@ -59,21 +59,21 @@ class CtxChainLink:
         if set(chain_data.keys()) != set(self.get_ctx_params()):
             raise ContextualisationError(f"Not all parameters have a value supplied: {set(self.get_ctx_params()).difference(set(chain_data.keys()))}")
         validated_chain_data: Dict[CtxIParam, Optional[CtxExprNode]] = {}
-        for param, value in chain_data.items():
-            if value is None:
+        for param, binding in chain_data.items():
+            if binding is None:
                 if not param.is_defaulted():
                     raise ConversionError(f"Non-optional argument `{self.render()}` has no value")
             else:
                 ptype = param.get_param_type()
-                if isinstance(ptype, InertType) and ptype.const and (not isinstance(value, CtxExprLits)):
+                if isinstance(ptype, InertType) and ptype.const and (not isinstance(binding, CtxExprLits)):
                     raise ContextualisationError(f"Type Error: parameter ({self.render()}) with constant type is not assigned to literal node")
-                if not matches_type(ptype, value.get_type()):
+                if not matches_type(ptype, binding.get_type()):
                     raise ConversionError(
-                        f"Parameter `{param.get_label()}` from chain `{self.render()}` is of type `{value.get_type().render()}`, `{ptype.render()}` expected"
-                    )
+                        f"Parameter `{param.get_label()}` from chain `{self.render()}` is of type `{binding.get_type().render()}`, `{ptype.render()}` expected"
+                    ).with_loc(binding.loc)
             if not isinstance(param, CtxIParam):
                 raise ContextualisationError(f"Non-CtxIParam `{type(param).__name__}({param.render()})` encountered setting chain-link data of `{self.render()}`")
-            validated_chain_data[param] = value
+            validated_chain_data[param] = binding
         # Set data
         self._chain_data = validated_chain_data
         # extra args validate & set

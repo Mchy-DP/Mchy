@@ -301,8 +301,12 @@ class ExprFuncCall(ExprGen):
     def __init__(self, executor: ExprGen, func_name: 'ExprLitIdent', *params: 'ExprFragParam', **kwargs):
         super().__init__(executor, func_name, *params, **kwargs)
         self.executor: ExprGen = executor
-        self.func_name: str = func_name.value
+        self.func_name_ident: ExprLitIdent = func_name
         self.params: List[ExprFragParam] = list(params)
+
+    @property
+    def func_name(self) -> str:
+        return self.func_name_ident.value
 
 
 class ExprFragParam(ExprGen):
@@ -323,7 +327,11 @@ class ExprPropertyAccess(ExprGen):
     def __init__(self, source: ExprGen, property_name: 'ExprLitIdent', **kwargs):
         super().__init__(source, property_name, **kwargs)
         self.source: ExprGen = source
-        self.property_name: str = property_name.value
+        self.property_name_ident: ExprLitIdent = property_name
+
+    @property
+    def property_name(self) -> str:
+        return self.property_name_ident.value
 
 
 class ExprExponent(ExprGen):
