@@ -31,7 +31,7 @@ class SmtGiveCmd(SmtCmd):
 
     def virtualize(self, linker: SmtLinker, stack_level: int) -> List[ComCmd]:
         exec_vdat = get_exec_vdat(self.executor, linker)
-        return [ComCmd(f"give {exec_vdat.get_selector()} {self.item}{self.data} {self.count}")]
+        return [ComCmd(f"give {exec_vdat.get_selector(stack_level)} {self.item}{self.data} {self.count}")]
 
 
 class CmdGive(IFunc):

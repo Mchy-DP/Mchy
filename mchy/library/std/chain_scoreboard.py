@@ -19,8 +19,6 @@ from mchy.stmnt.struct.linker import SmtLinker, SmtObjVarLinkage
 
 
 # Statements
-
-
 class SmtSbAddObjCmd(SmtCmd):
 
     def __init__(self, obj_name: str, obj_type: str) -> None:
@@ -102,7 +100,7 @@ class SmtSbObjGetExecCmd(SmtCmd):
             raise VirtualRepError(f"Output register for `{repr(self.variable)}` does not have attached scoreboard?")
         return [ComCmd(
             f"execute store result score {out_vdat.var_name} {out_vdat.get_objective(stack_level)} run " +
-            f"scoreboard players get {exec_vdat.get_selector()} {self.obj_name}"
+            f"scoreboard players get {exec_vdat.get_selector(stack_level)} {self.obj_name}"
         )]
 
 
@@ -124,11 +122,11 @@ class SmtSbObjSetExecCmd(SmtCmd):
             if not isinstance(value_vdat, SmtObjVarLinkage):
                 raise VirtualRepError(f"Output register for `{repr(self.value)}` does not have attached scoreboard?")
             return [ComCmd(
-                f"scoreboard players operation {exec_vdat.get_selector()} {self.obj_name} = {value_vdat.var_name} {value_vdat.get_objective()}"
+                f"scoreboard players operation {exec_vdat.get_selector(stack_level)} {self.obj_name} = {value_vdat.var_name} {value_vdat.get_objective(stack_level)}"
             )]
         elif isinstance(self.value, SmtConstInt):
             return [ComCmd(
-                f"scoreboard players set {exec_vdat.get_selector()} {self.obj_name} {self.value.value}"
+                f"scoreboard players set {exec_vdat.get_selector(stack_level)} {self.obj_name} {self.value.value}"
             )]
         else:
             raise VirtualRepError(f"Unknown atom type `{type(self.value).__name__}` found in `{type(self).__name__}`")
@@ -152,11 +150,11 @@ class SmtSbObjAddExecCmd(SmtCmd):
             if not isinstance(value_vdat, SmtObjVarLinkage):
                 raise VirtualRepError(f"Output register for `{repr(self.value)}` does not have attached scoreboard?")
             return [ComCmd(
-                f"scoreboard players operation {exec_vdat.get_selector()} {self.obj_name} += {value_vdat.var_name} {value_vdat.get_objective()}"
+                f"scoreboard players operation {exec_vdat.get_selector(stack_level)} {self.obj_name} += {value_vdat.var_name} {value_vdat.get_objective(stack_level)}"
             )]
         elif isinstance(self.value, SmtConstInt):
             return [ComCmd(
-                f"scoreboard players add {exec_vdat.get_selector()} {self.obj_name} {self.value.value}"
+                f"scoreboard players add {exec_vdat.get_selector(stack_level)} {self.obj_name} {self.value.value}"
             )]
         else:
             raise VirtualRepError(f"Unknown atom type `{type(self.value).__name__}` found in `{type(self).__name__}`")
@@ -180,11 +178,11 @@ class SmtSbObjSubtractExecCmd(SmtCmd):
             if not isinstance(value_vdat, SmtObjVarLinkage):
                 raise VirtualRepError(f"Output register for `{repr(self.value)}` does not have attached scoreboard?")
             return [ComCmd(
-                f"scoreboard players operation {exec_vdat.get_selector()} {self.obj_name} -= {value_vdat.var_name} {value_vdat.get_objective()}"
+                f"scoreboard players operation {exec_vdat.get_selector(stack_level)} {self.obj_name} -= {value_vdat.var_name} {value_vdat.get_objective(stack_level)}"
             )]
         elif isinstance(self.value, SmtConstInt):
             return [ComCmd(
-                f"scoreboard players remove {exec_vdat.get_selector()} {self.obj_name} {self.value.value}"
+                f"scoreboard players remove {exec_vdat.get_selector(stack_level)} {self.obj_name} {self.value.value}"
             )]
         else:
             raise VirtualRepError(f"Unknown atom type `{type(self.value).__name__}` found in `{type(self).__name__}`")
@@ -202,7 +200,7 @@ class SmtSbObjResetExecCmd(SmtCmd):
     def virtualize(self, linker: 'SmtLinker', stack_level: int) -> List[ComCmd]:
         exec_vdat = get_exec_vdat(self.executor, linker)
         return [ComCmd(
-            f"scoreboard players reset {exec_vdat.get_selector()} {self.obj_name}"
+            f"scoreboard players reset {exec_vdat.get_selector(stack_level)} {self.obj_name}"
         )]
 
 
@@ -217,7 +215,7 @@ class SmtSbObjFullResetExecCmd(SmtCmd):
     def virtualize(self, linker: 'SmtLinker', stack_level: int) -> List[ComCmd]:
         exec_vdat = get_exec_vdat(self.executor, linker)
         return [ComCmd(
-            f"scoreboard players reset {exec_vdat.get_selector()}"
+            f"scoreboard players reset {exec_vdat.get_selector(stack_level)}"
         )]
 
 
@@ -233,7 +231,7 @@ class SmtSbObjEnableExecCmd(SmtCmd):
     def virtualize(self, linker: 'SmtLinker', stack_level: int) -> List[ComCmd]:
         exec_vdat = get_exec_vdat(self.executor, linker)
         return [ComCmd(
-            f"scoreboard players enable {exec_vdat.get_selector()} {self.obj_name}"
+            f"scoreboard players enable {exec_vdat.get_selector(stack_level)} {self.obj_name}"
         )]
 
 
@@ -273,7 +271,7 @@ class SmtSbObjPlaySetCmd(SmtCmd):
             if not isinstance(value_vdat, SmtObjVarLinkage):
                 raise VirtualRepError(f"Output register for `{repr(self.value)}` does not have attached scoreboard?")
             return [ComCmd(
-                f"scoreboard players operation {self.player_name} {self.obj_name} = {value_vdat.var_name} {value_vdat.get_objective()}"
+                f"scoreboard players operation {self.player_name} {self.obj_name} = {value_vdat.var_name} {value_vdat.get_objective(stack_level)}"
             )]
         elif isinstance(self.value, SmtConstInt):
             return [ComCmd(
@@ -299,7 +297,7 @@ class SmtSbObjPlayAddCmd(SmtCmd):
             if not isinstance(value_vdat, SmtObjVarLinkage):
                 raise VirtualRepError(f"Output register for `{repr(self.value)}` does not have attached scoreboard?")
             return [ComCmd(
-                f"scoreboard players operation {self.player_name} {self.obj_name} += {value_vdat.var_name} {value_vdat.get_objective()}"
+                f"scoreboard players operation {self.player_name} {self.obj_name} += {value_vdat.var_name} {value_vdat.get_objective(stack_level)}"
             )]
         elif isinstance(self.value, SmtConstInt):
             return [ComCmd(
@@ -325,7 +323,7 @@ class SmtSbObjPlaySubtractCmd(SmtCmd):
             if not isinstance(value_vdat, SmtObjVarLinkage):
                 raise VirtualRepError(f"Output register for `{repr(self.value)}` does not have attached scoreboard?")
             return [ComCmd(
-                f"scoreboard players operation {self.player_name} {self.obj_name} -= {value_vdat.var_name} {value_vdat.get_objective()}"
+                f"scoreboard players operation {self.player_name} {self.obj_name} -= {value_vdat.var_name} {value_vdat.get_objective(stack_level)}"
             )]
         elif isinstance(self.value, SmtConstInt):
             return [ComCmd(

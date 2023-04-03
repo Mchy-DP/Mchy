@@ -11,11 +11,11 @@ from mchy.stmnt.struct.function import SmtFunc, SmtMchyFunc
 from mchy.stmnt.struct.smt_frag import SmtFragment
 
 
-def invoke_prefix_create(executor: SmtAtom, linker: SmtLinker):
+def invoke_prefix_create(executor: SmtAtom, linker: SmtLinker, stack_level: int):
     if isinstance(executor, SmtWorld):
         return ""
     exec_vdat = smt_get_exec_vdat(executor, linker)
-    return f"execute as {exec_vdat.get_selector()} run "
+    return f"execute as {exec_vdat.get_selector(stack_level)} run "
 
 
 class SmtInvokeFuncCmd(SmtCmd):
@@ -34,7 +34,7 @@ class SmtInvokeFuncCmd(SmtCmd):
     def virtualize(self, linker: SmtLinker, stack_level: int) -> List[ComCmd]:
         prefix: str = ""
         if isinstance(self.target_func, SmtMchyFunc):
-            prefix = invoke_prefix_create(self.executor, linker)
+            prefix = invoke_prefix_create(self.executor, linker, stack_level)
         return [ComCmd(f"{prefix}function {linker.lookup_func(self.target_func, stack_level + 1)}")]
 
 
@@ -65,7 +65,7 @@ class SmtConditionalInvokeFuncCmd(SmtCmd):
         cmd += f" run "
         # resolve prefix:
         if isinstance(self.target_func, SmtMchyFunc):
-            cmd += invoke_prefix_create(self.executor, linker)
+            cmd += invoke_prefix_create(self.executor, linker, stack_level)
         # build final command
         cmd += f"function {linker.lookup_frag(self.target_func, stack_level, self.ext_frag)}"
         return [ComCmd(cmd)]

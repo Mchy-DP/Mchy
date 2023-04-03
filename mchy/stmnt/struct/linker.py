@@ -20,7 +20,7 @@ class SmtVarLinkage:
     _public: bool
     _stackless: bool
 
-    def get_store_path(self, stack_level: Optional[int] = None) -> str:
+    def get_store_path(self, stack_level: Optional[int]) -> str:
         if self._stackless:
             return self._store_path
         if stack_level is None:
@@ -33,7 +33,7 @@ class SmtObjVarLinkage(SmtVarLinkage):
     """Used when the variable stores it's value in an objective rather than in storage - provides access to that objective"""
     _objective: str
 
-    def get_objective(self, stack_level: Optional[int] = None) -> str:
+    def get_objective(self, stack_level: Optional[int]) -> str:
         if self._stackless:
             return self._objective
         if stack_level is None:
@@ -49,7 +49,7 @@ class SmtExecVarLinkage(SmtVarLinkage):
     _player: bool
     this_override: bool
 
-    def get_full_tag(self, stack_level: Optional[int] = None) -> str:
+    def get_full_tag(self, stack_level: Optional[int]) -> str:
         """Get the tag this variable uses, Must not be called on source-variables only targets (as source variables may be `this` which has no tag)"""
         if self.this_override:
             raise VirtualRepError(f"Tag requested of `this`?")
@@ -59,7 +59,7 @@ class SmtExecVarLinkage(SmtVarLinkage):
             raise VirtualRepError(f"Non-Stackless variable `{self.var_name}` has no stack level attached to request for tag. (Scope: `{self._tag}`)")
         return self._tag+f"-r{str(stack_level).rjust(3, '0')}"+("" if self._public else "-I")+f"-{self.var_name}"
 
-    def get_selector(self, stack_level: Optional[int] = None) -> str:
+    def get_selector(self, stack_level: Optional[int]) -> str:
         if self.this_override:
             return "@s"
         return "@"+('a' if self._player else 'e')+f"[tag={self.get_full_tag(stack_level)}"+(', limit=1, sort=arbitrary' if self._solitary else '')+"]"
@@ -91,7 +91,7 @@ class SmtLinker:
     def get_const_obj(self) -> str:
         return f"{self._prj_namespace}-mchy_const"
 
-    def add_func(self, func: SmtFunc, ns_loc: str, stack_level: Optional[int] = None) -> None:
+    def add_func(self, func: SmtFunc, ns_loc: str, stack_level: Optional[int]) -> None:
         if stack_level is None:
             self._wildcard_func_link[func] = ns_loc
         else:
