@@ -153,7 +153,7 @@ class SmtComplexPrintingTellrawCmd(SmtCmd):
                             if var_type.nullable:
                                 # ensure that if this might be null then it's value is <null>
                                 pathing_var = "1b"
-                                for path_elem in reversed(variable_data.get_store_path().split(".")):
+                                for path_elem in reversed(variable_data.get_store_path(stack_level).split(".")):
                                     pathing_var = "{"+path_elem+":"+pathing_var+"}"
                                 cmds.append(ComCmd(
                                     f"execute if data storage {variable_data.ns} {pathing_var} run data " +

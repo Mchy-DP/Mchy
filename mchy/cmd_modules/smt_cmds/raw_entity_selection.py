@@ -25,7 +25,7 @@ class SmtRawEntitySelector(SmtCmd):
             exec_vdat = linker.lookup_var(self.executor)
             if not isinstance(exec_vdat, SmtExecVarLinkage):
                 raise VirtualRepError(f"Attempted to execute as variable `{exec_vdat.var_name}` without attached tag")
-            executor_selection = f"execute as {exec_vdat.get_selector()} at @s run "
+            executor_selection = f"execute as {exec_vdat.get_selector(stack_level)} at @s run "
         else:
             raise VirtualRepError(f"Executor is neither world nor var, {self.executor} encountered")
         target_vdat = linker.lookup_var(self.target_var)

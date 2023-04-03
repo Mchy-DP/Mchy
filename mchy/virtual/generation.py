@@ -18,7 +18,7 @@ def convert(smt_module: SmtModule, config: Config = Config()) -> VirDP:
     # ===== Linker Building =====
     # Build function linking
     config.logger.very_verbose(f"VIR: Building function loc linking table")
-    vir_dp.linker.add_func(smt_module.import_ns_function, vir_dp.import_param_default_file.get_namespace_loc())
+    vir_dp.linker.add_func(smt_module.import_ns_function, vir_dp.import_param_default_file.get_namespace_loc(), None)
     for smt_func in smt_module.get_smt_mchy_funcs():
         for rix in range(0, config.recursion_limit + 1):  # Plus 1 as the recursion error technically happens 1 stack frame deeper
             vir_dp.linker.add_func(
