@@ -30,6 +30,7 @@ def main_by_cmdln():
 def main_by_arg(file_text: str, config: Config):
     """The main entry point for the program when called directly from code"""
     config.logger.verbose_print(f"Compiling Project '{config.project_name}'" + (" with debug enabled" if config.debug_mode else ""))
+    config.logger.very_verbose(f"src code: {repr(file_text)}")
     try:
         config.logger.verbose_print("(1/6) Beginning Compilation")
         # TEXT -> AST
