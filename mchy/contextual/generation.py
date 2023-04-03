@@ -73,7 +73,7 @@ def convert_function_decl(ast_fdecl: FunctionDecl, executing_type: Optional[Exec
             MarkerParamDefault(param.param_name.value, convert_expr(param.default_value, executing_type, module, var_scopes))
         )
         pmarkers.append(pmarker)
-        params.append(CtxMchyParam(param.param_name.value, convert_explicit_type(param.param_type, module), pmarker))
+        params.append(CtxMchyParam(param.param_name.value, param.param_name.loc, convert_explicit_type(param.param_type, module), pmarker))
 
     # Check for duplicate param labels
     _params_labels = [para.get_label() for para in params]
@@ -82,7 +82,7 @@ def convert_function_decl(ast_fdecl: FunctionDecl, executing_type: Optional[Exec
             raise ConversionError(f"Duplicate argument `{lb}` in function declaration for function of name `{ast_fdecl.func_name}`").with_loc(ast_fdecl.loc)
 
     fmarker = MarkerDeclFunc(pmarkers)
-    func = CtxMchyFunc(exec_type, ast_fdecl.func_name, params, convert_explicit_type(ast_fdecl.return_type, module), fmarker)
+    func = CtxMchyFunc(exec_type, ast_fdecl.exec_type.loc, ast_fdecl.func_name, params, convert_explicit_type(ast_fdecl.return_type, module), ast_fdecl.return_type.loc, fmarker)
     fmarker.with_func(func)
     return func, fmarker
 
@@ -94,18 +94,18 @@ def apply_decorators(func: CtxMchyFunc, marker: MarkerDeclFunc, decorators: List
                 raise ConversionError(
                     f"Ticking functions can only execute as world, not `{func.get_executor().render()}`.  Consider deleting executor type " +
                     f"(`def {func.get_executor().render()} {func.get_name()}...` ---> `def {func.get_name()}...`)"
-                )
+                ).with_loc(func.executor_loc)
             func_params = list(func.get_params())
             if len(func_params) >= 1:
                 raise ConversionError(
                     f"Ticking functions cannot have any parameters.  Consider deleting params: " +
                     f"`def {func.get_name()}({func_params[0].render()}{(', ...' if len(func_params) > 1 else '')})` ---> `def {func.get_name()}()`"
-                )
+                ).with_loc(func_params[0].label_loc)
             if not matches_type(InertType(InertCoreTypes.NULL), func.get_return_type()):
                 raise ConversionError(
                     f"Ticking functions cannot return anything.  Consider deleting return type: " +
                     f"`def {func.get_name()}() -> {func.get_return_type().render()}{'{'}...{'}'}` ---> `def {func.get_name()}(){'{'}...{'}'}`"
-                )
+                ).with_loc(func.return_loc)
             module.register_as_ticking(func)
         else:
             raise ConversionError("Unknown decorator, did you mean `ticking`?")  # TODO: when decorators are generalized make did you mean more useful
