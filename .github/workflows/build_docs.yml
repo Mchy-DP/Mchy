@@ -12,14 +12,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-          uses: actions/checkout@v3
+        uses: actions/checkout@v3 
       - name: Set up Python
-          uses: actions/setup-python@v4
-          with:
-            python-version: '3.10'
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
       - name: Run build script
-          run: |
-            python ./dev_util/generate_docs.py
+        run: |
+          python ./dev_util/generate_docs.py
       - name: echo built file
-          run: |
-            head "docs/libs/std.md"
+        run: |
+          head "docs/libs/std.md"
