@@ -1,0 +1,63 @@
+name: Build docs
+on:
+  pull_request:
+    branches:
+      - '*'
+    paths:
+      - 'mchy/library/**'
+
+
+jobs:
+  build_docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3 
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Run build script
+        run: |
+          python ./dev_util/generate_docs.py
+
+      - name: Check for changes
+        id: docs-made-changes
+        run: |
+          if [[ -n $(git status --porcelain) ]]; then
+            echo "Changes detected, committing and pushing..."
+            echo "CHANGES=1" >> $GITHUB_OUTPUT
+          else
+            echo "No changes detected, skipping commit and push."
+            echo "CHANGES=0" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit new docs
+        if: ${{ steps.docs-made-changes.outputs.CHANGES == 1 }}
+        run: |
+          echo "> Config"
+          git config --global user.name 'Mchy-DP'
+          git config --global user.email '129029093+Mchy-DP@users.noreply.github.com'
+
+          echo "> Begin"
+          git status
+
+          echo "> Adding"
+          git add "docs/libs/*"
+          echo "> Added"
+
+          git status
+
+          echo "> Committing"
+          git commit -m "BOT: Automatic documentation generation"
+          echo "> Committed"
+
+          git status
+
+          echo "> Pushing"
+          git push
+          echo "> Pushed & DONE!"
