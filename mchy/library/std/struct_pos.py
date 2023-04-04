@@ -159,6 +159,9 @@ class ChainPosConstant(IChain):
     def get_name(self) -> str:
         return "constant"
 
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.WORLD, False)
+
     def get_params(self) -> Optional[Sequence[IParam]]:
         return [
             IParam("x", InertType(InertCoreTypes.FLOAT, const=True)),
@@ -188,6 +191,9 @@ class ChainPosGet(IChain):
 
     def get_name(self) -> str:
         return "get"
+
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.ENTITY, True)
 
     def get_params(self) -> Optional[Sequence[IParam]]:
         return [
@@ -224,6 +230,9 @@ class ChainPosSetCoord(IChain):
 
     def get_name(self) -> str:
         return "set_coord"
+
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.WORLD, False)
 
     def get_params(self) -> Optional[Sequence[IParam]]:
         return [
@@ -279,6 +288,9 @@ class ChainPosGetDirected(IChain):
 
     def get_name(self) -> str:
         return "get_directed"
+
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.ENTITY, True)
 
     def get_params(self) -> Optional[Sequence[IParam]]:
         return [

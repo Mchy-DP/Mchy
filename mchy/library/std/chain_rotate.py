@@ -106,6 +106,9 @@ class ChainRotateSet(IChain):
     def get_name(self) -> str:
         return "set"
 
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.ENTITY, True)
+
     def get_params(self) -> Optional[Sequence[IParam]]:
         return [
             IParam("horizontal", InertType(InertCoreTypes.FLOAT, const=True)),
@@ -149,6 +152,9 @@ class ChainRotateMatch(IChain):
     def get_name(self) -> str:
         return "match"
 
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.ENTITY, True)
+
     def get_params(self) -> Optional[Sequence[IParam]]:
         return [
             IParam("target_entity", ExecType(ExecCoreTypes.ENTITY, False))
@@ -189,6 +195,9 @@ class ChainRotateFace(IChain):
 
     def get_name(self) -> str:
         return "face"
+
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.ENTITY, True)
 
     def get_params(self) -> Optional[Sequence[IParam]]:
         return [

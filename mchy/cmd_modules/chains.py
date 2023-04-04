@@ -68,6 +68,10 @@ class IChain(IChainLink, abstract=True):
     def get_chain_type(self) -> ComType:
         ...
 
+    @abstractmethod
+    def get_refined_executor(self) -> ExecType:
+        ...
+
     def yield_const_value(self, executor: 'CtxExprNode', chain_links: List['CtxChainLink']) -> 'CtxExprLits':
         """Will be called to yield a literal, if `.get_chain_type()` returns a constant inert type indicating a literal is expected
 
