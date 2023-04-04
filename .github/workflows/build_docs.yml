@@ -40,14 +40,21 @@ jobs:
           git config --global user.name 'Mchy-DP'
           git config --global user.email '129029093+Mchy-DP@users.noreply.github.com'
 
-          echo "> Adding"
+          echo "> Begin"
           git status
+
+          echo "> Adding"
           git add "docs/libs/*"
+          echo "> Added"
+
+          git status
 
           echo "> Committing"
-          git status
           git commit -m "BOT: Automatic documentation generation [skip ci]"
+          echo "> Committed"
+
+          git status
 
           echo "> Pushing"
-          git status
           git push
+          echo "> Pushed"
