@@ -4,11 +4,12 @@ from mchy.cmd_modules.name_spaces import Namespace
 from mchy.cmd_modules.properties import IProp
 from mchy.common.com_types import ComType, ExecCoreTypes, ExecType, InertCoreTypes, InertType
 from mchy.common.config import Config
+from mchy.common.data import VERSION_INT
 from mchy.library.std.ns import STD_NAMESPACE
 from mchy.stmnt.struct import SmtModule, SmtFunc, SmtCmd, SmtAtom
 
 
-class PropMinecraftVersion(IProp):  # FIXME: TODO: Depreciated remove when other properties have been added to std library
+class PropCompilerVersion(IProp):
 
     def get_namespace(self) -> Namespace:
         return STD_NAMESPACE
@@ -23,4 +24,4 @@ class PropMinecraftVersion(IProp):  # FIXME: TODO: Depreciated remove when other
         return InertType(InertCoreTypes.INT)
 
     def stmnt_conv(self, executor: SmtAtom, module: SmtModule, function: SmtFunc, config: Config) -> Tuple[List[SmtCmd], SmtAtom]:
-        return [], module.get_const_with_val(-1)  # -1 as not implemented yet
+        return [], module.get_const_with_val(VERSION_INT)
