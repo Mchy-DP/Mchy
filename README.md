@@ -29,7 +29,7 @@ Mchy is a Datapack compiler which converts the custom language, Mchy, to minecra
     - <details>
       <summary>Long and robust way</summary>
         
-        Copy the downloaded `mchy.exe` file somewhere safe on your computer then add that directory to the windows `Path` variable.  The below explanaiton of how to do this will assume you have moved `mchy.exe` to `C:\Users\<USERNAME>\Documents\Mchy`.
+        Copy the downloaded `mchy.exe` file somewhere safe on your computer then add that directory to the windows `Path` variable.  Steps to add a folder to the path:
         1. Press the windows button/key
         2. Type `edit environment variables for your account` into the search bar
         3. Click the top result
