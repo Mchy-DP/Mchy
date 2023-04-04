@@ -31,7 +31,7 @@ jobs:
 
           echo "> Adding"
           git status
-          git add "docs\libs\*"
+          git add "docs/libs/*"
 
           echo "> Committing"
           git status
