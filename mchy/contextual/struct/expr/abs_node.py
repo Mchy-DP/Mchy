@@ -63,4 +63,7 @@ class CtxExprNode(ABC):
 
 
 class CtxExprLits(CtxExprNode):
-    pass
+
+    @abstractmethod
+    def render_value(self) -> str:
+        ...
