@@ -1,7 +1,10 @@
-from mchy.cmd_modules.name_spaces import Namespace
+# Ensure Mchy on path:
+import sys
 from os import path as os_path
-
-from mchy.contextual.struct.expr.abs_node import CtxExprLits
+sys.path.append(os_path.dirname(os_path.dirname(__file__)))
+# Perform Required imports
+from mchy.cmd_modules.name_spaces import Namespace  # noqa  #  pycodestyle doesn't like imports after ANY code even when sensible
+from mchy.contextual.struct.expr.abs_node import CtxExprLits  # noqa  #  pycodestyle doesn't like imports after ANY code even when sensible
 
 
 DOCS_LIBS_DIR = os_path.join(os_path.dirname(os_path.dirname(__file__)), "docs", "libs")
@@ -30,7 +33,7 @@ def generate_doc(ns: Namespace) -> str:
         func_out = func_out.rstrip(", ")
         func_out += f") -> {func.get_return_type().render()}\n```\n"
         out += func_out
-    
+
     return out
 
 
