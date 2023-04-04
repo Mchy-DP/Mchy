@@ -18,9 +18,12 @@ from mchy.contextual.struct.expr.abs_node import CtxExprLits  # noqa  #  pycodes
 DOCS_LIBS_DIR = os_path.join(os_path.dirname(os_path.dirname(__file__)), "docs", "libs")
 
 
-def executor_prefix(exec_type: ExecType, postfix: str) -> str:
+def executor_prefix(exec_type: ExecType, postfix: str, explicit_world: bool = False) -> str:
     if exec_type.target == ExecCoreTypes.WORLD:
-        return ""
+        if explicit_world:
+            return "world" + postfix
+        else:
+            return ""
     elif exec_type.target == ExecCoreTypes.ENTITY:
         if exec_type.group:
             return "Entities" + postfix
@@ -52,13 +55,12 @@ class ChainingTree:
         return self.link.get_name()
 
     def this_chain(self) -> str:
-        parent_prefix = ""
         if self.parent is not None:
             return self.parent.this_chain() + "." + self._render_link()
         if self.link is not None:
-            return "." + self._render_link()
+            return "(?)." + self._render_link()
         else:
-            return ""
+            return "(?)"
 
     def render(self, indent: int = 0) -> str:
         out = ""
@@ -66,7 +68,7 @@ class ChainingTree:
         nl = "\n" + indent_str
         if self.link is not None:
             out += f"### {self.link.get_name()}{nl}```{nl}{self.this_chain()}{nl}```\n"
-        for child in self._children:
+        for child in sorted(self._children, key=lambda x: isinstance(x, ChainingLeaf)):
             out += indent_str + "* " + child.render(indent + 1)
         return out
 
@@ -78,11 +80,10 @@ class ChainingLeaf(ChainingTree):
         self.link: IChain
 
     def this_chain(self) -> str:
-        return super().this_chain()  # TODO: prefix with self.link.executor_type once IChain holds final exec type info
+        return executor_prefix(self.link.get_refined_executor(), "", explicit_world=True) + (super().this_chain().removeprefix("(?)"))
 
 
 def build_chaining_tree(remaining_links: List[IChainLink], base_link: Optional[IChainLink] = None) -> ChainingTree:
-    this_tree = ChainingTree(base_link)
     active_links: List[IChainLink] = []
     leftover_links: List[IChainLink] = []
     for link in remaining_links:
@@ -100,10 +101,15 @@ def build_chaining_tree(remaining_links: List[IChainLink], base_link: Optional[I
             else:
                 leftover_links.append(link)
 
-    for active_link in active_links:
-        this_tree.append(build_chaining_tree(leftover_links, active_link))
-
-    return this_tree
+    if isinstance(base_link, IChain):
+        if len(active_links) >= 1:
+            print("Doc gen warning: active links found on leaf?")
+        return ChainingLeaf(base_link)
+    else:
+        this_tree = ChainingTree(base_link)
+        for active_link in active_links:
+            this_tree.append(build_chaining_tree(leftover_links, active_link))
+        return this_tree
 
 
 def _build_params_render(params: Sequence[IParam]) -> str:
