@@ -52,6 +52,9 @@ class ChainColorBlack(IChain):
     def get_name(self) -> str:
         return "black"
 
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.WORLD, False)
+
     def get_chain_type(self) -> ComType:
         return StructColor.get_type()
 
@@ -72,6 +75,9 @@ class ChainColorDarkBlue(IChain):
 
     def get_name(self) -> str:
         return "dark_blue"
+
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.WORLD, False)
 
     def get_chain_type(self) -> ComType:
         return StructColor.get_type()
@@ -94,6 +100,9 @@ class ChainColorDarkGreen(IChain):
     def get_name(self) -> str:
         return "dark_green"
 
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.WORLD, False)
+
     def get_chain_type(self) -> ComType:
         return StructColor.get_type()
 
@@ -114,6 +123,9 @@ class ChainColorDarkAqua(IChain):
 
     def get_name(self) -> str:
         return "dark_aqua"
+
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.WORLD, False)
 
     def get_chain_type(self) -> ComType:
         return StructColor.get_type()
@@ -136,6 +148,9 @@ class ChainColorDarkRed(IChain):
     def get_name(self) -> str:
         return "dark_red"
 
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.WORLD, False)
+
     def get_chain_type(self) -> ComType:
         return StructColor.get_type()
 
@@ -156,6 +171,9 @@ class ChainColorDarkPurple(IChain):
 
     def get_name(self) -> str:
         return "dark_purple"
+
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.WORLD, False)
 
     def get_chain_type(self) -> ComType:
         return StructColor.get_type()
@@ -178,6 +196,9 @@ class ChainColorGold(IChain):
     def get_name(self) -> str:
         return "gold"
 
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.WORLD, False)
+
     def get_chain_type(self) -> ComType:
         return StructColor.get_type()
 
@@ -198,6 +219,9 @@ class ChainColorGray(IChain):
 
     def get_name(self) -> str:
         return "gray"
+
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.WORLD, False)
 
     def get_chain_type(self) -> ComType:
         return StructColor.get_type()
@@ -220,6 +244,9 @@ class ChainColorDarkGray(IChain):
     def get_name(self) -> str:
         return "dark_gray"
 
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.WORLD, False)
+
     def get_chain_type(self) -> ComType:
         return StructColor.get_type()
 
@@ -240,6 +267,9 @@ class ChainColorBlue(IChain):
 
     def get_name(self) -> str:
         return "blue"
+
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.WORLD, False)
 
     def get_chain_type(self) -> ComType:
         return StructColor.get_type()
@@ -262,6 +292,9 @@ class ChainColorGreen(IChain):
     def get_name(self) -> str:
         return "green"
 
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.WORLD, False)
+
     def get_chain_type(self) -> ComType:
         return StructColor.get_type()
 
@@ -282,6 +315,9 @@ class ChainColorAqua(IChain):
 
     def get_name(self) -> str:
         return "aqua"
+
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.WORLD, False)
 
     def get_chain_type(self) -> ComType:
         return StructColor.get_type()
@@ -304,6 +340,9 @@ class ChainColorRed(IChain):
     def get_name(self) -> str:
         return "red"
 
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.WORLD, False)
+
     def get_chain_type(self) -> ComType:
         return StructColor.get_type()
 
@@ -324,6 +363,9 @@ class ChainColorLightPurple(IChain):
 
     def get_name(self) -> str:
         return "light_purple"
+
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.WORLD, False)
 
     def get_chain_type(self) -> ComType:
         return StructColor.get_type()
@@ -346,6 +388,9 @@ class ChainColorYellow(IChain):
     def get_name(self) -> str:
         return "yellow"
 
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.WORLD, False)
+
     def get_chain_type(self) -> ComType:
         return StructColor.get_type()
 
@@ -367,6 +412,9 @@ class ChainColorWhite(IChain):
     def get_name(self) -> str:
         return "white"
 
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.WORLD, False)
+
     def get_chain_type(self) -> ComType:
         return StructColor.get_type()
 
@@ -387,6 +435,9 @@ class ChainColorHex(IChain):
 
     def get_name(self) -> str:
         return "hex"
+
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.WORLD, False)
 
     def get_chain_type(self) -> ComType:
         return StructColor.get_type()
@@ -410,6 +461,9 @@ class ChainColorLime(IChain):
     def get_name(self) -> str:
         return "lime"
 
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.WORLD, False)
+
     def get_chain_type(self) -> ComType:
         return StructColor.get_type()
 
@@ -430,6 +484,9 @@ class ChainColorCyan(IChain):
 
     def get_name(self) -> str:
         return "cyan"
+
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.WORLD, False)
 
     def get_chain_type(self) -> ComType:
         return StructColor.get_type()

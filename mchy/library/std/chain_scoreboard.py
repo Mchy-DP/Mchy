@@ -375,6 +375,9 @@ class ChainLinkScoreboardAdd(IChain):
     def get_name(self) -> str:
         return "add_obj"
 
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.WORLD, False)
+
     def get_params(self) -> Optional[Sequence[IParam]]:
         return [
             IParam("name", InertType(InertCoreTypes.STR, True)),
@@ -404,6 +407,9 @@ class ChainLinkScoreboardRemove(IChain):
 
     def get_name(self) -> str:
         return "remove_obj"
+
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.WORLD, False)
 
     def get_params(self) -> Optional[Sequence[IParam]]:
         return [
@@ -463,6 +469,9 @@ class ChainLinkScoreboardConfDisplayBelowName(IChain):
     def get_name(self) -> str:
         return "below_name"
 
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.WORLD, False)
+
     def get_params(self) -> Optional[Sequence[IParam]]:
         return [
             IParam("name", InertType(InertCoreTypes.STR, True, True))
@@ -491,6 +500,9 @@ class ChainLinkScoreboardConfDisplayList(IChain):
     def get_name(self) -> str:
         return "list"
 
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.WORLD, False)
+
     def get_params(self) -> Optional[Sequence[IParam]]:
         return [
             IParam("name", InertType(InertCoreTypes.STR, True, True))
@@ -518,6 +530,9 @@ class ChainLinkScoreboardConfDisplaySidebar(IChain):
 
     def get_name(self) -> str:
         return "sidebar"
+
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.WORLD, False)
 
     def get_params(self) -> Optional[Sequence[IParam]]:
         return [
@@ -548,6 +563,9 @@ class ChainLinkScoreboardConfJsonName(IChain):
 
     def get_name(self) -> str:
         return "json_name"
+
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.WORLD, False)
 
     def get_params(self) -> Optional[Sequence[IParam]]:
         return [
@@ -605,6 +623,9 @@ class ChainLinkScoreboardConfHearts(IChain):
     def get_name(self) -> str:
         return "hearts"
 
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.WORLD, False)
+
     def get_params(self) -> Optional[Sequence[IParam]]:
         return [
             IParam("obj_name", InertType(InertCoreTypes.STR, True)),
@@ -652,6 +673,9 @@ class ChainLinkScoreboardObjGet(IChain):
     def get_name(self) -> str:
         return "get"
 
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.ENTITY, False)
+
     def get_params(self) -> Optional[Sequence[IParam]]:
         return []
 
@@ -680,6 +704,9 @@ class ChainLinkScoreboardObjSet(IChain):
 
     def get_name(self) -> str:
         return "set"
+
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.ENTITY, True)
 
     def get_params(self) -> Optional[Sequence[IParam]]:
         return [
@@ -713,6 +740,9 @@ class ChainLinkScoreboardObjAdd(IChain):
     def get_name(self) -> str:
         return "add"
 
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.ENTITY, True)
+
     def get_params(self) -> Optional[Sequence[IParam]]:
         return [
             IParam("value", InertType(InertCoreTypes.INT))
@@ -744,6 +774,9 @@ class ChainLinkScoreboardObjSub(IChain):
 
     def get_name(self) -> str:
         return "sub"
+
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.ENTITY, True)
 
     def get_params(self) -> Optional[Sequence[IParam]]:
         return [
@@ -777,6 +810,9 @@ class ChainLinkScoreboardObjEnable(IChain):
     def get_name(self) -> str:
         return "enable"
 
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.ENTITY, True)
+
     def get_params(self) -> Optional[Sequence[IParam]]:
         return []
 
@@ -805,6 +841,9 @@ class ChainLinkScoreboardObjReset(IChain):
     def get_name(self) -> str:
         return "reset"
 
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.ENTITY, True)
+
     def get_params(self) -> Optional[Sequence[IParam]]:
         return []
 
@@ -832,6 +871,9 @@ class ChainLinkScoreboardReset(IChain):
 
     def get_name(self) -> str:
         return "reset"
+
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.ENTITY, True)
 
     def get_params(self) -> Optional[Sequence[IParam]]:
         return []
@@ -879,6 +921,9 @@ class ChainLinkScoreboardObjPlayerGet(IChain):
     def get_params(self) -> Optional[Sequence[IParam]]:
         return []
 
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.WORLD, False)
+
     def get_chain_type(self) -> ComType:
         return InertType(InertCoreTypes.INT)
 
@@ -904,6 +949,9 @@ class ChainLinkScoreboardObjPlayerSet(IChain):
 
     def get_name(self) -> str:
         return "set"
+
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.WORLD, False)
 
     def get_params(self) -> Optional[Sequence[IParam]]:
         return [
@@ -937,6 +985,9 @@ class ChainLinkScoreboardObjPlayerAdd(IChain):
     def get_name(self) -> str:
         return "add"
 
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.WORLD, False)
+
     def get_params(self) -> Optional[Sequence[IParam]]:
         return [
             IParam("value", InertType(InertCoreTypes.INT))
@@ -969,6 +1020,9 @@ class ChainLinkScoreboardObjPlayerSub(IChain):
     def get_name(self) -> str:
         return "sub"
 
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.WORLD, False)
+
     def get_params(self) -> Optional[Sequence[IParam]]:
         return [
             IParam("value", InertType(InertCoreTypes.INT))
@@ -1000,6 +1054,9 @@ class ChainLinkScoreboardObjPlayerReset(IChain):
 
     def get_name(self) -> str:
         return "reset"
+
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.WORLD, False)
 
     def get_params(self) -> Optional[Sequence[IParam]]:
         return []
