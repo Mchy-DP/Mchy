@@ -57,4 +57,4 @@ jobs:
 
           echo "> Pushing"
           git push
-          echo "> Pushed"
+          echo "> Pushed & DONE!"
