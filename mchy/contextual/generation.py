@@ -115,7 +115,9 @@ def apply_decorators(func: CtxMchyFunc, marker: MarkerDeclFunc, decorators: List
             _assert_no_params(func, "Published")
             module.register_as_public(func)
         else:
-            raise ConversionError("Unknown decorator, did you mean `ticking`?")  # TODO: when decorators are generalized make did you mean more useful
+            raise ConversionError(
+                f"Unknown decorator `{dec.dec_name}`, did you mean 'ticking'?"  # TODO: when decorators are generalized make did you mean more useful
+            ).with_loc(dec.decorator_name_ident.loc)
     return func, marker
 
 
