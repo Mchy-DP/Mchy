@@ -50,7 +50,7 @@ jobs:
           git status
 
           echo "> Committing"
-          git commit -m "BOT: Automatic documentation generation [skip ci]"
+          git commit -m "BOT: Automatic documentation generation"
           echo "> Committed"
 
           git status
