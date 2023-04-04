@@ -1,5 +1,5 @@
 # Mchy
-Mchy is a Datapack compiler which converts the custom language, Mchy, to minecraft Datapacks.  This allows the programmer to write high level code such as for-loops, if-statements and functions yielding return values. They can then call the compiler and let it deal with the many idiosyncrasies of Datapacks that usually make these features difficult ot implement and the code near impossible to read.
+Mchy is a Datapack compiler which converts the custom language, Mchy, to minecraft Datapacks.  This allows the programmer to write high level code such as for-loops, if-statements and functions yielding return values. They can then call the compiler and let it deal with the many idiosyncrasies of Datapacks that usually make these features difficult to implement and the code near impossible to read.
 
 ## Quick Links
 * [Getting Started](#getting-started)
