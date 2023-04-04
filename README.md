@@ -49,7 +49,7 @@ Mchy is a Datapack compiler which converts the custom language, Mchy, to minecra
     - Save the file
 
 4. Open the directory containing the program in the terminal
-    - **Shift** + **Right Click** in the direcotry contating the program and select `Open PowerShell window here`.  Note on older versions it may say open `Open Command window here`, that is also fine.
+    - **Shift** + **Right Click** in the direcotry contating the program and select `Open PowerShell window here`.  Note on older versions it may say `Open Command window here`, that is also fine.
 
 5. Run the compiler
     - Type the following into the terminal:
