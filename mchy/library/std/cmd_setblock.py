@@ -18,6 +18,7 @@ from mchy.stmnt.struct.linker import SmtExecVarLinkage, SmtLinker
 from mchy.stmnt.struct.struct import SmtPyStructInstance
 
 
+# FIXME: temporary comment
 class SetblockFlag(enum.Enum):
     REPLACE = "replace"
     DESTROY = "destroy"
