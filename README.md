@@ -74,4 +74,4 @@ Mchy is a Datapack compiler which converts the custom language, Mchy, to minecra
     ```
     mchy.exe -v --log-file .\mchy.log .\hello_world.mchy
     ```
-  - Want to know more about the language, check the documentation or examples.  Want ot see what over options you can give the compiler try running `mchy.exe --help` to see other options.
+  - Want to know more about the language, check the documentation or examples.  Want to see what over options you can give the compiler try running `mchy.exe --help` to see other options.
