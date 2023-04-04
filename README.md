@@ -56,7 +56,7 @@ Mchy is a Datapack compiler which converts the custom language, Mchy, to minecra
       ```cmd
       mchy.exe -v .\hello_world.mchy
       ```
-      Note: You may need to prefix the command with `.\` if you chose to put `mchy.exe` in the same folder during step 2.  Then the command would be
+      Note: You may need to prefix the command with `.\` if you chose to put `mchy.exe` in the same folder during step 2.  This would make the full command:
       ```cmd
       .\mchy.exe -v .\hello_world.mchy
       ```
