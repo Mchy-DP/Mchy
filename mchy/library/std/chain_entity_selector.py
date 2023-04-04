@@ -1003,6 +1003,9 @@ class ChainPartialSelectorFind(IChain, abstract=True):
     def get_name(self) -> str:
         return "find"
 
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.WORLD, False)
+
     def get_params(self) -> Optional[Sequence[IParam]]:
         return []
 
