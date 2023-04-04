@@ -62,11 +62,11 @@ Mchy is a Datapack compiler which converts the custom language, Mchy, to minecra
       ```
       If all goes well you should see the output `Compilation Successful!` after the compiler finishes.
 
-6. Move your datapack to your world
-    - In the folder containing the program there should now be a folder called `Hello World`.  This folder is the datapack.  It can now be moved to the `datapacks` folder of any minecraft world and then when `/reload` is run in chat in that mincraft world you should see the message `Hello World!` be output to chat.
+6. Move your Datapack to your world
+    - In the folder containing the program there should now be a folder called `Hello World`.  This folder is the Datapack.  It can now be moved to the `datapacks` folder of any minecraft world and then when `/reload` is run in chat in that mincraft world you should see the message `Hello World!` output to chat.
 
 ### Tips:
-  - Getting board of copying your datapack over after makeing a change, get the compier to build straight to the datapacks directory via the `-o` option.  Example:
+  - Getting board of copying your Datapack over after making a change, get the compiler to build straight to the `datapacks` directory via the `-o` option.  Example:
     ```
     mchy.exe -v -o C:\Users\USERNAME\AppData\Roaming\.minecraft\saves\test_world\datapacks .\hello_world.mchy
     ```
