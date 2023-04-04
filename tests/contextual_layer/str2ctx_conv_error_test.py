@@ -49,6 +49,7 @@ def func(x: int, y: int, z: int = null) -> int{
     ([], """@ticking\ndef Player foo(){}""", ["Ticking function", "world", "Player", "Consider deleting executor type"], ComLoc(2, 4, 2, 10)),
     ([], """@ticking\ndef foo(nope: int){}""", ["Ticking functions cannot have any parameters", "Consider deleting params"], ComLoc(2, 8, 2, 12)),
     ([], """@ticking\ndef foo() -> int {}""", ["Ticking functions cannot return anything", "Consider deleting return type"], ComLoc(2, 13, 2, 16)),
+    ([], """@made_up_decorator\ndef foo(){}""", ["Unknown decorator", "made_up_decorator", "ticking"], ComLoc(1, 1, 1, 18)),
 ])
 def test_conv_error_expected(test_code: str, expected_msgs: List[str], err_loc: ComLoc, setup_code: List[str]):
     # Fix line numbers
