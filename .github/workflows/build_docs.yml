@@ -21,7 +21,6 @@ jobs:
 
       - name: Run build script
         run: |
-          ls
           python ./dev_util/generate_docs.py
 
       - name: echo built file
