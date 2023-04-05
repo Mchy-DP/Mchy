@@ -201,6 +201,32 @@ random_player_at_level_30.say("I'm at level 30!")
 ```
 
 ## Arithmetic & Comparison Operations
+| Name             | Syntax    | Description                                                             |
+| -------------    | --------  | ----------------------------------------------------------------------- |
+| Addition         | `X + Y`   | Yields the addition of `X` and `Y`                                      |
+| Subtraction      | `X - Y`   | Subtracts `Y` from `X`                                                  |
+| Multiplication   | `X * Y`   | Yields the product of `X` and `Y`                                       |
+| Division         | `X / Y`   | Performs integer division on `X` by `Y`                                 |
+| Modulo/Remainder | `X % Y`   | Yields the remainder of performing integer division between `X` and `Y` |
+| Exponent         | `X ** Y`  | Raises `X` to the power of `Y`                                          |
+| Equality         | `X == Y`  | Returns true if `X` is equal to `Y`                                     |
+| Inequality       | `X != Y`  | Returns true if `X` is not equal to `Y`                                 |
+| GTE              | `X >= Y`  | Returns true if `X` is greater than or equal to `Y`                     |
+| GT               | `X >  Y`  | Returns true if `X` is greater than `Y`                                 |
+| LTE              | `X <= Y`  | Returns true if `X` is less than or equal to `Y`                        |
+| LT               | `X >  Y`  | Returns true if `X` is less than `Y`                                    |
+| String Literal   | `"X"`     | Yields the literal string `X`                                           |
+| Float Literal    | `3.14`    | Yields the literal float `3.14`                                         |
+| Integer Literal  | `42`      | Yields the literal integer `42`                                         |
+| Bool             | `true`    | Yields the literal boolean `true`, `false` also valid                   |
+| Null Literal     | `null`    | Yields the literal value `null`                                         |
+| World            | `world`   | Yields the world                                                        |
+| This             | `this`    | Yields the executing entity in a function                               |
+| Not              | `not X`   | Yields true if `X` is false and false if `X` is true                    |
+| And              | `X and Y` | Yields true if both `X` and `Y` are true, False otherwise               |
+| Or               | `X or Y`  | Yields true if either `X` or `Y` are true, False otherwise              |
+| NullCoal         | `X ?? Y`  | Yields `X` if `X` is not null, `Y` otherwise.  `Y` cannot be null.      |
+
 
 ## Misc
 ### Comments
