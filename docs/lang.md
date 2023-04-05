@@ -219,5 +219,42 @@ print("Finished forcing speech!")
 ```
 Note: If you want to build a raw command out of Compile-time constant Strings (`str!`) then use [`world.cmd(...)`](/docs/libs/std.md#cmd) from the standard library.
 ### Structs
+Some functions & properties such as [`world.pos.constant(...)`](/docs/libs/std.md#constant) return compile-time struct's.  These represent data structures more complicated than simple int's or str's are sufficient for.  Struct's can usually be stored in variables.
+```py
+let selected_color: Color = world.colors.red
+print("I am normal text, ", selected_color, "I am scary colored text!")
+```
 ## Typing
-WIP
+There are 3 broad catagories of type in mchy: Inert types, Executable types & Struct Types.  Struct types are special types used by structures and minimal knowledge is needed about them, As such they will not be discussed here more than to acknowledge their existence.
+### Inert Types
+Inert types have 5 core subtypes that come under this heading: `float`, `int`, `bool`, `str` & `null`.  Inert types have 2 variants: nullable & compile constant.  These are indicated by adding the suffixes Indicated below.
+| Property          | Suffix        |
+| -------------     | ------------- |
+| Nullable          | `?`           |
+| Compile Constant  | `!`           |
+
+#### Nullable
+Any nullable type can, in addition to it's normally valid assignments, be assigned to null.  This allows for returning no-result values from functions.
+```py
+var a: int? = null
+```
+#### Compile Constant
+Many operations are not possible at runtime due to the limitations of Minecraft Datapacks.  However sometimes it is enough to resolve a value at compile time.  For instance: The particle command has the following syntax:
+```MCDP
+/particle <name> [<pos>] [<delta>] <speed> <count> [force|normal]
+```
+this equate to the following Mchy command
+```py
+particle(location: std::Pos, particle: str!, dx: float!, dy: float!, dz: float!, speed: float!, count: int!, force_render: bool! = False) -> null
+```
+The value `<speed>` must be a hard-coded float due to the underlying command.  However imagine that we have 10 different types of campfire added by a Datapack we are writing.  All these campfires use the flame particle to produce part of their effect and all should have the same speed of fire.  If we want to change the speed of the flame particles then traditionally we would have to edit all of the commands individually, however with constant types we can create a single constant variable to edit and change all of them at once.
+```py
+...
+let flame_speed: float! = 0.05
+
+world.particle(world.pos.constant(0,70,0), 0.1, 0.1, 0.1,  flame_speed, 40)
+world.particle(world.pos.constant(0,70,0), 0.01,0.1, 0.01, flame_speed, 10)
+world.particle(world.pos.constant(0,70,0), 1.5, 1.5, 1.5,  flame_speed, 100)
+...
+world.particle(world.pos.constant(0,70,0),-0.2,-0.1,-0.2,  flame_speed, 8)
+```
