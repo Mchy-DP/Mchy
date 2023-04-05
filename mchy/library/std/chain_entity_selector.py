@@ -3,6 +3,7 @@ from dataclasses import dataclass, field as dataclass_field
 from typing import Collection, Dict, List, Optional, Sequence, Tuple, Type, Union
 
 from mchy.cmd_modules.chains import IChain, IChainLink
+from mchy.cmd_modules.docs_data import DocsData
 from mchy.cmd_modules.function import IParam
 from mchy.cmd_modules.helper import NULL_CTX_TYPE, get_key_with_type
 from mchy.cmd_modules.name_spaces import Namespace
@@ -191,6 +192,12 @@ class ChainLinkPartialPlayerSelector(ChainLinkPartialSelector, abstract=True):
 # ===== STARTING POINTS =====
 class ChainLinkGetEntities(ChainLinkPartialEntitiesSelector):
 
+    def get_docs(self) -> DocsData:
+        return DocsData(
+            short_summary="Begin a partial selector targeting all entities that match the filters",
+            return_info="Partial Selector for Entity Groups"
+        )
+
     def get_namespace(self) -> 'Namespace':
         return STD_NAMESPACE
 
@@ -208,6 +215,13 @@ class ChainLinkGetEntities(ChainLinkPartialEntitiesSelector):
 
 
 class ChainLinkGetEntity(ChainLinkPartialEntitySelector):
+
+    def get_docs(self) -> DocsData:
+        return DocsData(
+            short_summary="Begin a partial selector targeting one entity that matches the filters",
+            param_info={"sort": "How to handle multiple valid entities.  Options include: nearest, furthest, random, arbitrary"},
+            return_info="Partial Selector for Entities"
+        )
 
     def get_namespace(self) -> 'Namespace':
         return STD_NAMESPACE
@@ -229,6 +243,12 @@ class ChainLinkGetEntity(ChainLinkPartialEntitySelector):
 
 class ChainLinkGetPlayers(ChainLinkPartialPlayersSelector):
 
+    def get_docs(self) -> DocsData:
+        return DocsData(
+            short_summary="Begin a partial selector targeting all players that match the filters",
+            return_info="Partial Selector for Player Groups"
+        )
+
     def get_namespace(self) -> 'Namespace':
         return STD_NAMESPACE
 
@@ -246,6 +266,13 @@ class ChainLinkGetPlayers(ChainLinkPartialPlayersSelector):
 
 
 class ChainLinkGetPlayer(ChainLinkPartialPlayerSelector):
+
+    def get_docs(self) -> DocsData:
+        return DocsData(
+            short_summary="Begin a partial selector targeting one player that matches the filters",
+            param_info={"sort": "How to handle multiple valid players.  Options include: nearest, furthest, random, arbitrary"},
+            return_info="Partial Selector for a Player"
+        )
 
     def get_namespace(self) -> 'Namespace':
         return STD_NAMESPACE
@@ -267,6 +294,17 @@ class ChainLinkGetPlayer(ChainLinkPartialPlayerSelector):
 
 # ===== FILTERS =====
 class ChainLinkPartialSelectorFromPosition(ChainLinkPartialSelector, abstract=True):
+
+    def get_docs(self) -> DocsData:
+        return DocsData(
+            short_summary="FILTER: Move the coordinates the selector tests from to set coordinates rather than executor coordinates",
+            param_info={
+                "x": "The x coordinate to originate location based selections at",
+                "y": "The y coordinate to originate location based selections at",
+                "z": "The z coordinate to originate location based selections at"
+            },
+            return_info="Partial Selector of same type as predecessor (this allows unlimited chaining of filters)"
+        )
 
     def get_namespace(self) -> 'Namespace':
         return STD_NAMESPACE
@@ -304,6 +342,16 @@ class ChainLinkPartialPlayerSelectorFromPosition(ChainLinkPartialPlayerSelector,
 
 
 class ChainLinkPartialSelectorInRadius(ChainLinkPartialSelector, abstract=True):
+
+    def get_docs(self) -> DocsData:
+        return DocsData(
+            short_summary="FILTER: Filter out all entities not between the min and max distance",
+            param_info={
+                "min": "The minimum distance",
+                "max": "The maximum distance"
+            },
+            return_info="Partial Selector of same type as predecessor (this allows unlimited chaining of filters)"
+        )
 
     def get_namespace(self) -> 'Namespace':
         return STD_NAMESPACE
@@ -350,6 +398,17 @@ class ChainLinkPartialPlayerSelectorInRadius(ChainLinkPartialPlayerSelector, Cha
 
 class ChainLinkPartialSelectorInVolume(ChainLinkPartialSelector, abstract=True):
 
+    def get_docs(self) -> DocsData:
+        return DocsData(
+            short_summary="FILTER: Filter out all entities not in the volume bounded by the selector location and a point offset from the selector location",
+            param_info={
+                "dx": "Makes the offset point `dx` away from the selector location",
+                "dy": "Makes the offset point `dy` away from the selector location",
+                "dz": "Makes the offset point `dz` away from the selector location",
+            },
+            return_info="Partial Selector of same type as predecessor (this allows unlimited chaining of filters)"
+        )
+
     def get_namespace(self) -> 'Namespace':
         return STD_NAMESPACE
 
@@ -386,6 +445,17 @@ class ChainLinkPartialPlayerSelectorInVolume(ChainLinkPartialPlayerSelector, Cha
 
 
 class ChainLinkPartialSelectorInTeam(ChainLinkPartialSelector, abstract=True):
+
+    def get_docs(self) -> DocsData:
+        return DocsData(
+            short_summary="FILTER: Filter out all entities not in the volume bounded by the selector location and a point offset from the selector location",
+            param_info={
+                "dx": "Makes the offset point `dx` away from the selector location",
+                "dy": "Makes the offset point `dy` away from the selector location",
+                "dz": "Makes the offset point `dz` away from the selector location",
+            },
+            return_info="Partial Selector of same type as predecessor (this allows unlimited chaining of filters)"
+        )
 
     def get_namespace(self) -> 'Namespace':
         return STD_NAMESPACE
@@ -425,6 +495,15 @@ class ChainLinkPartialPlayerSelectorInTeam(ChainLinkPartialPlayerSelector, Chain
 
 class ChainLinkPartialSelectorNotInTeam(ChainLinkPartialSelector, abstract=True):
 
+    def get_docs(self) -> DocsData:
+        return DocsData(
+            short_summary="FILTER: Filter out all entities in the specified team",
+            param_info={
+                "team": "The name of the team valid entities must not be a member of",
+            },
+            return_info="Partial Selector of same type as predecessor (this allows unlimited chaining of filters)"
+        )
+
     def get_namespace(self) -> 'Namespace':
         return STD_NAMESPACE
 
@@ -458,6 +537,12 @@ class ChainLinkPartialPlayerSelectorNotInTeam(ChainLinkPartialPlayerSelector, Ch
 
 class ChainLinkPartialSelectorInNoTeam(ChainLinkPartialSelector, abstract=True):
 
+    def get_docs(self) -> DocsData:
+        return DocsData(
+            short_summary="FILTER: Filter out all entities in the any team",
+            return_info="Partial Selector of same type as predecessor (this allows unlimited chaining of filters)"
+        )
+
     def get_namespace(self) -> 'Namespace':
         return STD_NAMESPACE
 
@@ -488,6 +573,15 @@ class ChainLinkPartialPlayerSelectorInNoTeam(ChainLinkPartialPlayerSelector, Cha
 
 
 class ChainLinkPartialSelectorWithTag(ChainLinkPartialSelector, abstract=True):
+
+    def get_docs(self) -> DocsData:
+        return DocsData(
+            short_summary="FILTER: Filter out all entities with the specified tag",
+            param_info={
+                "tag": "The name of the tag valid entities must have",
+            },
+            return_info="Partial Selector of same type as predecessor (this allows unlimited chaining of filters)"
+        )
 
     def get_namespace(self) -> 'Namespace':
         return STD_NAMESPACE
@@ -522,6 +616,15 @@ class ChainLinkPartialPlayerSelectorWithTag(ChainLinkPartialPlayerSelector, Chai
 
 class ChainLinkPartialSelectorNotWithTag(ChainLinkPartialSelector, abstract=True):
 
+    def get_docs(self) -> DocsData:
+        return DocsData(
+            short_summary="FILTER: Filter out all entities lacking the specified tag",
+            param_info={
+                "tag": "The name of the tag valid entities must not have",
+            },
+            return_info="Partial Selector of same type as predecessor (this allows unlimited chaining of filters)"
+        )
+
     def get_namespace(self) -> 'Namespace':
         return STD_NAMESPACE
 
@@ -554,6 +657,17 @@ class ChainLinkPartialPlayerSelectorNotWithTag(ChainLinkPartialPlayerSelector, C
 
 
 class ChainLinkPartialSelectorWithScore(ChainLinkPartialSelector, abstract=True):
+
+    def get_docs(self) -> DocsData:
+        return DocsData(
+            short_summary="FILTER: Filter out all entities whose specified score is not in range",
+            param_info={
+                "score": "The scoreboard objective to test",
+                "min": "The score that a passing entity must have greater than or equal to",
+                "max": "The score that a passing entity must have less than or equal to",
+            },
+            return_info="Partial Selector of same type as predecessor (this allows unlimited chaining of filters)"
+        )
 
     def get_namespace(self) -> 'Namespace':
         return STD_NAMESPACE
@@ -608,6 +722,15 @@ class ChainLinkPartialPlayerSelectorWithScore(ChainLinkPartialPlayerSelector, Ch
 
 class ChainLinkPartialSelectorOfType(ChainLinkPartialSelector, abstract=True):
 
+    def get_docs(self) -> DocsData:
+        return DocsData(
+            short_summary="FILTER: Filter out all entities not matching the specified type",
+            param_info={
+                "entity_type": "The entity type passing entities match",
+            },
+            return_info="Partial Selector of same type as predecessor (this allows unlimited chaining of filters)"
+        )
+
     def get_namespace(self) -> 'Namespace':
         return STD_NAMESPACE
 
@@ -630,6 +753,15 @@ class ChainLinkPartialEntitySelectorOfType(ChainLinkPartialEntitySelector, Chain
 
 
 class ChainLinkPartialSelectorOfName(ChainLinkPartialSelector, abstract=True):
+
+    def get_docs(self) -> DocsData:
+        return DocsData(
+            short_summary="FILTER: Filter out all entities not named the specified name",
+            param_info={
+                "name": "The entity name passing entities have",
+            },
+            return_info="Partial Selector of same type as predecessor (this allows unlimited chaining of filters)"
+        )
 
     def get_namespace(self) -> 'Namespace':
         return STD_NAMESPACE
@@ -661,6 +793,15 @@ class ChainLinkPartialPlayerSelectorOfName(ChainLinkPartialPlayerSelector, Chain
 
 
 class ChainLinkPartialSelectorPredicatePassing(ChainLinkPartialSelector, abstract=True):
+
+    def get_docs(self) -> DocsData:
+        return DocsData(
+            short_summary="FILTER: Filter out all entities not passing the specified predicate",
+            param_info={
+                "predicate": "The predicate passing entities pass",
+            },
+            return_info="Partial Selector of same type as predecessor (this allows unlimited chaining of filters)"
+        )
 
     def get_namespace(self) -> 'Namespace':
         return STD_NAMESPACE
@@ -695,6 +836,15 @@ class ChainLinkPartialPlayerSelectorPredicatePassing(ChainLinkPartialPlayerSelec
 
 class ChainLinkPartialSelectorPredicateFailing(ChainLinkPartialSelector, abstract=True):
 
+    def get_docs(self) -> DocsData:
+        return DocsData(
+            short_summary="FILTER: Filter out all entities passing the specified predicate",
+            param_info={
+                "predicate": "The predicate passing entities fail",
+            },
+            return_info="Partial Selector of same type as predecessor (this allows unlimited chaining of filters)"
+        )
+
     def get_namespace(self) -> 'Namespace':
         return STD_NAMESPACE
 
@@ -727,6 +877,16 @@ class ChainLinkPartialPlayerSelectorPredicateFailing(ChainLinkPartialPlayerSelec
 
 
 class ChainLinkPartialSelectorWithVertRot(ChainLinkPartialSelector, abstract=True):
+
+    def get_docs(self) -> DocsData:
+        return DocsData(
+            short_summary="FILTER: Filter out all entities not looking in the specified pitch",
+            param_info={
+                "min": "The minimum angle in degrees zeroed at horizontal, increasing down required",
+                "max": "The maximum angle in degrees zeroed at horizontal, increasing down required",
+            },
+            return_info="Partial Selector of same type as predecessor (this allows unlimited chaining of filters)"
+        )
 
     def get_namespace(self) -> 'Namespace':
         return STD_NAMESPACE
@@ -773,6 +933,16 @@ class ChainLinkPartialPlayerSelectorWithVertRot(ChainLinkPartialPlayerSelector, 
 
 class ChainLinkPartialSelectorWithHrzRot(ChainLinkPartialSelector, abstract=True):
 
+    def get_docs(self) -> DocsData:
+        return DocsData(
+            short_summary="FILTER: Filter out all entities not looking in the specified direction",
+            param_info={
+                "min": "The minimum angle in degrees zeroed at south (+z), increasing clockwise required",
+                "max": "The maximum angle in degrees zeroed at south (+z), increasing clockwise required",
+            },
+            return_info="Partial Selector of same type as predecessor (this allows unlimited chaining of filters)"
+        )
+
     def get_namespace(self) -> 'Namespace':
         return STD_NAMESPACE
 
@@ -818,6 +988,15 @@ class ChainLinkPartialPlayerSelectorWithHrzRot(ChainLinkPartialPlayerSelector, C
 
 class ChainLinkPartialSelectorMatchingNbt(ChainLinkPartialSelector, abstract=True):
 
+    def get_docs(self) -> DocsData:
+        return DocsData(
+            short_summary="FILTER: Filter out all entities not having the specified nbt",
+            param_info={
+                "nbt": "The required nbt",
+            },
+            return_info="Partial Selector of same type as predecessor (this allows unlimited chaining of filters)"
+        )
+
     def get_namespace(self) -> 'Namespace':
         return STD_NAMESPACE
 
@@ -851,6 +1030,15 @@ class ChainLinkPartialPlayerSelectorMatchingNbt(ChainLinkPartialPlayerSelector, 
 
 class ChainLinkPartialSelectorNotMatchingNbt(ChainLinkPartialSelector, abstract=True):
 
+    def get_docs(self) -> DocsData:
+        return DocsData(
+            short_summary="FILTER: Filter out all entities matching the specified nbt",
+            param_info={
+                "nbt": "The prohibited nbt",
+            },
+            return_info="Partial Selector of same type as predecessor (this allows unlimited chaining of filters)"
+        )
+
     def get_namespace(self) -> 'Namespace':
         return STD_NAMESPACE
 
@@ -883,6 +1071,16 @@ class ChainLinkPartialPlayerSelectorNotMatchingNbt(ChainLinkPartialPlayerSelecto
 
 
 class ChainLinkPartialSelectorWithLevel(ChainLinkPartialSelector, abstract=True):
+
+    def get_docs(self) -> DocsData:
+        return DocsData(
+            short_summary="FILTER: Filter out all players whose level is not within the specified range ",
+            param_info={
+                "min": "The minimum level players must have",
+                "max": "The maximum level players must have",
+            },
+            return_info="Partial Selector of same type as predecessor (this allows unlimited chaining of filters)"
+        )
 
     def get_namespace(self) -> 'Namespace':
         return STD_NAMESPACE
@@ -921,6 +1119,15 @@ class ChainLinkPartialPlayerSelectorWithLevel(ChainLinkPartialPlayerSelector, Ch
 
 class ChainLinkPartialSelectorInGamemode(ChainLinkPartialSelector, abstract=True):
 
+    def get_docs(self) -> DocsData:
+        return DocsData(
+            short_summary="FILTER: Filter out all players whose gamemode is not the specified one",
+            param_info={
+                "mode": "The gamemode players must be in",
+            },
+            return_info="Partial Selector of same type as predecessor (this allows unlimited chaining of filters)"
+        )
+
     def get_namespace(self) -> 'Namespace':
         return STD_NAMESPACE
 
@@ -946,6 +1153,15 @@ class ChainLinkPartialPlayerSelectorInGamemode(ChainLinkPartialPlayerSelector, C
 
 class ChainLinkPartialSelectorNotInGamemode(ChainLinkPartialSelector, abstract=True):
 
+    def get_docs(self) -> DocsData:
+        return DocsData(
+            short_summary="FILTER: Filter out all players whose gamemode matches the specified one",
+            param_info={
+                "mode": "The gamemode players must not be in",
+            },
+            return_info="Partial Selector of same type as predecessor (this allows unlimited chaining of filters)"
+        )
+
     def get_namespace(self) -> 'Namespace':
         return STD_NAMESPACE
 
@@ -970,6 +1186,15 @@ class ChainLinkPartialPlayerSelectorNotInGamemode(ChainLinkPartialPlayerSelector
 
 
 class ChainLinkPartialSelectorAdvancementMatches(ChainLinkPartialSelector, abstract=True):
+
+    def get_docs(self) -> DocsData:
+        return DocsData(
+            short_summary="FILTER: Filter out all players who gamemode is not the specified one",
+            param_info={
+                "mode": "The advancement (or advancement criteria) the player must match",
+            },
+            return_info="Partial Selector of same type as predecessor (this allows unlimited chaining of filters)"
+        )
 
     def get_namespace(self) -> 'Namespace':
         return STD_NAMESPACE
@@ -1037,6 +1262,12 @@ class ChainPartialSelectorFind(IChain, abstract=True):
 
 class ChainPartialEntitiesSelectorFind(ChainPartialSelectorFind):
 
+    def get_docs(self) -> DocsData:
+        return DocsData(
+            short_summary="Get real entities from a partial selector",
+            return_info="The selected Entities"
+        )
+
     def get_predecessor_type(self) -> Union[Type['IChainLink'], ExecType]:
         return ChainLinkPartialEntitiesSelector
 
@@ -1045,6 +1276,12 @@ class ChainPartialEntitiesSelectorFind(ChainPartialSelectorFind):
 
 
 class ChainPartialEntitySelectorFind(ChainPartialSelectorFind):
+
+    def get_docs(self) -> DocsData:
+        return DocsData(
+            short_summary="Get a real entity from a partial selector",
+            return_info="The selected Entity"
+        )
 
     def get_predecessor_type(self) -> Union[Type['IChainLink'], ExecType]:
         return ChainLinkPartialEntitySelector
@@ -1055,6 +1292,12 @@ class ChainPartialEntitySelectorFind(ChainPartialSelectorFind):
 
 class ChainPartialPlayersSelectorFind(ChainPartialSelectorFind):
 
+    def get_docs(self) -> DocsData:
+        return DocsData(
+            short_summary="Get real players from a partial selector",
+            return_info="The selected players"
+        )
+
     def get_predecessor_type(self) -> Union[Type['IChainLink'], ExecType]:
         return ChainLinkPartialPlayersSelector
 
@@ -1063,6 +1306,12 @@ class ChainPartialPlayersSelectorFind(ChainPartialSelectorFind):
 
 
 class ChainPartialPlayerSelectorFind(ChainPartialSelectorFind):
+
+    def get_docs(self) -> DocsData:
+        return DocsData(
+            short_summary="Get a real player from a partial selector",
+            return_info="The selected player"
+        )
 
     def get_predecessor_type(self) -> Union[Type['IChainLink'], ExecType]:
         return ChainLinkPartialPlayerSelector
