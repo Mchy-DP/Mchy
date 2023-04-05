@@ -61,7 +61,7 @@ Some variables may be of compile constant type, indicated by the type being suff
 let apple_count: int! = 5 + 4
 print("I counted ", apple_count, " apples, I expected to count 9!")
 ```
-These variables are also implicitly read-only even if `var` was used to define them. For more information see the [typing](typing) section.
+These variables are also implicitly read-only even if `var` was used to define them. For more information see the [typing](#typing) section.
 
 
 ## Typing
