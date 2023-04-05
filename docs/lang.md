@@ -65,6 +65,34 @@ These variables are also implicitly read-only even if `var` was used to define t
 
 ## If-Elif-Else
 
+If statements can be used to execute some code only if a condition is met:
+```
+var ninja_count: int = 17:
+if ninja_count > 11{
+    print("Too many ninja's, Retreat!")
+}
+```
+Elif blocks can be added to an if.  These blocks will only execute if their condition resolves True and all preceding conditions resolved false.
+```
+var ninja_count: int = 17:
+if ninja_count > 11{
+    print("Too many ninja's, Retreat!")
+} elif ninja_count == 0 {
+    print("It's quiet... too quiet...")
+}
+```
+An else block can be appended to the end of a if/elif block.  It will only execute if all other condtions resolved False
+```
+var ninja_count: int = 17:
+if ninja_count > 11{
+    print("Too many ninja's, Retreat!")
+} elif ninja_count == 0 {
+    print("It's quiet... too quiet...")
+} else {
+    print("We can take em, Charge!")
+}
+```
+
 ## Loops
 ### While
 While loops are supported with the following syntax:
@@ -130,5 +158,8 @@ print("Finished loop")
 
 ## Arithmetic & Comparison Operations
 
+## Misc
+### Comments
+### Raw Commands
 ## Typing
 WIP
