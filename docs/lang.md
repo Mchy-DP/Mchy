@@ -211,7 +211,7 @@ print("Real line")
 # print("This is a print that has been commented out so won't run!")
 ```
 ### Raw Commands
-Any line started with a `/` symbol will be directly inserted at that position into the output datapack as a raw minecraft command.
+Any line starting with a `/` symbol will be directly inserted at that position into the output datapack as a raw minecraft command.
 ```py
 print("About to force speech")
 /execute as @a run say I decided to say this becuase a raw command made me do it!
