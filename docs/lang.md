@@ -204,7 +204,20 @@ random_player_at_level_30.say("I'm at level 30!")
 
 ## Misc
 ### Comments
+Any line begining with a `#` symbol is a code comment and will not be executed
+```py
+# Not a real line
+print("Real line")
+# print("This is a print that has been commented out so won't run!")
+```
 ### Raw Commands
+Any line started with a `/` symbol will be directly inserted at that position into the output datapack as a raw minecraft command.
+```py
+print("About to force speech")
+/execute as @a run say I decided to say this becuase a raw command made me do it!
+print("Finished forcing speech!")
+```
+Note: If you want to build a raw command out of Compile-time constant Strings (`str!`) then use [`world.cmd(...)`](/docs/libs/std.md#cmd) from the standard library.
 ### Structs
 ## Typing
 WIP
