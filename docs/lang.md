@@ -194,7 +194,7 @@ let random_player: Player = world.get_player("random").find()
 note here that `world.get_player("random")` does not actually do anything instead it is a partial entity selector.  When `.find()` is called only then is it a real type (A `Player` in this case) which can be stored to a variable.
 
 In the case of `get_player()` the reason that it is a partial selector rather than a player is that further filters can be added.  For instance:
-```
+```py
 let random_player_at_level_30: Player = world.get_player("random").with_level(min=30, max=1000000).find()
 
 random_player_at_level_30.say("I'm at level 30!")
