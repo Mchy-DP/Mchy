@@ -63,6 +63,68 @@ print("I counted ", apple_count, " apples, I expected to count 9!")
 ```
 These variables are also implicitly read-only even if `var` was used to define them. For more information see the [typing](#typing) section.
 
+## If-Elif-Else
+
+## Loops
+### While
+While loops are supported with the following syntax:
+```
+while <condition> {
+    <loop body>
+}
+```
+Example while loop:
+```
+var count: int = 0
+print("Starting loop")
+while (count < 5) {
+    print("On iteration ", count)
+    count = count + 1
+}
+print("Finished loop")
+```
+> Minecraft Chat:
+> ```txt
+> Starting loop
+> On iteration 0
+> On iteration 1
+> On iteration 2
+> On iteration 3
+> On iteration 4
+> Finished loop
+> ```
+While loops will continue to execute the loop body until the condition resolves false.
+
+### For
+For loops are also supported.  They use the following syntax:
+```
+for <index_var> in <lower_bound>..<upper_bound> {
+    <loop body>
+}
+```
+Example for loop:
+```
+print("Starting loop")
+for count in 0..4{
+    print("On iteration ", count)
+}
+print("Finished loop")
+```
+> Minecraft Chat:
+> ```txt
+> Starting loop
+> On iteration 4
+> On iteration 3
+> On iteration 2
+> On iteration 1
+> On iteration 0
+> Finished loop
+> ```
+
+
+## Functions
+
+## Arithmetic & Comparison Operations
 
 ## Typing
 WIP
