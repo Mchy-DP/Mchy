@@ -1,4 +1,5 @@
 from typing import Collection, Dict, List, Sequence, Tuple
+from mchy.cmd_modules.docs_data import DocsData
 
 from mchy.cmd_modules.function import IFunc, IParam
 from mchy.cmd_modules.helper import NULL_CTX_TYPE
@@ -45,7 +46,15 @@ class SmtCastBoolCmd(SmtCmd):
             raise VirtualRepError(f"Bool input is not Int or Var, found: `{type(self.inp).__name__}`")
 
 
-class CmdSay(IFunc):
+class CmdBool(IFunc):
+
+    def get_docs(self) -> DocsData:
+        return DocsData(
+            short_summary="Cast an integer to a boolean",
+            param_info={"x": "The integer to cast"},
+            return_info="True if x >= 1, False otherwise",
+            full_description="Note: Negative numbers are will be cast to false"
+        )
 
     def get_namespace(self) -> Namespace:
         return STD_NAMESPACE

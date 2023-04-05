@@ -1,6 +1,7 @@
 from abc import abstractmethod
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Collection, Dict, List, Optional, Sequence, Tuple, Union
+from mchy.cmd_modules.docs_data import DocsData
 from mchy.cmd_modules.param import CtxIParam, IParam
 from mchy.common.abs_ctx import AbsCtxFunc, AbsCtxParam
 from mchy.common.com_types import ComType, ExecType, TypeUnion
@@ -60,6 +61,9 @@ class CtxIFunc(AbsCtxFunc):
 
 
 class IFunc:
+
+    def get_docs(self) -> DocsData:
+        return DocsData()
 
     @abstractmethod
     def get_namespace(self) -> 'Namespace':
