@@ -8,30 +8,33 @@ Variables can be created (instantiated) with the var keyword.  A type must also 
 ```py
 var apple_count: int
 ```
+
 Once a variable is created it can be used freely without having to re-specify the type or use the Var keyword.
 ```py
 var apple_count: int
 apple_count = 5 + 4
 print("I counted ", apple_count, " apples, I expected to count 9!")
 ```
+
 Variable can also be assigned to during creation by adding equals followed by an expression afterwards. 
 ```py
 var apple_count: int = 5 + 4
 print("I counted ", apple_count, " apples, I expected to count 9!")
 ```
+
 ### Let
 Variables can also be instantiated using the keyword let.
 ```py
 let apple_count: int = 5 + 4
 print("I counted ", apple_count, " apples, I expected to count 9!")
 ```
+
 When variables are instantiated with the keyword let they are read-only and attempts to modify their value will raise an error during compilation.
 ```py
 let apple_count: int = 5
 apple_count = apple_count + 4
 print("I counted ", apple_count, " apples, I expected to count 9!")
 ```
-
 > Terminal:
 > ```bash
 > $ .\compile.sh
@@ -39,7 +42,27 @@ print("I counted ", apple_count, " apples, I expected to count 9!")
 > ERROR: The read-only variable `let apple_count: int` cannot be assigned to.
 > ```
 
+Variables defined by let must be given a value during creation. 
+```py
+let apple_count: int
+apple_count = 5 + 4
+print("I counted ", apple_count, " apples, I expected to count 9!")
+```
+> Terminal:
+> ```bash
+> $ .\compile.sh
+> ...
+> ERROR: Read only (let) variables must be assigned to on declaration.
+> ```
 
-Variables defined let must be given a value during creation. Some variables may be of compile constant type, indicated by the type being suffixed with a `!` Symbol. These variables are also implicitly read-only even if I was used to define them. For more information see the typing section.
+### Constant typed variables
+Some variables may be of compile constant type, indicated by the type being suffixed with a `!` Symbol.
+```py
+let apple_count: int! = 5 + 4
+print("I counted ", apple_count, " apples, I expected to count 9!")
+```
+These variables are also implicitly read-only even if `var` was used to define them. For more information see the [typing](typing) section.
 
 
+## Typing
+WIP
