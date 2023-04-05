@@ -90,6 +90,7 @@ class ChainingTree:
         nl = "\n" + indent_str
         if self.link is not None:
             out += f"### {self.link.get_name()}{nl}```{nl}{self.this_chain()}{nl}```\n"
+            out += ("\n"+self.link.get_docs().render()).replace("\n> ", f"\n{indent_str}> ").removeprefix("\n")
         for child in sorted(self._children, key=lambda x: isinstance(x, ChainingLeaf)):
             out += indent_str + "* " + child.render(indent + 1)
         return out

@@ -83,6 +83,11 @@ class SmtRotationFaceEntityCmd(SmtCmd):
 
 class ChainLinkRotate(IChainLink):
 
+    def get_docs(self) -> DocsData:
+        return DocsData(
+            short_summary="Entity Rotation related functions",
+        )
+
     def get_namespace(self) -> 'Namespace':
         return STD_NAMESPACE
 
@@ -97,6 +102,15 @@ class ChainLinkRotate(IChainLink):
 
 
 class ChainRotateSet(IChain):
+
+    def get_docs(self) -> DocsData:
+        return DocsData(
+            short_summary="Makes the executing entities look in a specific direction",
+            param_info={
+                "horizontal": "The horizontal rotation to take in degrees starting from due south (+z) increasing clockwise",
+                "vertical": "The vertical rotation to take in degrees starting from looking towards the horizon, negative values indicate degrees above the horizon"
+            },
+        )
 
     def get_namespace(self) -> 'Namespace':
         return STD_NAMESPACE
@@ -143,6 +157,12 @@ class ChainRotateSet(IChain):
 
 
 class ChainRotateMatch(IChain):
+
+    def get_docs(self) -> DocsData:
+        return DocsData(
+            short_summary="Makes the executing entities look in the same direction as the target entity",
+            param_info={"target_entity": "The entity to match the rotation of"},
+        )
 
     def get_namespace(self) -> 'Namespace':
         return STD_NAMESPACE
