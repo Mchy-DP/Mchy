@@ -52,7 +52,7 @@ class CmdBool(IFunc):
         return DocsData(
             short_summary="Cast an integer to a boolean",
             param_info={"x": "The integer to cast"},
-            return_info="True if x >= 1, False otherwise",
+            return_info="True if `x >= 1`, False otherwise",
             full_description="Note: Negative numbers are will be cast to false"
         )
 
