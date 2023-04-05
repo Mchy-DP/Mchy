@@ -32,17 +32,12 @@ apple_count = apple_count + 4
 print("I counted ", apple_count, " apples, I expected to count 9!")
 ```
 
-<fieldset><legend>Terminal</legend>
-  
-  ```bash
-  $ .\compile.sh
-  ...
-  ERROR: The read-only variable `let apple_count: int` cannot be assigned to.
-  ```
-
-</fieldset>
-
-
+> Terminal:
+> ```bash
+> $ .\compile.sh
+> ...
+> ERROR: The read-only variable `let apple_count: int` cannot be assigned to.
+> ```
 
 
 Variables defined let must be given a value during creation. Some variables may be of compile constant type, indicated by the type being suffixed with a `!` Symbol. These variables are also implicitly read-only even if I was used to define them. For more information see the typing section.
