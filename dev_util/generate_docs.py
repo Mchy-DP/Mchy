@@ -38,6 +38,24 @@ def executor_prefix(exec_type: ExecType, postfix: str, explicit_world: bool = Fa
         raise UnreachableError("Unhandled enum case")
 
 
+def _build_params_render(params: Sequence[IParam]) -> str:
+    params_out = ""
+    for param in params:
+        params_out += f"{param.label}: {param.param_type.render()}"
+        if isinstance(param.default_ctx_expr, CtxExprLits):
+            params_out += " = "
+            if hasattr(param.default_ctx_expr, "value"):
+                params_out += str(param.default_ctx_expr.value)  # type: ignore  # False positive due to mypy not understanding hasattr
+            else:
+                default_name = type(param.default_ctx_expr).__name__
+                if default_name.startswith("CtxExprLit"):
+                    params_out += default_name.removeprefix("CtxExprLit").lower()
+                else:
+                    params_out += "..."
+        params_out += ", "
+    return params_out.rstrip(", ")
+
+
 class ChainingTree:
 
     def __init__(self, link: Optional[IChainLink], initial_children: Sequence['ChainingTree'] = []) -> None:
@@ -52,7 +70,11 @@ class ChainingTree:
     def _render_link(self) -> str:
         if self.link is None:
             raise ValueError("None link while rendering docs")
-        return self.link.get_name()
+        out = f"{self.link.get_name()}"
+        params = self.link.get_params()
+        if params is not None:
+            out += "("+_build_params_render(params)+")"
+        return out
 
     def this_chain(self) -> str:
         if self.parent is not None:
@@ -110,24 +132,6 @@ def build_chaining_tree(remaining_links: List[IChainLink], base_link: Optional[I
         for active_link in active_links:
             this_tree.append(build_chaining_tree(leftover_links, active_link))
         return this_tree
-
-
-def _build_params_render(params: Sequence[IParam]) -> str:
-    params_out = ""
-    for param in params:
-        params_out += f"{param.label}: {param.param_type.render()}"
-        if isinstance(param.default_ctx_expr, CtxExprLits):
-            params_out += " = "
-            if hasattr(param.default_ctx_expr, "value"):
-                params_out += str(param.default_ctx_expr.value)  # type: ignore  # False positive due to mypy not understanding hasattr
-            else:
-                default_name = type(param.default_ctx_expr).__name__
-                if default_name.startswith("CtxExprLit"):
-                    params_out += default_name.removeprefix("CtxExprLit").lower()
-                else:
-                    params_out += "..."
-        params_out += ", "
-    return params_out.rstrip(", ")
 
 
 def generate_doc(ns: Namespace) -> str:
