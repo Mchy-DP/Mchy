@@ -1,5 +1,5 @@
 # Mchy
-Mchy is a Datapack compiler which converts the custom language, Mchy, to minecraft Datapacks.  This allows the programmer to write high level code such as for-loops, if-statements and functions yielding return values. They can then call the compiler and let it deal with the many idiosyncrasies of Datapacks that usually make these features difficult to implement and the code near impossible to read.
+Mchy is a compiler which converts the custom language, *Mchy*, to *Minecraft Datapacks*.  This allows the programmer to write high level code such as for-loops, if-statements and functions yielding return values. They can then call the compiler and let it deal with the many idiosyncrasies of Datapacks that usually make these features difficult to implement and the code near impossible to read.
 
 ## Quick Links
 * [Getting Started](#getting-started)
@@ -63,7 +63,7 @@ Mchy is a Datapack compiler which converts the custom language, Mchy, to minecra
       If all goes well you should see the output `Compilation Successful!` after the compiler finishes.
 
 6. Move your Datapack to your world
-    - In the folder containing the program there should now be a folder called `Hello World`.  This folder is the Datapack.  It can now be moved to the `datapacks` folder of any minecraft world and then when `/reload` is run in chat in that mincraft world you should see the message `Hello World!` output to chat.
+    - In the folder containing the program there should now be a folder called `Hello World`.  This folder is the Datapack.  It can now be moved to the `datapacks` folder of any Minecraft world and then when `/reload` is run in chat in that mincraft world you should see the message `Hello World!` output to chat.
 
 ### Tips:
   - Getting bored of copying your Datapack over after making a change, get the compiler to build straight to the `datapacks` directory via the `-o` option.  Example:

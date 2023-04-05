@@ -5,4 +5,4 @@ The Mchy documentation is split into 2 section, languages features (which are th
 ## Links
   - [Language features](/docs/lang.md)
   - Libraries:
-    - [Std](/docs/libs/std.md) - Note: this is the only library that automatically imports
+    - [Std](/docs/libs/std.md) - Note: this is the only library that is automatically imported
