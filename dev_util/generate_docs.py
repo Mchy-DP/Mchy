@@ -155,6 +155,7 @@ def generate_doc(ns: Namespace) -> str:
     for prop in sorted(ns.iprops, key=lambda x: x.get_name()):
         prop_out = f"### {prop.get_name()}\n"
         prop_out += f"```\n{executor_prefix(prop.get_executor_type(), '.')}{prop.get_name()} -> {prop.get_prop_type().render()}\n```\n"
+        prop_out += prop.get_docs().render()
         out += prop_out
     # Chained methods
     out += "## Chained methods\n"
@@ -163,7 +164,9 @@ def generate_doc(ns: Namespace) -> str:
     # Structures
     out += "## Structs\n"
     for struct in sorted(ns.istructs, key=lambda x: x.get_name()):
-        out += f"* `{struct.get_type().render()}`\n"
+        struct_out = f"* `{struct.get_type().render()}`\n"
+        struct_out += ("\n"+struct.get_docs().render()).replace("\n> ", "\n  > ").removeprefix("\n")
+        out += struct_out
     return out
 
 

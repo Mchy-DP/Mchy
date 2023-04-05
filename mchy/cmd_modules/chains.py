@@ -1,6 +1,7 @@
 
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Dict, List, Optional, Sequence, Tuple, Type, TypeVar, Union
+from mchy.cmd_modules.docs_data import DocsData
 from mchy.cmd_modules.param import IParam, CtxIParam
 
 from mchy.common.com_types import ComType, ExecType, TypeUnion
@@ -14,6 +15,9 @@ if TYPE_CHECKING:
 
 
 class IChainLink(ABC):
+
+    def get_docs(self) -> DocsData:
+        return DocsData()
 
     def __init__(self) -> None:
         super().__init__()

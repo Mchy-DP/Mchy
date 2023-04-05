@@ -2,6 +2,7 @@ import datetime
 from typing import Collection, Dict, List, Optional, Sequence, Tuple, Type, Union
 
 from mchy.cmd_modules.chains import IChain, IChainLink
+from mchy.cmd_modules.docs_data import DocsData
 from mchy.cmd_modules.function import IFunc, IParam
 from mchy.cmd_modules.helper import NULL_CTX_TYPE, get_exec_vdat, get_key_with_type, get_struct_instance
 from mchy.cmd_modules.name_spaces import Namespace
@@ -187,6 +188,12 @@ class ChainRotateMatch(IChain):
 
 class ChainRotateFace(IChain):
 
+    def get_docs(self) -> DocsData:
+        return DocsData(
+            short_summary="Makes the executing entities look towards the target location",
+            param_info={"target_loc": "The location to look towards"},
+        )
+
     def get_namespace(self) -> 'Namespace':
         return STD_NAMESPACE
 
@@ -201,7 +208,7 @@ class ChainRotateFace(IChain):
 
     def get_params(self) -> Optional[Sequence[IParam]]:
         return [
-            IParam("target_location", StructPos.get_type())
+            IParam("target_loc", StructPos.get_type())
         ]
 
     def get_chain_type(self) -> ComType:

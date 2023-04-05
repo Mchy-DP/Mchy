@@ -1,6 +1,7 @@
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Type, Union
 
 from mchy.cmd_modules.chains import IChain, IChainLink
+from mchy.cmd_modules.docs_data import DocsData
 from mchy.cmd_modules.function import IParam
 from mchy.cmd_modules.name_spaces import Namespace
 from mchy.cmd_modules.struct import IField, IStruct
@@ -17,6 +18,11 @@ from mchy.stmnt.struct.struct import SmtPyStructInstance
 
 
 class StructPos(IStruct):
+
+    def get_docs(self) -> DocsData:
+        return DocsData(
+            short_summary="Stores a position in the world for later reference"
+        )
 
     def get_namespace(self) -> 'Namespace':
         return STD_NAMESPACE
