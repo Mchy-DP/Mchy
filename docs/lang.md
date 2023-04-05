@@ -73,6 +73,8 @@ while <condition> {
     <loop body>
 }
 ```
+While loops will continue to execute the loop body until the condition resolves false.
+
 Example while loop:
 ```
 var count: int = 0
@@ -93,7 +95,7 @@ print("Finished loop")
 > On iteration 4
 > Finished loop
 > ```
-While loops will continue to execute the loop body until the condition resolves false.
+
 
 ### For
 For loops are also supported.  They use the following syntax:
@@ -102,6 +104,9 @@ for <index_var> in <lower_bound>..<upper_bound> {
     <loop body>
 }
 ```
+
+For loops run the loop body once for every integer between the `lower_bound` and `upper_bound` they also automatically create the `index_var` and set it to the integer associated with the current loop.
+
 Example for loop:
 ```
 print("Starting loop")
@@ -120,7 +125,6 @@ print("Finished loop")
 > On iteration 0
 > Finished loop
 > ```
-
 
 ## Functions
 
