@@ -66,14 +66,14 @@ These variables are also implicitly read-only even if `var` was used to define t
 ## If-Elif-Else
 
 If statements can be used to execute some code only if a condition is met:
-```
+```py
 var ninja_count: int = 17:
 if ninja_count > 11{
     print("Too many ninja's, Retreat!")
 }
 ```
 Elif blocks can be added to an if.  These blocks will only execute if their condition resolves True and all preceding conditions resolved false.
-```
+```py
 var ninja_count: int = 17:
 if ninja_count > 11{
     print("Too many ninja's, Retreat!")
@@ -82,7 +82,7 @@ if ninja_count > 11{
 }
 ```
 An else block can be appended to the end of a if/elif block.  It will only execute if all other condtions resolved False
-```
+```py
 var ninja_count: int = 17:
 if ninja_count > 11{
     print("Too many ninja's, Retreat!")
@@ -96,7 +96,7 @@ if ninja_count > 11{
 ## Loops
 ### While
 While loops are supported with the following syntax:
-```
+```py
 while <condition> {
     <loop body>
 }
@@ -104,7 +104,7 @@ while <condition> {
 While loops will continue to execute the loop body until the condition resolves false.
 
 Example while loop:
-```
+```py
 var count: int = 0
 print("Starting loop")
 while (count < 5) {
@@ -127,7 +127,7 @@ print("Finished loop")
 
 ### For
 For loops are also supported.  They use the following syntax:
-```
+```py
 for <index_var> in <lower_bound>..<upper_bound> {
     <loop body>
 }
@@ -136,7 +136,7 @@ for <index_var> in <lower_bound>..<upper_bound> {
 For loops run the loop body once for every integer between the `lower_bound` and `upper_bound` they also automatically create the `index_var` and set it to the integer associated with the current loop.
 
 Example for loop:
-```
+```py
 print("Starting loop")
 for count in 0..4{
     print("On iteration ", count)
@@ -155,11 +155,56 @@ print("Finished loop")
 > ```
 
 ## Functions
+### Simple function calls
+Functions can be called by writing the function name followed by `()`
+```py
+# Print a blank line to chat
+print()
+```
+Most functions expect arguments, which can be set by passing values to them
+```py
+print("Well hello there!")
+```
+Some functions, like print, can accept any number of arguments.
+```py
+print("Well ", "hello ", "there!")
+```
+Some arguments may have a default value thus making them optional.
+### Executors
+Many functions need to run on an entity/player, To do this first get the entity (see: [.get_entities()](/docs/libs/std.md#get_entities) from the standard library).  Then you can run the function on it via dot accessing:
+
+```py
+let random_player: Player = world.get_player("random").find()
+
+random_player.say("I was randomly picked!")
+```
+
+## Properties & Chains
+### Properties
+Properties are almost identical to functions except that they need no arguments.  As a result they are used in the same way except that the `(...)` must be ommited:
+```py
+let compiler_version: int = world.version
+```
+
+### Chains
+Sometimes library methods & properties may not return a complete type (such as an int or Player) instead they only make sense if further methods or properties are used to clarify the command.  These are called method/property chains.  One example of such a chain was shown above, The `get_entities()` function.
+```py
+let random_player: Player = world.get_player("random").find()
+```
+note here that `world.get_player("random")` does not actually do anything instead it is a partial entity selector.  When `.find()` is called only then is it a real type (A `Player` in this case) which can be stored to a variable.
+
+In the case of `get_player()` the reason that it is a partial selector rather than a player is that further filters can be added.  For instance:
+```
+let random_player_at_level_30: Player = world.get_player("random").with_level(min=30, max=1000000).find()
+
+random_player_at_level_30.say("I'm at level 30!")
+```
 
 ## Arithmetic & Comparison Operations
 
 ## Misc
 ### Comments
 ### Raw Commands
+### Structs
 ## Typing
 WIP
