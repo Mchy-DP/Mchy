@@ -1,5 +1,6 @@
 
 from typing import List, Tuple
+from mchy.cmd_modules.docs_data import DocsData
 from mchy.cmd_modules.name_spaces import Namespace
 from mchy.cmd_modules.properties import IProp
 from mchy.common.com_types import ComType, ExecCoreTypes, ExecType, InertCoreTypes, InertType
@@ -10,6 +11,12 @@ from mchy.stmnt.struct import SmtModule, SmtFunc, SmtCmd, SmtAtom
 
 
 class PropCompilerVersion(IProp):
+
+    def get_docs(self) -> DocsData:
+        return DocsData(
+            short_summary="Get the version of the compiler that is generating the datapack",
+            return_info="An integer of the form XXYYZZPP which links to the semantic versioning vXX.YY.ZZ.PP",
+        )
 
     def get_namespace(self) -> Namespace:
         return STD_NAMESPACE

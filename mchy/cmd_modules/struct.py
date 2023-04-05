@@ -2,6 +2,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Dict, Sequence, Type, Union
+from mchy.cmd_modules.docs_data import DocsData
 
 from mchy.cmd_modules.param import IParam
 from mchy.common.com_types import ComType, StructCoreType, StructType, TypeUnion
@@ -29,6 +30,9 @@ class IStruct(ABC):
     def __init__(self) -> None:
         super().__init__()
         IStruct.__class2type[type(self)] = StructType(StructCoreType(self.get_namespace().render(), self.get_name()))
+
+    def get_docs(self) -> DocsData:
+        return DocsData()
 
     @abstractmethod
     def get_namespace(self) -> 'Namespace':
