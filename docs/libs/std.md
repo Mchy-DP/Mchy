@@ -18,7 +18,7 @@ bool(x: int) -> bool
 >   - **x**: The integer to cast
 > 
 > Returns:
->   - True if x >= 1, False otherwise
+>   - True if `x >= 1`, False otherwise
 > 
 > Note: Negative numbers are will be cast to false
 ### cmd
@@ -111,555 +111,708 @@ tp(target_location: std::Pos) -> null
 ```
 version -> int
 ```
+> Get the version of the compiler that is generating the datapack
+> 
+> Returns:
+>   - An integer of the form XXYYZZPP which links to the semantic versioning vXX.YY.ZZ.PP
 ## Chained methods
 * ### colors
   ```
   (?).colors
   ```
+
   * ### aqua
     ```
     world.colors.aqua
     ```
+
   * ### black
     ```
     world.colors.black
     ```
+
   * ### blue
     ```
     world.colors.blue
     ```
+
   * ### cyan
     ```
     world.colors.cyan
     ```
+
   * ### dark_aqua
     ```
     world.colors.dark_aqua
     ```
+
   * ### dark_blue
     ```
     world.colors.dark_blue
     ```
+
   * ### dark_gray
     ```
     world.colors.dark_gray
     ```
+
   * ### dark_green
     ```
     world.colors.dark_green
     ```
+
   * ### dark_purple
     ```
     world.colors.dark_purple
     ```
+
   * ### dark_red
     ```
     world.colors.dark_red
     ```
+
   * ### gold
     ```
     world.colors.gold
     ```
+
   * ### gray
     ```
     world.colors.gray
     ```
+
   * ### green
     ```
     world.colors.green
     ```
+
   * ### hex
     ```
     world.colors.hex(color_code: str!)
     ```
+
   * ### light_purple
     ```
     world.colors.light_purple
     ```
+
   * ### lime
     ```
     world.colors.lime
     ```
+
   * ### red
     ```
     world.colors.red
     ```
+
   * ### white
     ```
     world.colors.white
     ```
+
   * ### yellow
     ```
     world.colors.yellow
     ```
+
 * ### get_entities
   ```
   (?).get_entities()
   ```
+
   * ### failing_predicate
     ```
     (?).get_entities().failing_predicate(predicate: str!)
     ```
+
   * ### from_position
     ```
     (?).get_entities().from_position(x: int!, y: int!, z: int!)
     ```
+
   * ### in_radius
     ```
     (?).get_entities().in_radius(min: int!?, max: int!?)
     ```
+
   * ### in_team
     ```
     (?).get_entities().in_team(team: str!?)
     ```
+
   * ### in_volume
     ```
     (?).get_entities().in_volume(dx: int!, dy: int!, dz: int!)
     ```
+
   * ### matching_nbt
     ```
     (?).get_entities().matching_nbt(nbt: str!)
     ```
+
   * ### not_in_team
     ```
     (?).get_entities().not_in_team(team: str!)
     ```
+
   * ### not_matching_nbt
     ```
     (?).get_entities().not_matching_nbt(nbt: str!)
     ```
+
   * ### of_name
     ```
     (?).get_entities().of_name(name: str!)
     ```
+
   * ### of_type
     ```
     (?).get_entities().of_type(entity_type: str!)
     ```
+
   * ### passing_predicate
     ```
     (?).get_entities().passing_predicate(predicate: str!)
     ```
+
   * ### with_hrz_rot
     ```
     (?).get_entities().with_hrz_rot(min: int!, max: int!)
     ```
+
   * ### with_no_team
     ```
     (?).get_entities().with_no_team()
     ```
+
   * ### with_score
     ```
     (?).get_entities().with_score(score: str!, min: int!? = null, max: int!? = null)
     ```
+
   * ### with_tag
     ```
     (?).get_entities().with_tag(tag: str!)
     ```
+
   * ### with_vert_rot
     ```
     (?).get_entities().with_vert_rot(min: int!, max: int!)
     ```
+
   * ### without_tag
     ```
     (?).get_entities().without_tag(tag: str!)
     ```
+
   * ### find
     ```
     world.get_entities().find()
     ```
+
 * ### get_entity
   ```
   (?).get_entity(sort: str! = nearest)
   ```
+
   * ### failing_predicate
     ```
     (?).get_entity(sort: str! = nearest).failing_predicate(predicate: str!)
     ```
+
   * ### from_position
     ```
     (?).get_entity(sort: str! = nearest).from_position(x: int!, y: int!, z: int!)
     ```
+
   * ### in_radius
     ```
     (?).get_entity(sort: str! = nearest).in_radius(min: int!?, max: int!?)
     ```
+
   * ### in_team
     ```
     (?).get_entity(sort: str! = nearest).in_team(team: str!?)
     ```
+
   * ### in_volume
     ```
     (?).get_entity(sort: str! = nearest).in_volume(dx: int!, dy: int!, dz: int!)
     ```
+
   * ### matching_nbt
     ```
     (?).get_entity(sort: str! = nearest).matching_nbt(nbt: str!)
     ```
+
   * ### not_in_team
     ```
     (?).get_entity(sort: str! = nearest).not_in_team(team: str!)
     ```
+
   * ### not_matching_nbt
     ```
     (?).get_entity(sort: str! = nearest).not_matching_nbt(nbt: str!)
     ```
+
   * ### of_name
     ```
     (?).get_entity(sort: str! = nearest).of_name(name: str!)
     ```
+
   * ### of_type
     ```
     (?).get_entity(sort: str! = nearest).of_type(entity_type: str!)
     ```
+
   * ### passing_predicate
     ```
     (?).get_entity(sort: str! = nearest).passing_predicate(predicate: str!)
     ```
+
   * ### with_hrz_rot
     ```
     (?).get_entity(sort: str! = nearest).with_hrz_rot(min: int!, max: int!)
     ```
+
   * ### with_no_team
     ```
     (?).get_entity(sort: str! = nearest).with_no_team()
     ```
+
   * ### with_score
     ```
     (?).get_entity(sort: str! = nearest).with_score(score: str!, min: int!? = null, max: int!? = null)
     ```
+
   * ### with_tag
     ```
     (?).get_entity(sort: str! = nearest).with_tag(tag: str!)
     ```
+
   * ### with_vert_rot
     ```
     (?).get_entity(sort: str! = nearest).with_vert_rot(min: int!, max: int!)
     ```
+
   * ### without_tag
     ```
     (?).get_entity(sort: str! = nearest).without_tag(tag: str!)
     ```
+
   * ### find
     ```
     world.get_entity(sort: str! = nearest).find()
     ```
+
 * ### get_player
   ```
   (?).get_player(sort: str! = nearest)
   ```
+
   * ### advancement_matches
     ```
     (?).get_player(sort: str! = nearest).advancement_matches(advancement: str!)
     ```
+
   * ### failing_predicate
     ```
     (?).get_player(sort: str! = nearest).failing_predicate(predicate: str!)
     ```
+
   * ### from_position
     ```
     (?).get_player(sort: str! = nearest).from_position(x: int!, y: int!, z: int!)
     ```
+
   * ### in_gamemode
     ```
     (?).get_player(sort: str! = nearest).in_gamemode(mode: str!)
     ```
+
   * ### in_radius
     ```
     (?).get_player(sort: str! = nearest).in_radius(min: int!?, max: int!?)
     ```
+
   * ### in_team
     ```
     (?).get_player(sort: str! = nearest).in_team(team: str!?)
     ```
+
   * ### in_volume
     ```
     (?).get_player(sort: str! = nearest).in_volume(dx: int!, dy: int!, dz: int!)
     ```
+
   * ### matching_nbt
     ```
     (?).get_player(sort: str! = nearest).matching_nbt(nbt: str!)
     ```
+
   * ### not_in_gamemode
     ```
     (?).get_player(sort: str! = nearest).not_in_gamemode(mode: str!)
     ```
+
   * ### not_in_team
     ```
     (?).get_player(sort: str! = nearest).not_in_team(team: str!)
     ```
+
   * ### not_matching_nbt
     ```
     (?).get_player(sort: str! = nearest).not_matching_nbt(nbt: str!)
     ```
+
   * ### of_name
     ```
     (?).get_player(sort: str! = nearest).of_name(name: str!)
     ```
+
   * ### passing_predicate
     ```
     (?).get_player(sort: str! = nearest).passing_predicate(predicate: str!)
     ```
+
   * ### with_hrz_rot
     ```
     (?).get_player(sort: str! = nearest).with_hrz_rot(min: int!, max: int!)
     ```
+
   * ### with_level
     ```
     (?).get_player(sort: str! = nearest).with_level(min: int!, max: int!)
     ```
+
   * ### with_no_team
     ```
     (?).get_player(sort: str! = nearest).with_no_team()
     ```
+
   * ### with_score
     ```
     (?).get_player(sort: str! = nearest).with_score(score: str!, min: int!? = null, max: int!? = null)
     ```
+
   * ### with_tag
     ```
     (?).get_player(sort: str! = nearest).with_tag(tag: str!)
     ```
+
   * ### with_vert_rot
     ```
     (?).get_player(sort: str! = nearest).with_vert_rot(min: int!, max: int!)
     ```
+
   * ### without_tag
     ```
     (?).get_player(sort: str! = nearest).without_tag(tag: str!)
     ```
+
   * ### find
     ```
     world.get_player(sort: str! = nearest).find()
     ```
+
 * ### get_players
   ```
   (?).get_players()
   ```
+
   * ### advancement_matches
     ```
     (?).get_players().advancement_matches(advancement: str!)
     ```
+
   * ### failing_predicate
     ```
     (?).get_players().failing_predicate(predicate: str!)
     ```
+
   * ### from_position
     ```
     (?).get_players().from_position(x: int!, y: int!, z: int!)
     ```
+
   * ### in_gamemode
     ```
     (?).get_players().in_gamemode(mode: str!)
     ```
+
   * ### in_radius
     ```
     (?).get_players().in_radius(min: int!?, max: int!?)
     ```
+
   * ### in_team
     ```
     (?).get_players().in_team(team: str!?)
     ```
+
   * ### in_volume
     ```
     (?).get_players().in_volume(dx: int!, dy: int!, dz: int!)
     ```
+
   * ### matching_nbt
     ```
     (?).get_players().matching_nbt(nbt: str!)
     ```
+
   * ### not_in_gamemode
     ```
     (?).get_players().not_in_gamemode(mode: str!)
     ```
+
   * ### not_in_team
     ```
     (?).get_players().not_in_team(team: str!)
     ```
+
   * ### not_matching_nbt
     ```
     (?).get_players().not_matching_nbt(nbt: str!)
     ```
+
   * ### of_name
     ```
     (?).get_players().of_name(name: str!)
     ```
+
   * ### passing_predicate
     ```
     (?).get_players().passing_predicate(predicate: str!)
     ```
+
   * ### with_hrz_rot
     ```
     (?).get_players().with_hrz_rot(min: int!, max: int!)
     ```
+
   * ### with_level
     ```
     (?).get_players().with_level(min: int!, max: int!)
     ```
+
   * ### with_no_team
     ```
     (?).get_players().with_no_team()
     ```
+
   * ### with_score
     ```
     (?).get_players().with_score(score: str!, min: int!? = null, max: int!? = null)
     ```
+
   * ### with_tag
     ```
     (?).get_players().with_tag(tag: str!)
     ```
+
   * ### with_vert_rot
     ```
     (?).get_players().with_vert_rot(min: int!, max: int!)
     ```
+
   * ### without_tag
     ```
     (?).get_players().without_tag(tag: str!)
     ```
+
   * ### find
     ```
     world.get_players().find()
     ```
+
 * ### meta
   ```
   (?).meta
   ```
+
   * ### compile_time
     ```
     world.meta.compile_time
     ```
+
 * ### pos
   ```
   (?).pos
   ```
+
   * ### constant
     ```
     world.pos.constant(x: int!, y: int!, z: int!)
     ```
+
   * ### get
     ```
     Entities.pos.get(dx: int! = 0, dy: int! = 0, dz: int! = 0)
     ```
+
   * ### get_directed
     ```
     Entities.pos.get_directed(rx: int! = 0, ry: int! = 0, rz: int! = 0)
     ```
+
   * ### set_coord
     ```
     world.pos.set_coord(old_pos: std::Pos, force_x: int!? = null, force_y: int!? = null, force_z: int!? = null)
     ```
+
 * ### rotate
   ```
   (?).rotate
   ```
+  > Entity Rotation related functions
   * ### face
     ```
-    Entities.rotate.face(target_location: std::Pos)
+    Entities.rotate.face(target_loc: std::Pos)
     ```
+    > Makes the executing entities look towards the target location
+    > 
+    > Params:
+    >   - **target_loc**: The location to look towards
   * ### match
     ```
     Entities.rotate.match(target_entity: Entity)
     ```
+    > Makes the executing entities look in the same direction as the target entity
+    > 
+    > Params:
+    >   - **target_entity**: The entity to match the rotation of
   * ### set
     ```
     Entities.rotate.set(horizontal: float!, vertical: float!)
     ```
+    > Makes the executing entities look in a specific direction
+    > 
+    > Params:
+    >   - **horizontal**: The horizontal rotation to take in degrees starting from due south (+z) increasing clockwise
+    >   - **vertical**: The vertical rotation to take in degrees starting from looking towards the horizon, negative values indicate degrees above the horizon
 * ### scoreboard
   ```
   (?).scoreboard
   ```
+
   * ### conf
     ```
     (?).scoreboard.conf
     ```
+
     * ### display
       ```
       (?).scoreboard.conf.display
       ```
+
       * ### below_name
         ```
         world.scoreboard.conf.display.below_name(name: str!?)
         ```
+
       * ### list
         ```
         world.scoreboard.conf.display.list(name: str!?)
         ```
+
       * ### sidebar
         ```
         world.scoreboard.conf.display.sidebar(name: str!?, team_color: str!? = null)
         ```
+
     * ### hearts
       ```
       world.scoreboard.conf.hearts(obj_name: str!, list_as_hearts: bool!)
       ```
+
     * ### json_name
       ```
       world.scoreboard.conf.json_name(obj_name: str!)
       ```
+
   * ### obj
     ```
     (?).scoreboard.obj(obj_name: str!)
     ```
+
     * ### player
       ```
       (?).scoreboard.obj(obj_name: str!).player(fake_player: str!)
       ```
+
       * ### add
         ```
         world.scoreboard.obj(obj_name: str!).player(fake_player: str!).add(value: int)
         ```
+
       * ### get
         ```
         world.scoreboard.obj(obj_name: str!).player(fake_player: str!).get()
         ```
+
       * ### reset
         ```
         world.scoreboard.obj(obj_name: str!).player(fake_player: str!).reset()
         ```
+
       * ### set
         ```
         world.scoreboard.obj(obj_name: str!).player(fake_player: str!).set(value: int)
         ```
+
       * ### sub
         ```
         world.scoreboard.obj(obj_name: str!).player(fake_player: str!).sub(value: int)
         ```
+
     * ### add
       ```
       Entities.scoreboard.obj(obj_name: str!).add(value: int)
       ```
+
     * ### enable
       ```
       Entities.scoreboard.obj(obj_name: str!).enable()
       ```
+
     * ### get
       ```
       Entity.scoreboard.obj(obj_name: str!).get()
       ```
+
     * ### reset
       ```
       Entities.scoreboard.obj(obj_name: str!).reset()
       ```
+
     * ### set
       ```
       Entities.scoreboard.obj(obj_name: str!).set(value: int)
       ```
+
     * ### sub
       ```
       Entities.scoreboard.obj(obj_name: str!).sub(value: int)
       ```
+
   * ### add_obj
     ```
     world.scoreboard.add_obj(name: str!, obj_type: str! = dummy)
     ```
+
   * ### remove_obj
     ```
     world.scoreboard.remove_obj(name: str!)
     ```
+
   * ### reset
     ```
     Entities.scoreboard.reset()
     ```
+
 ## Structs
 * `std::Color`
+
 * `std::Pos`
+  > Stores a position in the world for later reference
