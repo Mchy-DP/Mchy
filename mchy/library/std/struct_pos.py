@@ -7,7 +7,7 @@ from mchy.cmd_modules.struct import IField, IStruct
 from mchy.common.com_loc import ComLoc
 from mchy.common.com_types import ComType, ExecCoreTypes, ExecType, InertCoreTypes, InertType
 from mchy.contextual.struct.expr import CtxChainLink, CtxExprNode, CtxExprPyStruct
-from mchy.contextual.struct.expr.literals import CtxExprLitInt, CtxExprLitNull
+from mchy.contextual.struct.expr.literals import CtxExprLitFloat, CtxExprLitInt, CtxExprLitNull
 from mchy.contextual.struct.expr.structs import CtxPyStruct
 from mchy.contextual.struct.expr.var import CtxExprVar
 from mchy.errors import ContextualisationError, ConversionError, VirtualRepError
@@ -26,30 +26,36 @@ class StructPos(IStruct):
 
     def get_fields(self) -> Sequence[IField]:
         return [
-            IField("x", int),
-            IField("y", int),
-            IField("z", int),
-            IField("dx", int),
-            IField("dy", int),
-            IField("dz", int),
-            IField("rx", int),
-            IField("ry", int),
-            IField("rz", int),
+            IField("x", float),
+            IField("y", float),
+            IField("z", float),
+            IField("dx", float),
+            IField("dy", float),
+            IField("dz", float),
+            IField("rx", float),
+            IField("ry", float),
+            IField("rz", float),
             IField("origin", ExecType(ExecCoreTypes.ENTITY, True)),
         ]
 
     @staticmethod
-    def build_position_string(instance: SmtPyStructInstance, *, suppress_y_coord: bool = False) -> Tuple[str, Optional[SmtAtom]]:
+    def _cast_int_if_close(x: float) -> Union[float, int]:
+        if abs(round(x) - x) < 0.000001:
+            return round(x)
+        return x
+
+    @staticmethod
+    def build_position_string(instance: SmtPyStructInstance, *, suppress_y_coord: bool = False, cast_to_int: bool = False) -> Tuple[str, Optional[SmtAtom]]:
         # Get fields
-        f_x = instance.get_asserting_type_or_NIL("x", int)
-        f_y = instance.get_asserting_type_or_NIL("y", int)
-        f_z = instance.get_asserting_type_or_NIL("z", int)
-        f_dx = instance.get_asserting_type_or_NIL("dx", int)
-        f_dy = instance.get_asserting_type_or_NIL("dy", int)
-        f_dz = instance.get_asserting_type_or_NIL("dz", int)
-        f_rx = instance.get_asserting_type_or_NIL("rx", int)
-        f_ry = instance.get_asserting_type_or_NIL("ry", int)
-        f_rz = instance.get_asserting_type_or_NIL("rz", int)
+        f_x = instance.get_asserting_type_or_NIL("x", float)
+        f_y = instance.get_asserting_type_or_NIL("y", float)
+        f_z = instance.get_asserting_type_or_NIL("z", float)
+        f_dx = instance.get_asserting_type_or_NIL("dx", float)
+        f_dy = instance.get_asserting_type_or_NIL("dy", float)
+        f_dz = instance.get_asserting_type_or_NIL("dz", float)
+        f_rx = instance.get_asserting_type_or_NIL("rx", float)
+        f_ry = instance.get_asserting_type_or_NIL("ry", float)
+        f_rz = instance.get_asserting_type_or_NIL("rz", float)
         f_origin = instance.get_asserting_type_or_NIL("origin", SmtAtom)  # type: ignore  # mypy false positive
         # Sanitize data
         if any([f_rx != instance.NIL, f_ry != instance.NIL, f_rz != instance.NIL]):
@@ -76,6 +82,33 @@ class StructPos(IStruct):
                     [f_dx != instance.NIL, f_dy != instance.NIL, f_dz != instance.NIL, f_rx != instance.NIL, f_ry != instance.NIL, f_rz != instance.NIL]
                 ):
             raise VirtualRepError(f"Relative coord without origin? (pos={instance.render()})")
+        # cast floats near ints to ints
+        if f_x != instance.NIL:
+            f_x = StructPos._cast_int_if_close(f_x)
+        if f_y != instance.NIL:
+            f_y = StructPos._cast_int_if_close(f_y)
+        if f_z != instance.NIL:
+            f_z = StructPos._cast_int_if_close(f_z)
+        if f_dx != instance.NIL:
+            f_dx = StructPos._cast_int_if_close(f_dx)
+        if f_dy != instance.NIL:
+            f_dy = StructPos._cast_int_if_close(f_dy)
+        if f_dz != instance.NIL:
+            f_dz = StructPos._cast_int_if_close(f_dz)
+        if f_rx != instance.NIL:
+            f_rx = StructPos._cast_int_if_close(f_rx)
+        if f_ry != instance.NIL:
+            f_ry = StructPos._cast_int_if_close(f_ry)
+        if f_rz != instance.NIL:
+            f_rz = StructPos._cast_int_if_close(f_rz)
+        # force cast to int if needed
+        if cast_to_int:
+            if f_x != instance.NIL:
+                f_x = round(f_x)
+            if f_y != instance.NIL:
+                f_y = round(f_y)
+            if f_z != instance.NIL:
+                f_z = round(f_z)
         # build coord_string
         coord_string: str = (
             (
@@ -128,9 +161,9 @@ class ChainPosConstant(IChain):
 
     def get_params(self) -> Optional[Sequence[IParam]]:
         return [
-            IParam("x", InertType(InertCoreTypes.INT, const=True)),
-            IParam("y", InertType(InertCoreTypes.INT, const=True)),
-            IParam("z", InertType(InertCoreTypes.INT, const=True)),
+            IParam("x", InertType(InertCoreTypes.FLOAT, const=True)),
+            IParam("y", InertType(InertCoreTypes.FLOAT, const=True)),
+            IParam("z", InertType(InertCoreTypes.FLOAT, const=True)),
         ]
 
     def get_chain_type(self) -> ComType:
@@ -139,9 +172,9 @@ class ChainPosConstant(IChain):
     def yield_struct_instance(self, executor: 'CtxExprNode', chain_links: List['CtxChainLink'], struct: CtxPyStruct) -> 'CtxExprPyStruct':
         this_link = chain_links[-1]
         return CtxExprPyStruct(struct, {
-            "x": this_link.get_arg_for_param_described("x", CtxExprLitInt).value,
-            "y": this_link.get_arg_for_param_described("y", CtxExprLitInt).value,
-            "z": this_link.get_arg_for_param_described("z", CtxExprLitInt).value
+            "x": this_link.get_arg_for_param_described("x", CtxExprLitFloat).value,
+            "y": this_link.get_arg_for_param_described("y", CtxExprLitFloat).value,
+            "z": this_link.get_arg_for_param_described("z", CtxExprLitFloat).value
         })
 
 
@@ -158,9 +191,9 @@ class ChainPosGet(IChain):
 
     def get_params(self) -> Optional[Sequence[IParam]]:
         return [
-            IParam("dx", InertType(InertCoreTypes.INT, const=True), CtxExprLitInt(0, src_loc=ComLoc())),
-            IParam("dy", InertType(InertCoreTypes.INT, const=True), CtxExprLitInt(0, src_loc=ComLoc())),
-            IParam("dz", InertType(InertCoreTypes.INT, const=True), CtxExprLitInt(0, src_loc=ComLoc())),
+            IParam("dx", InertType(InertCoreTypes.FLOAT, const=True), CtxExprLitInt(0, src_loc=ComLoc())),
+            IParam("dy", InertType(InertCoreTypes.FLOAT, const=True), CtxExprLitInt(0, src_loc=ComLoc())),
+            IParam("dz", InertType(InertCoreTypes.FLOAT, const=True), CtxExprLitInt(0, src_loc=ComLoc())),
         ]
 
     def get_chain_type(self) -> ComType:
@@ -174,9 +207,9 @@ class ChainPosGet(IChain):
             raise ConversionError(f"executor.pos.get() cannot be called on executor's of type world")
         this_link = chain_links[-1]
         return CtxExprPyStruct(struct, {
-            "dx": this_link.get_arg_for_param_described("dx", CtxExprLitInt).value,
-            "dy": this_link.get_arg_for_param_described("dy", CtxExprLitInt).value,
-            "dz": this_link.get_arg_for_param_described("dz", CtxExprLitInt).value,
+            "dx": this_link.get_arg_for_param_described("dx", CtxExprLitFloat).value,
+            "dy": this_link.get_arg_for_param_described("dy", CtxExprLitFloat).value,
+            "dz": this_link.get_arg_for_param_described("dz", CtxExprLitFloat).value,
             "origin": executor
         })
 
@@ -195,9 +228,9 @@ class ChainPosSetCoord(IChain):
     def get_params(self) -> Optional[Sequence[IParam]]:
         return [
             IParam("old_pos", StructPos.get_type()),
-            IParam("force_x", InertType(InertCoreTypes.INT, const=True, nullable=True), CtxExprLitNull(src_loc=ComLoc())),
-            IParam("force_y", InertType(InertCoreTypes.INT, const=True, nullable=True), CtxExprLitNull(src_loc=ComLoc())),
-            IParam("force_z", InertType(InertCoreTypes.INT, const=True, nullable=True), CtxExprLitNull(src_loc=ComLoc())),
+            IParam("force_x", InertType(InertCoreTypes.FLOAT, const=True, nullable=True), CtxExprLitNull(src_loc=ComLoc())),
+            IParam("force_y", InertType(InertCoreTypes.FLOAT, const=True, nullable=True), CtxExprLitNull(src_loc=ComLoc())),
+            IParam("force_z", InertType(InertCoreTypes.FLOAT, const=True, nullable=True), CtxExprLitNull(src_loc=ComLoc())),
         ]
 
     def get_chain_type(self) -> ComType:
@@ -218,13 +251,15 @@ class ChainPosSetCoord(IChain):
             arg_value = this_link.get_arg_for_param_of_name(param_name)
             if isinstance(arg_value, CtxExprLitNull):
                 if preserve_name in old_pos.get_set_field_names():
-                    binding[preserve_name] = old_pos.get_py_field_data(preserve_name, int)
+                    binding[preserve_name] = old_pos.get_py_field_data(preserve_name, float)
                 elif struct_name in old_pos.get_set_field_names():
-                    binding[struct_name] = old_pos.get_py_field_data(struct_name, int)
+                    binding[struct_name] = old_pos.get_py_field_data(struct_name, float)
                 else:
                     raise ContextualisationError(f"Supplied position in invalid state: neither `{preserve_name}` nor `{struct_name}` provided")
-            elif isinstance(arg_value, CtxExprLitInt):
+            elif isinstance(arg_value, CtxExprLitFloat):
                 binding[struct_name] = arg_value.value
+            elif isinstance(arg_value, CtxExprLitInt):
+                binding[struct_name] = float(arg_value.value)
             else:
                 raise ContextualisationError(f"argument of param `{param_name}` is neither a int or null, found {repr(arg_value)}")
         # add origin to bindings
@@ -247,9 +282,9 @@ class ChainPosGetDirected(IChain):
 
     def get_params(self) -> Optional[Sequence[IParam]]:
         return [
-            IParam("rx", InertType(InertCoreTypes.INT, const=True), CtxExprLitInt(0, src_loc=ComLoc())),
-            IParam("ry", InertType(InertCoreTypes.INT, const=True), CtxExprLitInt(0, src_loc=ComLoc())),
-            IParam("rz", InertType(InertCoreTypes.INT, const=True), CtxExprLitInt(0, src_loc=ComLoc())),
+            IParam("rx", InertType(InertCoreTypes.FLOAT, const=True), CtxExprLitInt(0, src_loc=ComLoc())),
+            IParam("ry", InertType(InertCoreTypes.FLOAT, const=True), CtxExprLitInt(0, src_loc=ComLoc())),
+            IParam("rz", InertType(InertCoreTypes.FLOAT, const=True), CtxExprLitInt(0, src_loc=ComLoc())),
         ]
 
     def get_chain_type(self) -> ComType:
@@ -263,8 +298,8 @@ class ChainPosGetDirected(IChain):
             raise ConversionError(f"executor.pos.get_directed() cannot be called on executor's of type world")
         this_link = chain_links[-1]
         return CtxExprPyStruct(struct, {
-            "rx": this_link.get_arg_for_param_described("rx", CtxExprLitInt).value,
-            "ry": this_link.get_arg_for_param_described("ry", CtxExprLitInt).value,
-            "rz": this_link.get_arg_for_param_described("rz", CtxExprLitInt).value,
+            "rx": this_link.get_arg_for_param_described("rx", CtxExprLitFloat).value,
+            "ry": this_link.get_arg_for_param_described("ry", CtxExprLitFloat).value,
+            "rz": this_link.get_arg_for_param_described("rz", CtxExprLitFloat).value,
             "origin": executor
         })

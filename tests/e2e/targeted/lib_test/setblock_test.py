@@ -25,3 +25,16 @@ def test_setblock_and_pos_ops():
     assert any_line_matches(
         vir_dp.load_master_file, r"^execute.*@e[^\]]*tag=.*run setblock.*~(0(\.0)?)? 80(\.0)? ~(0(\.0)?)?.*minecraft:emerald_block"
     ), "A setblock command executing as tagged entity targeting ~ 80 ~ and setting a emerald block cannot be found, raw file:\n"+vir_dp.load_master_file.get_file_data()
+
+
+def test_setblock_float_test():
+    code = """
+    var random_player: Player = world.get_player("random").find()
+
+    world.setblock(world.pos.constant(0.1, 82.7, 0.1), "minecraft:diamond_block")
+    """
+    ast_root, ctx_module, smt_module, vir_dp = conversion_helper(code)
+
+    assert any_line_matches(
+        vir_dp.load_master_file, r"^setblock.*0 83 0.*minecraft:diamond_block"
+    ), "A setblock command targeting 0 83 0 and setting a diamond block cannot be found, raw file:\n"+vir_dp.load_master_file.get_file_data()
