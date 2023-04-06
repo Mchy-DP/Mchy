@@ -272,7 +272,19 @@ def secondly(){
 }
 ```
 #### Public
-The `@public` decorator can proceed any function with no parameters.  When the `@public` decorator is used the function will be callable from in world via the `/function` command at the location
+The `@public` decorator can proceed any function with no parameters.  When the `@public` decorator is used the function will be callable from in world via the `/function` command at the location `<file name>:generated/public/<function name>`.
+```py
+# In the file apple_prints.mchy
+@public
+def output_apples(){
+    print("apples!")
+}
+```
+> In Minecraft chat:
+> ```MCDP
+> /function apple_prints:generated/public/output_apples
+> apples!
+> ```
 ## Typing
 There are 3 broad catagories of type in mchy: Inert types, Executable types & Struct Types.  Struct types are special types used by structures and minimal knowledge is needed about them, As such they will not be discussed here more than to acknowledge their existence.
 ### Inert Types
