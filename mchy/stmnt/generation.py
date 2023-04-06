@@ -63,6 +63,8 @@ def handle_ticking(ctx_module: CtxModule, smt_module: SmtModule, config: Config)
 
 
 def handle_public(ctx_module: CtxModule, smt_module: SmtModule, config: Config) -> None:
+    if len(ctx_module.get_public_funcs()) == 0:
+        return  # This prevents tests needing to import the STD library to use convert
     ctx_print_func = ctx_module.get_function(ExecType(ExecCoreTypes.WORLD, False), "print")
     if ctx_print_func is None:
         raise StatementRepError("Cannot get print function - has STD library failed to load?")
