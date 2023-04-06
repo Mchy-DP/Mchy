@@ -26,6 +26,7 @@ class CtxModule:
         self._chain_links: List[IChainLink] = []
         self._structs: List[CtxPyStruct] = []
         self._ticking_funcs: List[CtxMchyFunc] = []
+        self._public_funcs: List[CtxMchyFunc] = []
 
     def func_defined(self, executor: ExecType, name: str) -> bool:
         return self.get_function(executor, name) is not None
@@ -98,8 +99,17 @@ class CtxModule:
     def register_as_ticking(self, func: CtxMchyFunc) -> None:
         self._ticking_funcs.append(func)
 
+    def register_as_public(self, new_pfunc: CtxMchyFunc) -> None:
+        for pfunc in self._public_funcs:
+            if new_pfunc.get_name() == pfunc.get_name():
+                raise ConversionError(f"Got Multiple functions marked as public with the same name (`{pfunc.render()}` and `{new_pfunc.render()}`)")
+        self._public_funcs.append(new_pfunc)
+
     def get_ticking_funcs(self) -> List[CtxMchyFunc]:
         return self._ticking_funcs
+
+    def get_public_funcs(self) -> List[CtxMchyFunc]:
+        return self._public_funcs
 
     def get_mchy_functions(self) -> List[CtxMchyFunc]:
         out_funcs: List[CtxMchyFunc] = []

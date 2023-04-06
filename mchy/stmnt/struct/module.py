@@ -22,6 +22,7 @@ class SmtModule:
         self.ctx_decl_func: Set[CtxMchyFunc] = set()
         self._ctx_iparam_defaults: Dict[CtxIParam, Optional[SmtAtom]] = {}
         self._world_lit_val = SmtWorld()
+        self.public_functions: Dict[str, SmtFunc] = {}
 
         # Ensures before any global scope code runs the imported functions are fully loaded
         self.setup_function.func_frag.body.append(SmtInvokeFuncCmd(self.import_ns_function, self.get_world()))

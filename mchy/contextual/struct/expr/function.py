@@ -39,7 +39,7 @@ class CtxExprFuncCall(CtxExprNode):
         return super().__eq__(other) and isinstance(other, CtxExprFuncCall) and self.function == other.function
 
     def __repr__(self) -> str:
-        return super().__repr__()[:-1] + f", function='{self.function.get_name()}'" + ")"
+        return f"{type(self).__name__}({', '.join([repr(child) for child in self.children])}, function='{self.function.get_name()}')"
 
 
 class CtxExprParamVal(CtxExprNode):

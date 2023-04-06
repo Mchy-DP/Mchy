@@ -10,6 +10,8 @@ from mchy.stmnt.struct.abs_cmd import SmtCmd
 class SmtRawCmd(SmtCmd):
 
     def __init__(self, raw_cmd: str) -> None:
+        if raw_cmd[0] == "/":
+            raise StatementRepError(f"Raw command prefixed with `/` at late stage? (cmd: {raw_cmd})")
         self.raw_cmd: str = raw_cmd
 
     def __repr__(self) -> str:
