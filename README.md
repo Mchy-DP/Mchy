@@ -33,7 +33,7 @@ Mchy is a compiler which converts the custom language, *Mchy*, to *Minecraft Dat
         1. Press the windows button/key
         2. Type `edit environment variables for your account` into the search bar
         3. Click the top result
-        4. In the top box of the opend window entitled `User variables for USERNAME` find the `Path` variable
+        4. In the top box of the opened window entitled `User variables for USERNAME` find the `Path` variable
         5. Click the `Path` variable once to select it
         6. Press the `Edit` button directly below the top box
         7. Press the `New` button from the left hand menu
