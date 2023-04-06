@@ -27,7 +27,7 @@ def test_flatten_struct():
         ExprFragParam(label=ExprLitIdent("y"), value=ExprLitInt(7)),
         ExprFragParam(label=ExprLitIdent("z"), value=ExprLitInt(9))
     )
-    expected_ctx_expr = CtxExprPyStruct(pos_struct, {"x": 5, "y": 7, "z": 9})
+    expected_ctx_expr = CtxExprPyStruct(pos_struct, {"x": 5.0, "y": 7.0, "z": 9.0})
     observed_ctx_expr = convert_expr(ast_expr, ExecType(ExecCoreTypes.WORLD, False), module, [module.global_var_scope])
     assert observed_ctx_expr == expected_ctx_expr
 
@@ -53,6 +53,6 @@ def test_flatten_struct_var():
     if pos_struct is None:
         raise ValueError("Failed to import std library in testing")
     # test variable flattening
-    expected_ctx_expr = CtxExprPyStruct(pos_struct, {"x": 5, "y": 7, "z": 9})
+    expected_ctx_expr = CtxExprPyStruct(pos_struct, {"x": 5.0, "y": 7.0, "z": 9.0})
     observed_ctx_expr = convert_expr(ExprLitIdent("foo"), None, module, [module.global_var_scope])
     assert observed_ctx_expr == expected_ctx_expr

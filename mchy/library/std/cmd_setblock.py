@@ -48,7 +48,7 @@ class SmtSetblockCmd(SmtCmd):
         return f"{type(self).__name__}(loc={repr(self.location)}, block={self.block}, mode={self.existing_block_behavior.name})"
 
     def virtualize(self, linker: SmtLinker, stack_level: int) -> List[ComCmd]:
-        pos_str, executor = StructPos.build_position_string(get_struct_instance(self.location))
+        pos_str, executor = StructPos.build_position_string(get_struct_instance(self.location), cast_to_int=True)
         cmd = f"setblock {pos_str} {self.block} {self.existing_block_behavior.value}"
         if executor is None:
             return [ComCmd(cmd)]

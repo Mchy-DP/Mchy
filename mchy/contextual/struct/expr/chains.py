@@ -6,6 +6,7 @@ from mchy.cmd_modules.param import CtxIParam
 from mchy.common.abs_ctx import AbsCtxParam
 from mchy.common.com_loc import ComLoc
 from mchy.common.config import Config
+from mchy.contextual.struct.expr.literals import CtxExprLitFloat, CtxExprLitInt
 
 from mchy.errors import ContextualisationError, ConversionError, UnreachableError
 from mchy.common.com_types import ComType, ExecType, InertType, StructType, matches_type
@@ -111,9 +112,11 @@ class CtxChainLink:
     def is_iclick_of_type(self, ichain_link_type: Type[IChainLink]):
         return isinstance(self._chain_link, ichain_link_type)
 
-    def get_arg_for_param_described(self, param_name: str, arg_node_type: Type[T]) -> T:
+    def get_arg_for_param_described(self, param_name: str, arg_node_type: Type[T], fuzzy: bool = True) -> T:
         param, arg = self._get_param_arg_of_name(param_name)
         if not isinstance(arg, arg_node_type):
+            if fuzzy and (arg_node_type == CtxExprLitFloat) and isinstance(arg, CtxExprLitInt):
+                return CtxExprLitFloat(float(arg.value), src_loc=arg.loc)  # type:ignore  # false positive as mypy doesn't understand `T === CtxExprLitFloat` here
             raise ContextualisationError(
                 f"Argument for parameter `{param.render()}` of `{self.render()}` is of type `{type(arg).__name__}`, `{arg_node_type.__name__}` requested?"
             )
