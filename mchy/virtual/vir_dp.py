@@ -38,6 +38,7 @@ class VirDP:
         self._generated = VirNSFolder(f"{config.project_namespace}:generated", "generated", VirFolder("functions", self._prj_ns))
         fs_fld_internal_func_root = VirFolder("internal_root", self._generated)
         fs_fld_imported_func_root = VirFolder("imported_root", self._generated)
+        self._public_funcs = VirFolder("public", self._generated)
         self._import_param_default_init = VirMCHYFile("default_param_init.mcfunction", fs_fld_imported_func_root)
         self._load_master = VirMCHYFile("load_master.mcfunction", fs_fld_internal_func_root)
         self._tick_master = VirMCHYFile("tick_master.mcfunction", fs_fld_internal_func_root)
@@ -49,6 +50,7 @@ class VirDP:
         self._extra_frags_tick = VirFolder("tick_master_load", fs_fld_extra_frags)
         self._extra_frags_setup = VirFolder("setup", fs_fld_extra_frags)
         self._extra_frags_import_ns = VirFolder("import_ns", fs_fld_extra_frags)
+        self._extra_frags_public = VirFolder("public", fs_fld_extra_frags)
 
     def _get_pack_format(self) -> int:
         return 9  # TODO: update to reflect config target version
@@ -73,6 +75,14 @@ class VirDP:
     @property
     def extra_frags_import_ns(self) -> VirFolder:
         return self._extra_frags_import_ns
+
+    @property
+    def extra_frags_public_fld(self) -> VirFolder:
+        return self._extra_frags_public
+
+    @property
+    def public_funcs_accessor_fld(self) -> VirFolder:
+        return self._public_funcs
 
     @property
     def mchy_func_fld(self) -> VirFolder:
