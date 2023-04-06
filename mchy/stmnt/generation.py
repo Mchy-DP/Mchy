@@ -1,6 +1,6 @@
 from typing import List
 from mchy.common.com_loc import ComLoc
-from mchy.common.com_types import ExecCoreTypes, ExecType, InertCoreTypes, InertType
+from mchy.common.com_types import ExecCoreTypes, ExecType, InertCoreTypes, InertType, matches_type
 from mchy.common.config import Config
 from mchy.contextual.struct import CtxModule
 from mchy.contextual.struct.expr.function import CtxExprExtraParamVal, CtxExprFuncCall
@@ -77,20 +77,23 @@ def handle_public(ctx_module: CtxModule, smt_module: SmtModule, config: Config) 
             r'''","color":"light_purple"},{"text":"`","color":"blue"}]'''
         ))
         pseudo_ctx_func_call: CtxExprFuncCall = CtxExprFuncCall(CtxExprLitWorld(src_loc=ComLoc()), ctx_pub_func, [], [], src_loc=ComLoc())
-        pseudo_static_print_prefix: List[CtxExprExtraParamVal] = [
-            CtxExprExtraParamVal(ctx_color_struct.get_type(), CtxExprPyStruct(ctx_color_struct, {"color_code": "blue"}), src_loc=ComLoc()),
-            CtxExprExtraParamVal(InertType(InertCoreTypes.STR, True), CtxExprLitStr("The function returned: ", src_loc=ComLoc()), src_loc=ComLoc()),
-            CtxExprExtraParamVal(ctx_color_struct.get_type(), CtxExprPyStruct(ctx_color_struct, {"color_code": "light_purple"}), src_loc=ComLoc()),
-        ]
-        pseudo_ctx_func_call_as_eparam = CtxExprExtraParamVal(ctx_pub_func.get_return_type(), pseudo_ctx_func_call, src_loc=ComLoc())
-        pseudo_print_ctx_func_call_return = CtxExprFuncCall(
-            CtxExprLitWorld(src_loc=ComLoc()),
-            ctx_print_func,
-            [],
-            pseudo_static_print_prefix + [pseudo_ctx_func_call_as_eparam],
-            src_loc=ComLoc()
-        )
-        call_cmds, _ = convert_func_call_expr(pseudo_print_ctx_func_call_return, smt_module, smt_pub_func, config)
+        if matches_type(InertType(InertCoreTypes.NULL), ctx_pub_func.get_return_type()):
+            call_cmds, _ = convert_func_call_expr(pseudo_ctx_func_call, smt_module, smt_pub_func, config)
+        else:
+            pseudo_static_print_prefix: List[CtxExprExtraParamVal] = [
+                CtxExprExtraParamVal(ctx_color_struct.get_type(), CtxExprPyStruct(ctx_color_struct, {"color_code": "blue"}), src_loc=ComLoc()),
+                CtxExprExtraParamVal(InertType(InertCoreTypes.STR, True), CtxExprLitStr("The function returned: ", src_loc=ComLoc()), src_loc=ComLoc()),
+                CtxExprExtraParamVal(ctx_color_struct.get_type(), CtxExprPyStruct(ctx_color_struct, {"color_code": "light_purple"}), src_loc=ComLoc()),
+            ]
+            pseudo_ctx_func_call_as_eparam = CtxExprExtraParamVal(ctx_pub_func.get_return_type(), pseudo_ctx_func_call, src_loc=ComLoc())
+            pseudo_print_ctx_func_call_return = CtxExprFuncCall(
+                CtxExprLitWorld(src_loc=ComLoc()),
+                ctx_print_func,
+                [],
+                pseudo_static_print_prefix + [pseudo_ctx_func_call_as_eparam],
+                src_loc=ComLoc()
+            )
+            call_cmds, _ = convert_func_call_expr(pseudo_print_ctx_func_call_return, smt_module, smt_pub_func, config)
         smt_pub_func.func_frag.body.extend(call_cmds)
         smt_module.public_functions[ctx_pub_func.get_name()] = smt_pub_func
 
