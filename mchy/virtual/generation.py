@@ -1,6 +1,7 @@
 
 from typing import List, Sequence
 from mchy.common.config import Config
+from mchy.errors import VirtualRepError
 from mchy.stmnt.helpers import runtime_error_tellraw_formatter
 from mchy.stmnt.struct.cmds import SmtRawCmd
 from mchy.stmnt.struct.cmds.assign import SmtAssignCmd
@@ -26,10 +27,14 @@ def convert(smt_module: SmtModule, config: Config = Config()) -> VirDP:
                 f"{vir_dp.mchy_func_fld.get_namespace_loc()}/{smt_func.get_unique_ident()}/s{rix}/",
                 rix
             )
+    # Override fragment location ofr special cases
     vir_dp.linker.add_frag_path_override(smt_module.import_ns_function, vir_dp.extra_frags_import_ns.get_namespace_loc())
     vir_dp.linker.add_frag_path_override(smt_module.setup_function, vir_dp.extra_frags_setup.get_namespace_loc())
     vir_dp.linker.add_frag_path_override(smt_module.initial_function, vir_dp.extra_frags_init.get_namespace_loc())
     vir_dp.linker.add_frag_path_override(smt_module.ticking_function, vir_dp.extra_frags_tick.get_namespace_loc())
+    for func_name, function in smt_module.public_functions.items():
+        public_func_frag_folder = VirFolder(func_name, vir_dp.extra_frags_public_fld)
+        vir_dp.linker.add_frag_path_override(function, public_func_frag_folder.get_namespace_loc())
 
     # Build scoreboard & storage linking
     config.logger.very_verbose(f"VIR: Building Scoreboard & storage loc linking table")
@@ -41,6 +46,9 @@ def convert(smt_module: SmtModule, config: Config = Config()) -> VirDP:
         vir_dp.linker.add_bland_var(var, ["mchy_extra", "ticking"], stackless=True)
     for var in smt_module.import_ns_function.get_all_vars():
         vir_dp.linker.add_bland_var(var, ["mchy_extra", "import"], stackless=True)
+    for func_name, function in smt_module.public_functions.items():
+        for var in function.get_all_vars():
+            vir_dp.linker.add_bland_var(var, ["mchy_extra", "public", func_name], stackless=True)
     for smt_func in smt_module.get_smt_mchy_funcs():
         for var in smt_func.get_all_vars():
             if var == smt_func.executor_var:
@@ -81,10 +89,9 @@ def convert(smt_module: SmtModule, config: Config = Config()) -> VirDP:
     # Add top-level scope to load master file
     config.logger.very_verbose(f"VIR: Building top-level scope into load_master file")
     vir_dp.load_master_file.extend(SmtCommentCmd("Top-Level Scope", generator="MCHY", importance=CommentImportance.TITLE).virtualize(vir_dp.linker, 0))
-    top_level_commands: List[ComCmd] = convert_smtcmds(smt_module.initial_function.func_frag.body, vir_dp.linker, 0, config=config)
     if config.testing_comments:
         vir_dp.load_master_file.append(ComCmd("# TESTING: top-level-start"))
-    vir_dp.load_master_file.extend(top_level_commands)
+    vir_dp.load_master_file.extend(convert_smtcmds(smt_module.initial_function.func_frag.body, vir_dp.linker, 0, config=config))
     if config.testing_comments:
         vir_dp.load_master_file.append(ComCmd("# TESTING: top-level-end"))
     load_master_tag_cleanup.extend(convert_smtcmds(get_cleanup_stmnts(smt_module.initial_function, vir_dp.linker, 0), vir_dp.linker, 0, config))
@@ -95,12 +102,17 @@ def convert(smt_module: SmtModule, config: Config = Config()) -> VirDP:
     # Add ticking commands to tick master file
     config.logger.very_verbose(f"VIR: Building master tick in tick_master file")
     vir_dp.tick_master_file.extend(SmtCommentCmd("Calling Ticking Functions", generator="MCHY", importance=CommentImportance.TITLE).virtualize(vir_dp.linker, 0))
-    tick_commands: List[ComCmd] = convert_smtcmds(smt_module.ticking_function.func_frag.body, vir_dp.linker, 0, config=config)
     if config.testing_comments:
         vir_dp.tick_master_file.append(ComCmd("# TESTING: tick-call-start"))
-    vir_dp.tick_master_file.extend(tick_commands)
+    vir_dp.tick_master_file.extend(convert_smtcmds(smt_module.ticking_function.func_frag.body, vir_dp.linker, 0, config=config))
     if config.testing_comments:
         vir_dp.tick_master_file.append(ComCmd("# TESTING: tick-call-end"))
+
+    # build public functions
+    config.logger.very_verbose(f"VIR: Building public function accessor files")
+    for func_name, function in smt_module.public_functions.items():
+        func_file = VirMCHYFile(func_name+".mcfunction", vir_dp.public_funcs_accessor_fld)
+        func_file.extend(convert_smtcmds(function.func_frag.body, vir_dp.linker, 0, config=config))
 
     # Rendering special-case fragments
     config.logger.very_verbose(f"VIR: Building special fragments")
@@ -113,8 +125,17 @@ def convert(smt_module: SmtModule, config: Config = Config()) -> VirDP:
     for frag in smt_module.initial_function.fragments:
         frag_file = VirMCHYFile(frag.get_frag_name()+".mcfunction", vir_dp.extra_frags_init)
         frag_file.extend(convert_smtcmds(frag.body, vir_dp.linker, 0, config=config))
+    for func_name, function in smt_module.public_functions.items():
+        par_fld = vir_dp.extra_frags_public_fld.get_child_with_name(func_name)
+        if par_fld is None:
+            raise VirtualRepError(f"Cannot find fragment folder for public function `{func_name}`")
+        if not isinstance(par_fld, VirFolder):
+            raise VirtualRepError(f"Fragment folder for public function `{func_name}` is not a folder?")
+        for frag in function.fragments:
+            frag_file = VirMCHYFile(frag.get_frag_name()+".mcfunction", par_fld)
+            frag_file.extend(convert_smtcmds(frag.body, vir_dp.linker, 0, config=config))
 
-    # handle functions
+    # handle mchy functions
     for smt_func in smt_module.get_smt_mchy_funcs():
         vir_dp.mchy_func_fld.add_child(convert_mchy_func(smt_func, vir_dp, config, _extra_error_state_begin))
 

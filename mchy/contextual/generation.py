@@ -87,6 +87,15 @@ def convert_function_decl(ast_fdecl: FunctionDecl, executing_type: Optional[Exec
     return func, fmarker
 
 
+def _assert_no_params(func: CtxMchyFunc, func_type: str) -> None:
+    func_params = list(func.get_params())
+    if len(func_params) >= 1:
+        raise ConversionError(
+            f"{func_type} functions cannot have any parameters.  Consider deleting params: " +
+            f"`def {func.get_name()}({func_params[0].render()}{(', ...' if len(func_params) > 1 else '')})` ---> `def {func.get_name()}()`"
+        )
+
+
 def apply_decorators(func: CtxMchyFunc, marker: MarkerDeclFunc, decorators: List[Decorator], module: CtxModule, var_scopes: List[VarScope]) -> Tuple[CtxMchyFunc, MarkerDeclFunc]:
     for dec in decorators:
         if dec.dec_name == "ticking":
@@ -95,18 +104,16 @@ def apply_decorators(func: CtxMchyFunc, marker: MarkerDeclFunc, decorators: List
                     f"Ticking functions can only execute as world, not `{func.get_executor().render()}`.  Consider deleting executor type " +
                     f"(`def {func.get_executor().render()} {func.get_name()}...` ---> `def {func.get_name()}...`)"
                 )
-            func_params = list(func.get_params())
-            if len(func_params) >= 1:
-                raise ConversionError(
-                    f"Ticking functions cannot have any parameters.  Consider deleting params: " +
-                    f"`def {func.get_name()}({func_params[0].render()}{(', ...' if len(func_params) > 1 else '')})` ---> `def {func.get_name()}()`"
-                )
+            _assert_no_params(func, "Ticking")
             if not matches_type(InertType(InertCoreTypes.NULL), func.get_return_type()):
                 raise ConversionError(
                     f"Ticking functions cannot return anything.  Consider deleting return type: " +
                     f"`def {func.get_name()}() -> {func.get_return_type().render()}{'{'}...{'}'}` ---> `def {func.get_name()}(){'{'}...{'}'}`"
                 )
             module.register_as_ticking(func)
+        elif dec.dec_name == "public":
+            _assert_no_params(func, "Published")
+            module.register_as_public(func)
         else:
             raise ConversionError("Unknown decorator, did you mean `ticking`?")  # TODO: when decorators are generalized make did you mean more useful
     return func, marker
@@ -120,7 +127,7 @@ def convert_stmnt(
             enc_func: Optional[CtxMchyFunc],
             config: Config
         ) -> List[CtxStmnt]:
-    config.logger.very_verbose(f"CTX: Converting statement: `{ast_stmnt.deep_repr()}` ({ast_stmnt.deep_repr()})")
+    config.logger.very_verbose(f"CTX: Converting statement: `{ast_stmnt.deep_repr()}`")
     if len(ast_stmnt.children) != 1:
         raise ContextualisationError(f"Malformed AST: Stmnt does not have 1 child ({str(ast_stmnt)})")
     stmnt_body: Node = ast_stmnt.children[0]

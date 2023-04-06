@@ -69,6 +69,12 @@ class VirFolder(VirFSNode):
     def children(self) -> Tuple[VirFSNode, ...]:
         return tuple(self._children)
 
+    def get_child_with_name(self, name: str) -> Optional[VirFSNode]:
+        for child in self._children:
+            if child.fs_name == name:
+                return child
+        return None
+
 
 class VirNSFolder(VirFolder):
 

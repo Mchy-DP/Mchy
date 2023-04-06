@@ -200,3 +200,13 @@ def test_ticking_func_registered():
     module = convert(ast_root, Config())
 
     assert module.get_ticking_funcs() == [module.get_function_oerr(ExecType(ExecCoreTypes.WORLD, False), "main_tick")]
+
+
+def test_public_func_registered():
+    ast_root = Root(Scope(
+        FunctionDecl("give_apple", TypeNode("world"), TypeNode("null"), Scope(CodeBlock()), [Decorator(ExprLitIdent("public"))]),
+    ))
+
+    module = convert(ast_root, Config())
+
+    assert module.get_public_funcs() == [module.get_function_oerr(ExecType(ExecCoreTypes.WORLD, False), "give_apple")]
