@@ -450,9 +450,7 @@ class ChainLinkPartialSelectorInTeam(ChainLinkPartialSelector, abstract=True):
         return DocsData(
             short_summary="FILTER: Filter out all entities not in the volume bounded by the selector location and a point offset from the selector location",
             param_info={
-                "dx": "Makes the offset point `dx` away from the selector location",
-                "dy": "Makes the offset point `dy` away from the selector location",
-                "dz": "Makes the offset point `dz` away from the selector location",
+                "team": "The name of the team valid entities must be a member of",
             },
             return_info="Partial Selector of same type as predecessor (this allows unlimited chaining of filters)"
         )
@@ -1191,7 +1189,7 @@ class ChainLinkPartialSelectorAdvancementMatches(ChainLinkPartialSelector, abstr
         return DocsData(
             short_summary="FILTER: Filter out all players who gamemode is not the specified one",
             param_info={
-                "mode": "The advancement (or advancement criteria) the player must match",
+                "advancement": "The advancement (or advancement criteria) the player must match",
             },
             return_info="Partial Selector of same type as predecessor (this allows unlimited chaining of filters)"
         )
