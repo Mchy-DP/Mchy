@@ -250,6 +250,29 @@ Some functions & properties such as [`world.pos.constant(...)`](/docs/libs/std.m
 let selected_color: Color = world.colors.red
 print("I am normal text, ", selected_color, "I am scary colored text!")
 ```
+### Decorators
+Functions can be proceeded by `@<decorator>` to change/add behaviors of that function.
+#### Ticking
+The `@ticking` decorator can proceed any function that executes on world with no return type or parameters.  When the `@ticking` decorator is used the function will run once every 20th of a second.
+```py
+@ticking
+def main_tick(){
+    print("Spam chat 20 times a second!")
+}
+```
+```py
+var tick: int = 0
+
+@ticking
+def secondly(){
+    tick = tick + 1
+    if (tick % 20) == 0 {
+        print("Spam chat once a second!")
+    }
+}
+```
+#### Public
+The `@public` decorator can proceed any function with no parameters.  When the `@public` decorator is used the function will be callable from in world via the `/function` command at the location
 ## Typing
 There are 3 broad catagories of type in mchy: Inert types, Executable types & Struct Types.  Struct types are special types used by structures and minimal knowledge is needed about them, As such they will not be discussed here more than to acknowledge their existence.
 ### Inert Types
