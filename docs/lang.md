@@ -179,6 +179,73 @@ let random_player: Player = world.get_player("random").find()
 random_player.say("I was randomly picked!")
 ```
 
+### Defining functions
+You can define your own functions in the simplest case with the following syntax:
+```py
+def <func_name>(){
+    <func_body>
+}
+```
+Where `func_name` is the name of the new function and `func_body` are the statements to execute whe the function is called. E.g.
+```py
+def print_answer(){
+    print("The answer is: ", 42)
+}
+print_answer()
+```
+You can add arguments between the parentheses, arguments must have a type.
+```py
+def print_answer(number: int){
+    print("The answer is: ", number)
+}
+print_answer(13)
+```
+You can also provide a default value which will be used if the user provides no value
+```py
+def print_answer(number: int = 42){
+    print("The answer is: ", number)
+}
+print_answer(13)
+print_answer()
+```
+> Minecraft Chat:
+> ```txt
+> /reload
+> The answer is: 13
+> The answer is: 42
+> ```
+
+### Return
+You can return values from functions:  Just add a return type to the end of the function signature and then write `return <value_to_return>` inside your function body.
+```py
+def get_answer() -> int{
+    return 42
+}
+print("I got the answer: ", get_answer())
+```
+> Minecraft Chat:
+> ```txt
+> /reload
+> I got the answer: 42
+> ```
+
+### Executors
+You can require that a function execute on a specific executable type (see [typing](#typing)) by including that type after `def`:
+```py
+def Group[Entity] say_answer(){
+    this.say("The answer is: 42!")
+}
+
+let player: Player = get_player("random").find()
+player.say_answer()
+```
+> Minecraft Chat:
+> ```txt
+> /reload
+> [USERNAME] The answer is: 42!
+> ```
+
+
 ## Properties & Chains
 ### Properties
 Properties are almost identical to functions except that they need no arguments.  As a result they are used in the same way except that the `(...)` must be ommited:
