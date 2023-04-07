@@ -246,7 +246,7 @@ player.say_answer()
 > ```
 
 ### Final syntax reference
-With everything above added this give the final function definitions syntax as:
+With everything above added this gives the final function definitions syntax as:
 ```py
 def <ExecutorType> <func_name>(<param1_name>: <param1_type>, ...) -> <return_type> {
     <func_body>
