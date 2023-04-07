@@ -1,6 +1,6 @@
 # Mchy Documentation
 
-The Mchy documentation is split into 2 section, languages features (which are the core syntax of the language) and libraries (which provide predefined behavior such as `print` or `setblock`).
+The Mchy documentation is split into 2 section, languages features (which are the core syntax of the language) and libraries (which provide predefined behaviour such as `print` or `setblock`).
 
 ## Links
   - [Language features](/docs/lang.md)
