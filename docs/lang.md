@@ -81,7 +81,7 @@ if ninja_count > 11{
     print("It's quiet... too quiet...")
 }
 ```
-An else block can be appended to the end of a if/elif block.  It will only execute if all other condtions resolved False.
+An else block can be appended to the end of a if/elif block.  It will only execute if all other conditions resolved False.
 ```py
 var ninja_count: int = 17:
 if ninja_count > 11{
