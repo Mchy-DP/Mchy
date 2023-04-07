@@ -186,7 +186,7 @@ def <func_name>(){
     <func_body>
 }
 ```
-Where `func_name` is the name of the new function and `func_body` are the statements to execute whe the function is called. E.g.
+Where `func_name` is the name of the new function and `func_body` are the statements to execute when the function is called. E.g.
 ```py
 def print_answer(){
     print("The answer is: ", 42)
