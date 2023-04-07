@@ -41,7 +41,8 @@ class SelectorBuilder:
     prohibited_tags: List[str] = dataclass_field(default_factory=list)
     required_scores: List[Tuple[str, Optional[int], Optional[int]]] = dataclass_field(default_factory=list)
     name: Optional[str] = None
-    entity_type: Optional[str] = None
+    required_entity_type: Optional[str] = None
+    prohibited_entity_types: List[str] = dataclass_field(default_factory=list)
     required_predicates: List[str] = dataclass_field(default_factory=list)
     prohibited_predicates: List[str] = dataclass_field(default_factory=list)
     rotate_hrz_min: Optional[int] = None
@@ -110,8 +111,10 @@ class SelectorBuilder:
         if self.name is not None:
             filters.append(f'name="{self.name}"')
         # type
-        if self.entity_type is not None:
-            filters.append(f"type={self.entity_type}")
+        if self.required_entity_type is not None:
+            filters.append(f"type={self.required_entity_type}")
+        for prohibited_etype in self.prohibited_entity_types:
+            filters.append(f"type=!{prohibited_etype}")
         # predicates
         for req_pred in self.required_predicates:
             filters.append(f"predicate={req_pred}")
@@ -618,7 +621,7 @@ class ChainLinkPartialSelectorOfType(ChainLinkPartialSelector, abstract=True):
         return [IParam("entity_type", InertType(InertCoreTypes.STR, const=True))]
 
     def build_selector(self, builder: SelectorBuilder, param_binding: Dict[str, SmtAtom]) -> None:
-        builder.entity_type = get_key_with_type(param_binding, "entity_type", SmtConstStr).value
+        builder.required_entity_type = get_key_with_type(param_binding, "entity_type", SmtConstStr).value
 
 
 class ChainLinkPartialEntitiesSelectorOfType(ChainLinkPartialEntitiesSelector, ChainLinkPartialSelectorOfType):
@@ -626,6 +629,29 @@ class ChainLinkPartialEntitiesSelectorOfType(ChainLinkPartialEntitiesSelector, C
 
 
 class ChainLinkPartialEntitySelectorOfType(ChainLinkPartialEntitySelector, ChainLinkPartialSelectorOfType):
+    ...
+
+
+class ChainLinkPartialSelectorNotOfType(ChainLinkPartialSelector, abstract=True):
+
+    def get_namespace(self) -> 'Namespace':
+        return STD_NAMESPACE
+
+    def get_name(self) -> str:
+        return "not_of_type"
+
+    def get_params(self) -> Optional[Sequence[IParam]]:
+        return [IParam("entity_type", InertType(InertCoreTypes.STR, const=True))]
+
+    def build_selector(self, builder: SelectorBuilder, param_binding: Dict[str, SmtAtom]) -> None:
+        builder.prohibited_entity_types.append(get_key_with_type(param_binding, "entity_type", SmtConstStr).value)
+
+
+class ChainLinkPartialEntitiesSelectorNotOfType(ChainLinkPartialEntitiesSelector, ChainLinkPartialSelectorNotOfType):
+    ...
+
+
+class ChainLinkPartialEntitySelectorNotOfType(ChainLinkPartialEntitySelector, ChainLinkPartialSelectorNotOfType):
     ...
 
 
