@@ -5,6 +5,7 @@ from mchy.contextual.struct import *
 from mchy.contextual.struct.expr import CtxExprLitWorld
 from mchy.stmnt.struct import *
 from mchy.stmnt.generation import convert
+from mchy.stmnt.struct.cmds.tag_ops import SmtRawEntitySelector
 from tests.stmnt_layer.helper import diff_cmds_list
 
 import pytest
@@ -66,5 +67,8 @@ class TestMchyFunc1:
         func = smt_module.get_smt_func(TestMchyFunc1._FUNC_GET42)
         assert len(func.func_frag.body) > 0, "Empty function body?"
 
-        diff_bool, explanation = diff_cmds_list(func.func_frag.body, [SmtAssignCmd(func.return_var, SmtConstInt(42))])
+        diff_bool, explanation = diff_cmds_list(func.func_frag.body, [
+            SmtRawEntitySelector(SmtWorld(), func.executor_var, "@s"),
+            SmtAssignCmd(func.return_var, SmtConstInt(42))
+        ])
         assert diff_bool, "Converted function body does not match expected:\n" + explanation
