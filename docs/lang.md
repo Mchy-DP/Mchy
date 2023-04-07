@@ -187,13 +187,13 @@ let compiler_version: int = world.version
 ```
 
 ### Chains
-Sometimes library methods & properties may not return a complete type (such as an int or Player) instead they only make sense if further methods or properties are used to clarify the command.  These are called method/property chains.  One example of such a chain was shown above, The `get_entities()` function.
+Sometimes library methods and properties may not return a complete type (such as an int or Player) instead they only make sense if further methods or properties are used to clarify the command.  These are called method/property chains.  One example of such a chain was shown above; the `get_entities()` function.
 ```py
 let random_player: Player = world.get_player("random").find()
 ```
-note here that `world.get_player("random")` does not actually do anything instead it is a partial entity selector.  When `.find()` is called only then is it a real type (A `Player` in this case) which can be stored to a variable.
+Note here that `world.get_player("random")` does not actually do anything, instead it is a partial entity selector.  When `.find()` is called only then is it a real type (A `Player` in this case) which can be stored to a variable.
 
-In the case of `get_player()` the reason that it is a partial selector rather than a player is that further filters can be added.  For instance:
+In the case of `get_player()` the reason that it is a partial selector rather than a Player is that further filters can be added.  For instance:
 ```py
 let random_player_at_level_30: Player = world.get_player("random").with_level(min=30, max=1000000).find()
 
@@ -222,9 +222,9 @@ random_player_at_level_30.say("I'm at level 30!")
 | Null Literal     | `null`    | Yields the literal value `null`                                         |
 | World            | `world`   | Yields the world                                                        |
 | This             | `this`    | Yields the executing entity in a function                               |
-| Not              | `not X`   | Yields true if `X` is false and false if `X` is true                    |
-| And              | `X and Y` | Yields true if both `X` and `Y` are true, False otherwise               |
-| Or               | `X or Y`  | Yields true if either `X` or `Y` are true, False otherwise              |
+| Not              | `not X`   | Yields true if `X` is False and False if `X` is True                    |
+| And              | `X and Y` | Yields true if both `X` and `Y` are True, False otherwise               |
+| Or               | `X or Y`  | Yields true if either `X` or `Y` are True, False otherwise              |
 | NullCoal         | `X ?? Y`  | Yields `X` if `X` is not null, `Y` otherwise.  `Y` cannot be null.      |
 
 
