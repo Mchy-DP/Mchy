@@ -72,7 +72,7 @@ if ninja_count > 11{
     print("Too many ninjas, Retreat!")
 }
 ```
-Elif blocks can be added to an if.  These blocks will only execute if their condition resolves True and all preceding conditions resolved false.
+Elif blocks can be added to an if.  These blocks will only execute if their condition resolves True and all preceding conditions resolved False.
 ```py
 var ninja_count: int = 17:
 if ninja_count > 11{
@@ -101,7 +101,7 @@ while <condition> {
     <loop body>
 }
 ```
-While loops will continue to execute the loop body until the condition resolves false.
+While loops will continue to execute the loop body until the condition resolves False.
 
 Example while loop:
 ```py
