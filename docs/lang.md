@@ -69,14 +69,14 @@ If statements can be used to execute some code only if a condition is met:
 ```py
 var ninja_count: int = 17:
 if ninja_count > 11{
-    print("Too many ninja's, Retreat!")
+    print("Too many ninjas, Retreat!")
 }
 ```
 Elif blocks can be added to an if.  These blocks will only execute if their condition resolves True and all preceding conditions resolved false.
 ```py
 var ninja_count: int = 17:
 if ninja_count > 11{
-    print("Too many ninja's, Retreat!")
+    print("Too many ninjas, Retreat!")
 } elif ninja_count == 0 {
     print("It's quiet... too quiet...")
 }
@@ -85,7 +85,7 @@ An else block can be appended to the end of a if/elif block.  It will only execu
 ```py
 var ninja_count: int = 17:
 if ninja_count > 11{
-    print("Too many ninja's, Retreat!")
+    print("Too many ninjas, Retreat!")
 } elif ninja_count == 0 {
     print("It's quiet... too quiet...")
 } else {
