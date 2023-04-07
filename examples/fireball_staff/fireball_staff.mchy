@@ -1,0 +1,54 @@
+# Config constants
+let FIREBALL_STEPS: int! = 175
+let FIREBALL_RESOLUTION: float! = 0.25
+
+# Other Constants
+let RIGHT_CLICK_OBJ: str! = "sb_carrot_stick_clicked"
+
+
+# Inital setup
+world.scoreboard.add_obj(RIGHT_CLICK_OBJ, "minecraft.used:minecraft.carrot_on_a_stick")
+
+@public
+def Group[Player] give_fireball_staff(){
+    this.give("minecraft:carrot_on_a_stick", 1, "{display:{Name:'{\"text\":\"Fireball Staff\",\"color\":\"#FF0000\",\"bold\":true}'},Unbreakable:1b,fb_fireball_staff:1b,Enchantments:[{}]}")
+}
+
+def Player cast_fireball(){
+    # Reset clicked
+    this.scoreboard.obj(RIGHT_CLICK_OBJ).set(0)
+
+    # Make fireball
+    let fireball: Entity = world.summon(this.pos.get(dy=1.5), "minecraft:marker")
+    fireball.rotate.match(this)
+    var collided: bool = False
+    var ittertaion_count: int = 0
+
+    # Shoot fireball
+    let all_players: Group[Player] = world.get_players().find()
+    all_players.play_sound(fireball.pos.get(), "entity.ghast.shoot", channel="player")
+
+    # Move fireball
+    while ((not collided) and (ittertaion_count < FIREBALL_STEPS)){
+        # fireball motion & effects
+        fireball.tp(fireball.pos.get_directed(rz=FIREBALL_RESOLUTION))
+        world.particle(fireball.pos.get(), "minecraft:flame", 0.03, 0.03, 0.03, 0.05, count=5)
+        world.particle(fireball.pos.get(), "minecraft:lava", 0.01, 0.01, 0.01, 0.01, count=1)
+
+        # allow checks for loop end
+        ittertaion_count = ittertaion_count + 1
+        if (not world.block_exists(fireball.pos.get(), "minecraft:air")){
+            collided = True
+        }
+    }
+
+    # Detonate Fireball
+    world.particle(fireball.pos.get(), "minecraft:flame", 0.2, 0.2, 0.2, 0.1, count=25)
+    world.particle(fireball.pos.get(), "minecraft:flame", 0.5, 0.5, 0.5, 0.7, count=25)
+    world.particle(fireball.pos.get(), "minecraft:lava", 0.01, 0.01, 0.01, 0.01, count=20)
+}
+
+@ticking
+def main_tick(){
+    world.get_players().matching_nbt("{SelectedItem:{tag:{fb_fireball_staff:1b}}}").with_score(RIGHT_CLICK_OBJ, min=1).find().cast_fireball()
+}
