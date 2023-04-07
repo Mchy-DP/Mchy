@@ -1,6 +1,7 @@
 
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, List, Tuple
+from mchy.cmd_modules.docs_data import DocsData
 
 from mchy.common.com_types import ComType, ExecType
 from mchy.common.config import Config
@@ -11,6 +12,9 @@ if TYPE_CHECKING:
 
 
 class IProp(ABC):
+
+    def get_docs(self) -> DocsData:
+        return DocsData()
 
     @abstractmethod
     def get_namespace(self) -> 'Namespace':

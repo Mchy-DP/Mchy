@@ -23,6 +23,9 @@ class CtxExprLitStr(CtxExprLits):
     def __repr__(self) -> str:
         return f'{type(self).__name__}("{self.value}")'
 
+    def render_value(self) -> str:
+        return f'"{self.value}"'
+
 
 class CtxExprLitInt(CtxExprLits):
 
@@ -44,6 +47,9 @@ class CtxExprLitInt(CtxExprLits):
 
     def __repr__(self) -> str:
         return f'{type(self).__name__}({self.value})'
+
+    def render_value(self) -> str:
+        return f"{self.value}"
 
 
 class CtxExprLitFloat(CtxExprLits):
@@ -67,6 +73,9 @@ class CtxExprLitFloat(CtxExprLits):
     def __repr__(self) -> str:
         return f'{type(self).__name__}({self.value})'
 
+    def render_value(self) -> str:
+        return f"{self.value}"
+
 
 class CtxExprLitNull(CtxExprLits):
 
@@ -85,6 +94,9 @@ class CtxExprLitNull(CtxExprLits):
     def __repr__(self) -> str:
         return f'{type(self).__name__}()'
 
+    def render_value(self) -> str:
+        return "null"
+
 
 class CtxExprLitWorld(CtxExprLits):
 
@@ -102,6 +114,9 @@ class CtxExprLitWorld(CtxExprLits):
 
     def __repr__(self) -> str:
         return f'{type(self).__name__}()'
+
+    def render_value(self) -> str:
+        return "world"
 
 
 class CtxExprLitThis(CtxExprLits):
@@ -125,6 +140,9 @@ class CtxExprLitThis(CtxExprLits):
     def __repr__(self) -> str:
         return f'{type(self).__name__}(type={self._this_type.render()})'
 
+    def render_value(self) -> str:
+        return "this"
+
 
 class CtxExprLitBool(CtxExprLits):
 
@@ -146,3 +164,6 @@ class CtxExprLitBool(CtxExprLits):
 
     def __repr__(self) -> str:
         return f'{type(self).__name__}({self.value})'
+
+    def render_value(self) -> str:
+        return ("true" if self.value else "false")

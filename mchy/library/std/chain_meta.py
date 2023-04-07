@@ -39,6 +39,9 @@ class ChainMetaCompileTime(IChain):
     def get_name(self) -> str:
         return "compile_time"
 
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.WORLD, False)
+
     def get_params(self) -> Optional[Sequence[IParam]]:
         return None
 

@@ -2,6 +2,7 @@ import datetime
 from typing import Collection, Dict, List, Optional, Sequence, Tuple, Type, Union
 
 from mchy.cmd_modules.chains import IChain, IChainLink
+from mchy.cmd_modules.docs_data import DocsData
 from mchy.cmd_modules.function import IFunc, IParam
 from mchy.cmd_modules.helper import NULL_CTX_TYPE, get_exec_vdat, get_key_with_type, get_struct_instance
 from mchy.cmd_modules.name_spaces import Namespace
@@ -82,6 +83,11 @@ class SmtRotationFaceEntityCmd(SmtCmd):
 
 class ChainLinkRotate(IChainLink):
 
+    def get_docs(self) -> DocsData:
+        return DocsData(
+            short_summary="Entity Rotation related functions",
+        )
+
     def get_namespace(self) -> 'Namespace':
         return STD_NAMESPACE
 
@@ -97,6 +103,15 @@ class ChainLinkRotate(IChainLink):
 
 class ChainRotateSet(IChain):
 
+    def get_docs(self) -> DocsData:
+        return DocsData(
+            short_summary="Makes the executing entities look in a specific direction",
+            param_info={
+                "horizontal": "The horizontal rotation to take in degrees starting from due south (+z) increasing clockwise",
+                "vertical": "The vertical rotation to take in degrees starting from looking towards the horizon, negative values indicate degrees above the horizon"
+            },
+        )
+
     def get_namespace(self) -> 'Namespace':
         return STD_NAMESPACE
 
@@ -105,6 +120,9 @@ class ChainRotateSet(IChain):
 
     def get_name(self) -> str:
         return "set"
+
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.ENTITY, True)
 
     def get_params(self) -> Optional[Sequence[IParam]]:
         return [
@@ -140,6 +158,12 @@ class ChainRotateSet(IChain):
 
 class ChainRotateMatch(IChain):
 
+    def get_docs(self) -> DocsData:
+        return DocsData(
+            short_summary="Makes the executing entities look in the same direction as the target entity",
+            param_info={"target_entity": "The entity to match the rotation of"},
+        )
+
     def get_namespace(self) -> 'Namespace':
         return STD_NAMESPACE
 
@@ -148,6 +172,9 @@ class ChainRotateMatch(IChain):
 
     def get_name(self) -> str:
         return "match"
+
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.ENTITY, True)
 
     def get_params(self) -> Optional[Sequence[IParam]]:
         return [
@@ -181,6 +208,12 @@ class ChainRotateMatch(IChain):
 
 class ChainRotateFace(IChain):
 
+    def get_docs(self) -> DocsData:
+        return DocsData(
+            short_summary="Makes the executing entities look towards the target location",
+            param_info={"target_loc": "The location to look towards"},
+        )
+
     def get_namespace(self) -> 'Namespace':
         return STD_NAMESPACE
 
@@ -190,9 +223,12 @@ class ChainRotateFace(IChain):
     def get_name(self) -> str:
         return "face"
 
+    def get_refined_executor(self) -> ExecType:
+        return ExecType(ExecCoreTypes.ENTITY, True)
+
     def get_params(self) -> Optional[Sequence[IParam]]:
         return [
-            IParam("target_location", StructPos.get_type())
+            IParam("target_loc", StructPos.get_type())
         ]
 
     def get_chain_type(self) -> ComType:
