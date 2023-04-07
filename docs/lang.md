@@ -81,7 +81,7 @@ if ninja_count > 11{
     print("It's quiet... too quiet...")
 }
 ```
-An else block can be appended to the end of a if/elif block.  It will only execute if all other condtions resolved False
+An else block can be appended to the end of a if/elif block.  It will only execute if all other condtions resolved False.
 ```py
 var ninja_count: int = 17:
 if ninja_count > 11{
@@ -161,7 +161,7 @@ Functions can be called by writing the function name followed by `()`
 # Print a blank line to chat
 print()
 ```
-Most functions expect arguments, which can be set by passing values to them
+Most functions expect arguments, which can be set by passing values to them.
 ```py
 print("Well hello there!")
 ```
@@ -171,7 +171,7 @@ print("Well ", "hello ", "there!")
 ```
 Some arguments may have a default value thus making them optional.
 ### Executors
-Many functions need to run on an entity/player, To do this first get the entity (see: [.get_entities()](/docs/libs/std.md#get_entities) from the standard library).  Then you can run the function on it via dot accessing:
+Many functions need to run on an entity/player. To do this first get the entity (see: [.get_entities()](/docs/libs/std.md#get_entities) from the standard library).  then you can run the function on it via dot accessing:
 
 ```py
 let random_player: Player = world.get_player("random").find()
