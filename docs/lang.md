@@ -225,22 +225,22 @@ random_player_at_level_30.say("I'm at level 30!")
 | Not              | `not X`   | Yields true if `X` is False and False if `X` is True                    |
 | And              | `X and Y` | Yields true if both `X` and `Y` are True, False otherwise               |
 | Or               | `X or Y`  | Yields true if either `X` or `Y` are True, False otherwise              |
-| NullCoal         | `X ?? Y`  | Yields `X` if `X` is not null, `Y` otherwise.  `Y` cannot be null.      |
+| NullCoal         | `X ?? Y`  | Yields `X` if `X` is not null, `Y` otherwise.  `Y` cannot be null       |
 
 
 ## Misc
 ### Comments
-Any line begining with a `#` symbol is a code comment and will not be executed
+Any line begining with a `#` symbol is a code comment and will not be executed.
 ```py
 # Not a real line
 print("Real line")
 # print("This is a print that has been commented out so won't run!")
 ```
 ### Raw Commands
-Any line starting with a `/` symbol will be directly inserted at that position into the output datapack as a raw minecraft command.
+Any line starting with a `/` symbol will be directly inserted at that position into the output datapack as a raw Minecraft command.
 ```py
 print("About to force speech")
-/execute as @a run say I decided to say this becuase a raw command made me do it!
+/execute as @a run say I decided to say this because a raw command made me do it!
 print("Finished forcing speech!")
 ```
 Note: If you want to build a raw command out of Compile-time constant Strings (`str!`) then use [`world.cmd(...)`](/docs/libs/std.md#cmd) from the standard library.
@@ -248,7 +248,7 @@ Note: If you want to build a raw command out of Compile-time constant Strings (`
 Some functions & properties such as [`world.pos.constant(...)`](/docs/libs/std.md#constant) return compile-time struct's.  These represent data structures more complicated than simple int's or str's are sufficient for.  Struct's can usually be stored in variables.
 ```py
 let selected_color: Color = world.colors.red
-print("I am normal text, ", selected_color, "I am scary colored text!")
+print("I am normal text, ", selected_color, "I am scary coloured text!")
 ```
 ### Decorators
 Functions can be proceeded by `@<decorator>` to change/add behaviors of that function.
