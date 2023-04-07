@@ -25,15 +25,15 @@ def test_selector_in_radius(request: pytest.FixtureRequest):
     ast_root, ctx_module, smt_module, vir_dp = conversion_helper(code)
 
     assert any_line_matches(
-        vir_dp.load_master_file, r"^tag @a\[.*distance=5\.\.10.*\] add "
+        vir_dp.load_master_file, r"^tag @a\[.*distance=5(\.0)?\.\.10(\.0)?.*\] add "
     ), f"{_ERR_PREFIX} 1 of `{request.node.originalname[len('test_selector_'):]}` cannot be found, raw file:\n"+vir_dp.load_master_file.get_file_data()
 
     assert any_line_matches(
-        vir_dp.load_master_file, r"^tag @a\[.*distance=\.\.13.*\] add "
+        vir_dp.load_master_file, r"^tag @a\[.*distance=\.\.13(\.0)?.*\] add "
     ), f"{_ERR_PREFIX} 2 of `{request.node.originalname[len('test_selector_'):]}` cannot be found, raw file:\n"+vir_dp.load_master_file.get_file_data()
 
     assert any_line_matches(
-        vir_dp.load_master_file, r"^tag @a\[.*distance=7\.\..*\] add "
+        vir_dp.load_master_file, r"^tag @a\[.*distance=7(\.0)?\.\..*\] add "
     ), f"{_ERR_PREFIX} 3 of `{request.node.originalname[len('test_selector_'):]}` cannot be found, raw file:\n"+vir_dp.load_master_file.get_file_data()
 
 

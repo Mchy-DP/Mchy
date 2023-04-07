@@ -53,7 +53,7 @@ class VirDP:
         self._extra_frags_public = VirFolder("public", fs_fld_extra_frags)
 
     def _get_pack_format(self) -> int:
-        return 9  # TODO: update to reflect config target version
+        return 12  # TODO: update to reflect config target version
 
     def _get_pack_dot_mcmeta(self) -> str:
         return json_dump(

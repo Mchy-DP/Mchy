@@ -1,0 +1,99 @@
+# Config constants
+let FIREBALL_STEPS: int! = 175
+let FIREBALL_RESOLUTION: float! = 0.25
+
+# Other Constants
+let RIGHT_CLICK_OBJ: str! = "sb_carrot_stick_clicked"
+
+
+# Inital setup
+world.scoreboard.add_obj(RIGHT_CLICK_OBJ, "minecraft.used:minecraft.carrot_on_a_stick")
+
+@public
+def Group[Player] give_fireball_staff(){
+    this.give("minecraft:carrot_on_a_stick", 1, "{display:{Name:'{\"text\":\"Fireball Staff\",\"color\":\"#FF0000\",\"bold\":true}'},Unbreakable:1b,fb_fireball_staff:1b,Enchantments:[{}]}")
+}
+
+def Player cast_fireball(){
+    # Reset clicked
+    this.scoreboard.obj(RIGHT_CLICK_OBJ).set(0)
+
+    # Make fireball
+    let fireball: Entity = world.summon(this.pos.get(dy=1.5), "minecraft:marker", "{CustomName:'{\"text\":\"fireball\",\"color\":\"#FF9900\"}'}")
+    fireball.rotate.match(this)
+    
+    # Move fireball a little to the right so it';s not quite so in your face
+    fireball.tp(fireball.pos.get_directed(rx=-0.2))
+    
+
+    # Shoot fireball
+    let all_players: Group[Player] = world.get_players().find()
+    all_players.play_sound(fireball.pos.get(), "entity.ghast.shoot", channel="player", volume=0.5)
+
+    # Move fireball
+    var collided: bool = False
+    var ittertaion_count: int = 0
+    while ((not collided) and (ittertaion_count < FIREBALL_STEPS)){
+        # fireball motion & effects
+        fireball.tp(fireball.pos.get_directed(rz=FIREBALL_RESOLUTION))
+        if ittertaion_count > 3{
+            # only spawn graphics once the fireball is out of your face
+            world.particle(fireball.pos.get(), "minecraft:flame", 0.03, 0.03, 0.03, 0.01, count=1, force_render=True)
+            if (ittertaion_count % 5) == 0{
+                # Only emit lava particles every 5 steps as they become distracting
+                world.particle(fireball.pos.get(), "minecraft:lava", 0.5, 0.5, 0.5, 0.01, count=1)
+            }
+        }
+
+        # allow checks for loop end
+        ittertaion_count = ittertaion_count + 1
+        let all_nearby_mobs: Entity = fireball.get_entity("arbitrary").in_radius(max=0.8).not_of_type("minecraft:player").not_of_type("minecraft:marker").not_of_type("minecraft:armor_stand").not_of_type("minecraft:area_effect_cloud").not_of_type("minecraft:experience_orb").find()
+        if ((not world.block_exists(fireball.pos.get(), "minecraft:air")) or (world.entity_exists(all_nearby_mobs))){
+            collided = True
+        }
+    }
+
+    # Detonate Fireball
+    world.particle(fireball.pos.get(), "minecraft:flame", 0.2, 0.2, 0.2, 0.1, count=140, force_render=True)
+    world.particle(fireball.pos.get(), "minecraft:flame", 0.5, 0.5, 0.5, 0.25, count=55, force_render=True)
+    world.particle(fireball.pos.get(), "minecraft:lava", 0.01, 0.01, 0.01, 0.01, count=35, force_render=True)
+    world.particle(fireball.pos.get(), "minecraft:explosion_emitter", 0, 0, 0, 0, count=1, force_render=True)
+    all_players.play_sound(fireball.pos.get(), "entity.generic.explode", channel="hostile", pitch=1.4)
+
+    # find fireball victims
+    let all_victims: Group[Entity] = fireball.get_entities().in_radius(0, 4).not_of_type("minecraft:armor_stand").not_of_type("minecraft:item").not_of_type("minecraft:experience_orb").not_of_type("minecraft:marker").find()
+    let living_victims: Group[Entity] = (
+        fireball.get_entities().in_radius(0, 4
+        ).not_of_type("minecraft:armor_stand"
+        ).not_of_type("minecraft:item"
+        ).not_of_type("minecraft:experience_orb"
+        ).not_of_type("minecraft:marker"
+        ).not_of_type("minecraft:drowned"
+        ).not_of_type("minecraft:husk"
+        ).not_of_type("minecraft:phantom"
+        ).not_of_type("minecraft:skeleton"
+        ).not_of_type("minecraft:skeleton_horse"
+        ).not_of_type("minecraft:stray"
+        ).not_of_type("minecraft:wither"
+        ).not_of_type("minecraft:wither_skeleton"
+        ).not_of_type("minecraft:zoglin"
+        ).not_of_type("minecraft:zombie"
+        ).not_of_type("minecraft:zombie_horse"
+        ).not_of_type("minecraft:zombie_villager"
+        ).not_of_type("minecraft:zombified_piglin"
+        ).find()
+    )
+    let undead_victims: Group[Entity] = all_victims - living_victims
+
+    # harm victims
+    living_victims.effect_add("minecraft:instant_damage", 1, 0, False)
+    undead_victims.effect_add("minecraft:instant_health", 1, 1, False)
+
+    # Destroy the fireball
+    fireball.kill()
+}
+
+@ticking
+def main_tick(){
+    world.get_players().matching_nbt("{SelectedItem:{tag:{fb_fireball_staff:1b}}}").with_score(RIGHT_CLICK_OBJ, min=1).find().cast_fireball()
+}

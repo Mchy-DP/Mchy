@@ -14,7 +14,7 @@ from mchy.contextual.struct.expr.literals import CtxExprLitNull
 from mchy.errors import StatementRepError
 from mchy.library.std.ns import STD_NAMESPACE
 from mchy.stmnt.struct import SmtAtom, SmtCmd, SmtFunc, SmtModule
-from mchy.stmnt.struct.atoms import SmtConstInt, SmtConstNull, SmtConstStr, SmtVar
+from mchy.stmnt.struct.atoms import SmtConstFloat, SmtConstInt, SmtConstNull, SmtConstStr, SmtVar
 from mchy.stmnt.struct.cmds.tag_ops import SmtRawEntitySelector
 
 
@@ -28,8 +28,8 @@ class SelectorBuilder:
     from_x: Optional[int] = None
     from_y: Optional[int] = None
     from_z: Optional[int] = None
-    distance_min: Optional[int] = None
-    distance_max: Optional[int] = None
+    distance_min: Optional[float] = None
+    distance_max: Optional[float] = None
     from_dx: Optional[int] = None
     from_dy: Optional[int] = None
     from_dz: Optional[int] = None
@@ -41,7 +41,8 @@ class SelectorBuilder:
     prohibited_tags: List[str] = dataclass_field(default_factory=list)
     required_scores: List[Tuple[str, Optional[int], Optional[int]]] = dataclass_field(default_factory=list)
     name: Optional[str] = None
-    entity_type: Optional[str] = None
+    required_entity_type: Optional[str] = None
+    prohibited_entity_types: List[str] = dataclass_field(default_factory=list)
     required_predicates: List[str] = dataclass_field(default_factory=list)
     prohibited_predicates: List[str] = dataclass_field(default_factory=list)
     rotate_hrz_min: Optional[int] = None
@@ -110,8 +111,10 @@ class SelectorBuilder:
         if self.name is not None:
             filters.append(f'name="{self.name}"')
         # type
-        if self.entity_type is not None:
-            filters.append(f"type={self.entity_type}")
+        if self.required_entity_type is not None:
+            filters.append(f"type={self.required_entity_type}")
+        for prohibited_etype in self.prohibited_entity_types:
+            filters.append(f"type=!{prohibited_etype}")
         # predicates
         for req_pred in self.required_predicates:
             filters.append(f"predicate={req_pred}")
@@ -313,19 +316,19 @@ class ChainLinkPartialSelectorInRadius(ChainLinkPartialSelector, abstract=True):
 
     def get_params(self) -> Optional[Sequence[IParam]]:
         return [
-            IParam("min", InertType(InertCoreTypes.INT, const=True, nullable=True)),
-            IParam("max", InertType(InertCoreTypes.INT, const=True, nullable=True)),
+            IParam("min", InertType(InertCoreTypes.FLOAT, const=True, nullable=True), CtxExprLitNull(src_loc=ComLoc())),
+            IParam("max", InertType(InertCoreTypes.FLOAT, const=True, nullable=True), CtxExprLitNull(src_loc=ComLoc())),
         ]
 
     def build_selector(self, builder: SelectorBuilder, param_binding: Dict[str, SmtAtom]) -> None:
         try:
-            builder.distance_min = get_key_with_type(param_binding, "min", SmtConstInt).value
+            builder.distance_min = get_key_with_type(param_binding, "min", SmtConstFloat).value
         except StatementRepError:
             # This will re-crash if it is neither an int or null
             get_key_with_type(param_binding, "min", SmtConstNull)
             builder.distance_min = None
         try:
-            builder.distance_max = get_key_with_type(param_binding, "max", SmtConstInt).value
+            builder.distance_max = get_key_with_type(param_binding, "max", SmtConstFloat).value
         except StatementRepError:
             # This will re-crash if it is neither an int or null
             get_key_with_type(param_binding, "max", SmtConstNull)
@@ -618,7 +621,7 @@ class ChainLinkPartialSelectorOfType(ChainLinkPartialSelector, abstract=True):
         return [IParam("entity_type", InertType(InertCoreTypes.STR, const=True))]
 
     def build_selector(self, builder: SelectorBuilder, param_binding: Dict[str, SmtAtom]) -> None:
-        builder.entity_type = get_key_with_type(param_binding, "entity_type", SmtConstStr).value
+        builder.required_entity_type = get_key_with_type(param_binding, "entity_type", SmtConstStr).value
 
 
 class ChainLinkPartialEntitiesSelectorOfType(ChainLinkPartialEntitiesSelector, ChainLinkPartialSelectorOfType):
@@ -626,6 +629,29 @@ class ChainLinkPartialEntitiesSelectorOfType(ChainLinkPartialEntitiesSelector, C
 
 
 class ChainLinkPartialEntitySelectorOfType(ChainLinkPartialEntitySelector, ChainLinkPartialSelectorOfType):
+    ...
+
+
+class ChainLinkPartialSelectorNotOfType(ChainLinkPartialSelector, abstract=True):
+
+    def get_namespace(self) -> 'Namespace':
+        return STD_NAMESPACE
+
+    def get_name(self) -> str:
+        return "not_of_type"
+
+    def get_params(self) -> Optional[Sequence[IParam]]:
+        return [IParam("entity_type", InertType(InertCoreTypes.STR, const=True))]
+
+    def build_selector(self, builder: SelectorBuilder, param_binding: Dict[str, SmtAtom]) -> None:
+        builder.prohibited_entity_types.append(get_key_with_type(param_binding, "entity_type", SmtConstStr).value)
+
+
+class ChainLinkPartialEntitiesSelectorNotOfType(ChainLinkPartialEntitiesSelector, ChainLinkPartialSelectorNotOfType):
+    ...
+
+
+class ChainLinkPartialEntitySelectorNotOfType(ChainLinkPartialEntitySelector, ChainLinkPartialSelectorNotOfType):
     ...
 
 
