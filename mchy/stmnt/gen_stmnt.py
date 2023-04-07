@@ -7,7 +7,7 @@ from mchy.errors import StatementRepError, UnreachableError
 from mchy.stmnt.gen_expr import convert_expr
 
 from mchy.stmnt.struct import SmtCmd, SmtAssignCmd, SmtFunc, SmtMchyFunc, SmtModule
-from mchy.stmnt.struct.atoms import SmtAtom, SmtConstInt, SmtVar
+from mchy.stmnt.struct.atoms import SmtAtom, SmtConstInt, SmtPseudoVar, SmtVar
 from mchy.stmnt.struct.cmds import CommentImportance, SmtCommentCmd, SmtCompGTECmd, SmtConditionalInvokeFuncCmd, SmtPlusCmd
 from mchy.stmnt.struct.smt_frag import RoutingFlavour, SmtFragment
 
@@ -113,6 +113,10 @@ def convert_if_stmnt(ctx_if_stmnt: CtxIfStmnt, module: SmtModule, function: SmtF
     output_cmds: List[SmtCmd] = []
     conditions: List[Union[SmtConstInt, SmtVar]] = []
     passover_frag = fragment.add_fragment(RoutingFlavour.TOP)  # The fragment used to continue execution after an if statement returns to calling scope
+    branch_already_taken = function.new_pseudo_var(InertType(InertCoreTypes.BOOL))
+    output_cmds.append(SmtAssignCmd(branch_already_taken, module.get_const_with_val(0)))
+    branch_taken_cond_prefix: Tuple[Union[SmtConstInt, SmtVar], bool] = (branch_already_taken, False)
+
     for branch in ctx_if_stmnt.branches:
 
         # resolve condition
@@ -127,15 +131,19 @@ def convert_if_stmnt(ctx_if_stmnt: CtxIfStmnt, module: SmtModule, function: SmtF
         active_branch_frag = convert_stmnts(branch.exec_body, module, function, config, branch_frag)
         # ensure branch will return to passover if execution reaches the end of the fragment
         active_branch_frag.body.append(SmtConditionalInvokeFuncCmd([(module.get_const_with_val(1), True)], function, passover_frag, module.get_world()))
+        # During stack unwinding ensure no extra branches are taken
+        active_branch_frag.body.append(SmtAssignCmd(branch_already_taken, module.get_const_with_val(1)))
 
         # call branch if condition resolved true and no previous condition did
-        output_cmds.append(SmtConditionalInvokeFuncCmd([(atom, False) for atom in conditions] + [(cond_out, True)], function, branch_frag, module.get_world()))
+        output_cmds.append(
+            SmtConditionalInvokeFuncCmd([branch_taken_cond_prefix] + [(atom, False) for atom in conditions] + [(cond_out, True)], function, branch_frag, module.get_world())
+        )
 
         # Add this to conditions such that future elif branches are only taken if all before them failed
         conditions.append(cond_out)
 
     # If all conditions resolved false call the passover branch
-    output_cmds.append(SmtConditionalInvokeFuncCmd([(atom, False) for atom in conditions], function, passover_frag, module.get_world()))
+    output_cmds.append(SmtConditionalInvokeFuncCmd([branch_taken_cond_prefix] + [(atom, False) for atom in conditions], function, passover_frag, module.get_world()))
 
     return output_cmds, passover_frag
 

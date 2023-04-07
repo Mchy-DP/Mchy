@@ -8,7 +8,7 @@ from mchy.contextual.struct.module import CtxModule
 from mchy.contextual.struct.stmnt import CtxBranch, CtxIfStmnt, MarkerDeclVar
 from mchy.stmnt.generation import convert
 from mchy.stmnt.struct import cmds as smt_cmds
-from mchy.stmnt.struct.atoms import SmtConstInt, SmtPublicVar, SmtWorld
+from mchy.stmnt.struct.atoms import SmtConstInt, SmtPublicVar, SmtPseudoVar, SmtWorld
 from mchy.stmnt.struct.smt_frag import RoutingFlavour, SmtFragment
 from tests.stmnt_layer.helper import diff_cmds_list
 
@@ -39,10 +39,13 @@ def test_simple_smt_if_conv():
     passover = frags[1]
     if_taken = frags[2]
 
+    branch_taken_mock_var = SmtPseudoVar(0, InertType(InertCoreTypes.BOOL))
+
     # check fragment bodies are as expected
     diff_bool, explanation = diff_cmds_list(func_frag.body, [
-        smt_cmds.SmtConditionalInvokeFuncCmd([(SmtConstInt(1), True)], smt_module.initial_function, if_taken, SmtWorld()),
-        smt_cmds.SmtConditionalInvokeFuncCmd([(SmtConstInt(1), False)], smt_module.initial_function, passover, SmtWorld())
+        smt_cmds.SmtAssignCmd(branch_taken_mock_var, SmtConstInt(0)),
+        smt_cmds.SmtConditionalInvokeFuncCmd([(branch_taken_mock_var, False), (SmtConstInt(1), True)], smt_module.initial_function, if_taken, SmtWorld()),
+        smt_cmds.SmtConditionalInvokeFuncCmd([(branch_taken_mock_var, False), (SmtConstInt(1), False)], smt_module.initial_function, passover, SmtWorld()),
     ])
     assert diff_bool, "generated command list does not match expected:\n" + explanation
 
@@ -52,5 +55,6 @@ def test_simple_smt_if_conv():
     diff_bool, explanation = diff_cmds_list(if_taken.body, [
         smt_cmds.SmtAssignCmd(SmtPublicVar("foo", _INT), SmtConstInt(11)),
         smt_cmds.SmtConditionalInvokeFuncCmd([(SmtConstInt(1), True)], smt_module.initial_function, passover, SmtWorld()),
+        smt_cmds.SmtAssignCmd(branch_taken_mock_var, SmtConstInt(1))
     ])
     assert diff_bool, "generated command list does not match expected:\n" + explanation
