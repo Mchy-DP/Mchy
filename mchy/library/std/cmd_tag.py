@@ -88,6 +88,35 @@ class SmtTagCountCmd(SmtCmd):
         return [ComCmd(f"execute store result score {out_vdat.var_name} {out_vdat.get_objective(stack_level)} run tag {exec_vdat.get_selector(stack_level)} list")]
 
 
+class SmtHasTagCmd(SmtCmd):
+
+    def __init__(self, executor: SmtAtom, tag: str, out_reg: SmtVar) -> None:
+        self.executor: SmtAtom = executor
+        exec_type = self.executor.get_type()
+        if not isinstance(exec_type, ExecType):
+            raise StatementRepError(f"Attempted to create {type(self).__name__} with executor of type {exec_type}, ExecType required")
+        self._exec_type: ExecType = exec_type
+        self.tag: str = tag
+        self.out_reg: SmtVar = out_reg
+
+    def __repr__(self) -> str:
+        return f"{type(self).__name__}(entity={self.executor}, tag={self.tag}, out_reg={self.out_reg})"
+
+    def virtualize(self, linker: SmtLinker, stack_level: int) -> List[ComCmd]:
+        if not isinstance(self.executor, SmtVar):
+            raise VirtualRepError(f"Unhandled atom type {type(self.executor).__name__}")
+        exec_vdat = linker.lookup_var(self.executor)
+        if not isinstance(exec_vdat, SmtExecVarLinkage):
+            raise VirtualRepError(f"Executor variable data for `{repr(self.executor)}` does not include tag despite being of executable type?")
+        out_vdat = linker.lookup_var(self.out_reg)
+        if not isinstance(out_vdat, SmtObjVarLinkage):
+            raise VirtualRepError(f"Output register does not have linked scoreboard?")
+        return [ComCmd(
+            f"execute store result score {out_vdat.var_name} {out_vdat.get_objective(stack_level)} " +
+            f"as {exec_vdat.get_selector(stack_level)} run execute if entity @s[tag={self.tag}]"
+        )]
+
+
 class CmdTagAdd(IFunc):
 
     def get_namespace(self) -> Namespace:
@@ -160,3 +189,29 @@ class CmdTagCount(IFunc):
             ) -> Tuple[List[SmtCmd], 'SmtAtom']:
         output_register = function.new_pseudo_var(InertType(InertCoreTypes.INT))
         return [SmtTagCountCmd(executor, output_register)], output_register
+
+
+class CmdHasTag(IFunc):
+
+    def get_namespace(self) -> Namespace:
+        return STD_NAMESPACE
+
+    def get_executor_type(self) -> ExecType:
+        return ExecType(ExecCoreTypes.ENTITY, False)
+
+    def get_name(self) -> str:
+        return "has_tag"
+
+    def get_params(self) -> Sequence[IParam]:
+        return [IParam("tag", InertType(InertCoreTypes.STR, True))]
+
+    def get_return_type(self) -> ComType:
+        return InertType(InertCoreTypes.BOOL)
+
+    def stmnt_conv(
+                self, executor: SmtAtom, param_binding: Dict[str, SmtAtom], extra_binding: List['SmtAtom'], module: SmtModule, function: SmtFunc, config: Config
+            ) -> Tuple[List[SmtCmd], 'SmtAtom']:
+        tag: str = get_key_with_type(param_binding, "tag", SmtConstStr).value
+        validate_tag(tag)
+        output_register = function.new_pseudo_var(InertType(InertCoreTypes.BOOL))
+        return [SmtHasTagCmd(executor, tag, output_register)], output_register
