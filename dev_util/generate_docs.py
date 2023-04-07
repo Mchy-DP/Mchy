@@ -3,11 +3,10 @@ from typing import List, Optional, Sequence
 # Ensure Mchy on path:
 import sys
 from os import path as os_path
-
-from mchy.cmd_modules.param import IParam
 sys.path.append(os_path.dirname(os_path.dirname(__file__)))
 
 # Perform Required imports
+from mchy.cmd_modules.param import IParam  # noqa  #  pycodestyle doesn't like imports after ANY code even when sensible
 from mchy.cmd_modules.chains import IChain, IChainLink  # noqa  #  pycodestyle doesn't like imports after ANY code even when sensible
 from mchy.common.com_types import ComType, ExecCoreTypes, ExecType  # noqa  #  pycodestyle doesn't like imports after ANY code even when sensible
 from mchy.errors import UnreachableError  # noqa  #  pycodestyle doesn't like imports after ANY code even when sensible
