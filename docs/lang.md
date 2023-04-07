@@ -200,7 +200,7 @@ def print_answer(number: int){
 }
 print_answer(13)
 ```
-You can also provide a default value which will be used if the user provides no value
+You can also provide a default value which will be used if the user provides no value.
 ```py
 def print_answer(number: int = 42){
     print("The answer is: ", number)
