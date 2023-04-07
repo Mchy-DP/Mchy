@@ -175,3 +175,19 @@ def test_simple_getting_entities():
     assert any_line_matches(
         vir_dp.load_master_file, r"^tag.*add.*var_foo"
     ), "A tag command adding a tag containing var_foo cannot be found, raw file:\n"+vir_dp.load_master_file.get_file_data()
+
+
+def test_func_this_treatment():
+    code = """
+    def Player make_stand(){
+        let stand: Entity = world.summon(this.pos.get(), "minecraft:armor_stand")
+        stand.rotate.match(this)
+    }
+    """
+    ast_root, ctx_module, smt_module, vir_dp = conversion_helper(code)
+
+    make_stand_func = get_file_matching_name(get_folder_matching_name(get_folder_matching_name(vir_dp.mchy_func_fld, r"make_stand_player"), r"s0"), r"run\.mcfunction")
+
+    assert any_line_matches(
+        make_stand_func, r"""^execute as @e\[.*var_stand.*\] at @s rotated as @a\[.*var_[0-9]+.*\] run tp \^ \^ \^"""
+    ), "A command with correct treatment of this cannot be found, raw file:\n"+make_stand_func.get_file_data()

@@ -47,12 +47,9 @@ class SmtExecVarLinkage(SmtVarLinkage):
     _tag: str
     _solitary: bool
     _player: bool
-    this_override: bool
 
     def get_full_tag(self, stack_level: Optional[int]) -> str:
         """Get the tag this variable uses, Must not be called on source-variables only targets (as source variables may be `this` which has no tag)"""
-        if self.this_override:
-            raise VirtualRepError(f"Tag requested of `this`?")
         if self._stackless:
             return self._tag+f"-{self.var_name}"
         if stack_level is None:
@@ -60,8 +57,6 @@ class SmtExecVarLinkage(SmtVarLinkage):
         return self._tag+f"-r{str(stack_level).rjust(3, '0')}"+("" if self._public else "-I")+f"-{self.var_name}"
 
     def get_selector(self, stack_level: Optional[int]) -> str:
-        if self.this_override:
-            return "@s"
         return "@"+('a' if self._player else 'e')+f"[tag={self.get_full_tag(stack_level)}"+(', limit=1, sort=arbitrary' if self._solitary else '')+"]"
 
 
@@ -143,7 +138,7 @@ class SmtLinker:
 
         self.add_bland_var(var, ["mchy_func", func.get_unique_ident()], stackless=False, var_type=var_type)
 
-    def add_bland_var(self, var: SmtVar, pathing: Sequence[str], *, stackless: bool, var_type: SmtVarFlavour = SmtVarFlavour.VAR, this_override: bool = False):
+    def add_bland_var(self, var: SmtVar, pathing: Sequence[str], *, stackless: bool, var_type: SmtVarFlavour = SmtVarFlavour.VAR):
         if var_type == SmtVarFlavour.VAR:
             var_name, public = self._get_var_data(var, param_var=False)
         elif var_type == SmtVarFlavour.PARAM:
@@ -167,7 +162,7 @@ class SmtLinker:
         elif isinstance(var_com_type, ExecType):
             self._var_lookup[var] = SmtExecVarLinkage(
                 linkage_ns, storage_path, var_name, public, stackless, f"{self._prj_namespace}-{'-'.join(pathing)}",
-                (not var_com_type.group), (var_com_type.target == ExecCoreTypes.PLAYER), this_override
+                (not var_com_type.group), (var_com_type.target == ExecCoreTypes.PLAYER)
             )
         else:
             self._var_lookup[var] = SmtVarLinkage(linkage_ns, storage_path, var_name, public, stackless)

@@ -1,7 +1,7 @@
 
 from typing import List, Tuple
-from mchy.cmd_modules.smt_cmds.raw_entity_selection import SmtRawEntitySelector
 from mchy.stmnt.struct import *
+from mchy.stmnt.struct.cmds.tag_ops import SmtRawEntitySelector
 from tests.helpers.util import EscapeColors
 
 

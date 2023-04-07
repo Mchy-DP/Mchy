@@ -2,7 +2,6 @@
 from typing import Dict, List, Optional, Type
 from mchy.cmd_modules.chains import IChain, IChainLink
 from mchy.cmd_modules.name_spaces import Namespace
-from mchy.cmd_modules.smt_cmds.raw_entity_selection import SmtRawEntitySelector
 from mchy.common.abs_ctx import AbsCtxParam
 from mchy.common.com_loc import ComLoc
 from mchy.common.config import Config
@@ -11,6 +10,7 @@ from mchy.contextual.struct.expr.chains import CtxChain, CtxChainLink
 from mchy.library.std.chain_entity_selector import ChainLinkGetEntities, ChainLinkPartialEntitiesSelectorWithTag, ChainPartialEntitiesSelectorFind
 from mchy.stmnt.struct import *
 from mchy.stmnt.generation import convert
+from mchy.stmnt.struct.cmds.tag_ops import SmtRawEntitySelector
 from tests.stmnt_layer.helper import diff_cmds_list
 
 import pytest

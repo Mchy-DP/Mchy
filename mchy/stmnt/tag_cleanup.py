@@ -22,7 +22,5 @@ def get_cleanup_stmnts(smt_func: SmtFunc, linker: 'SmtLinker', stack_level: int)
                 raise VirtualRepError("Variable with executable linkage is not of executable type?")
             if var_type.target == ExecCoreTypes.WORLD:
                 continue  # World tags can never be assigned to so don't need to be cleanup up
-            if var_dat.this_override:
-                continue  # This overrode variables never use their tag
             cmds.append(SmtCleanupTag(var_dat.get_full_tag(stack_level)))
     return cmds

@@ -12,9 +12,10 @@ from mchy.library.std.cmd_cmd import SmtRawCmd
 from mchy.stmnt.gen_expr import convert_func_call_expr
 from mchy.stmnt.gen_stmnt import convert_stmnts
 from mchy.stmnt.helpers import runtime_error_tellraw_formatter
-from mchy.stmnt.struct.atoms import SmtConstInt
+from mchy.stmnt.struct.atoms import SmtConstInt, SmtWorld
 from mchy.stmnt.struct.cmds.assign import SmtAssignCmd
 from mchy.stmnt.struct.cmds.raw import SmtConditionalRawCmd
+from mchy.stmnt.struct.cmds.tag_ops import SmtRawEntitySelector
 from mchy.stmnt.struct.function import SmtFunc
 from mchy.stmnt.struct.module import SmtModule
 from mchy.stmnt.struct.smt_frag import SmtFragment
@@ -34,6 +35,7 @@ def convert(ctx_module: CtxModule, config: Config) -> SmtModule:
     for mchy_func in mchy_funcs:
         config.logger.very_verbose(f"SMT: Building body of function `{mchy_func.render()}`")
         smt_mchy_func = smt_module.get_smt_func(mchy_func)
+        smt_mchy_func.func_frag.body.append(SmtRawEntitySelector(SmtWorld(), smt_mchy_func.executor_var, "@s"))
         convert_stmnts(mchy_func.exec_body, smt_module, smt_mchy_func, config, smt_mchy_func.func_frag)
     # handle decorated functions
     handle_ticking(ctx_module, smt_module, config)

@@ -6,7 +6,6 @@ from mchy.cmd_modules.chains import IChain, IChainLink
 from mchy.cmd_modules.function import IParam
 from mchy.cmd_modules.helper import NULL_CTX_TYPE, get_key_with_type
 from mchy.cmd_modules.name_spaces import Namespace
-from mchy.cmd_modules.smt_cmds.raw_entity_selection import SmtRawEntitySelector
 from mchy.common.com_loc import ComLoc
 from mchy.common.com_types import ComType, ExecCoreTypes, ExecType, InertCoreTypes, InertType
 from mchy.common.config import Config
@@ -16,6 +15,7 @@ from mchy.errors import StatementRepError
 from mchy.library.std.ns import STD_NAMESPACE
 from mchy.stmnt.struct import SmtAtom, SmtCmd, SmtFunc, SmtModule
 from mchy.stmnt.struct.atoms import SmtConstInt, SmtConstNull, SmtConstStr, SmtVar
+from mchy.stmnt.struct.cmds.tag_ops import SmtRawEntitySelector
 
 
 # ===== SELECTOR BUILDER =====

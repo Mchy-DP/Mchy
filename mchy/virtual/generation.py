@@ -52,7 +52,7 @@ def convert(smt_module: SmtModule, config: Config = Config()) -> VirDP:
     for smt_func in smt_module.get_smt_mchy_funcs():
         for var in smt_func.get_all_vars():
             if var == smt_func.executor_var:
-                vir_dp.linker.add_bland_var(var, ["mchy_func", smt_func.get_unique_ident()], stackless=False, var_type=SmtVarFlavour.VAR, this_override=True)
+                vir_dp.linker.add_bland_var(var, ["mchy_func", smt_func.get_unique_ident()], stackless=False, var_type=SmtVarFlavour.VAR)
             else:
                 vir_dp.linker.add_mchy_var(var, smt_func)
 
