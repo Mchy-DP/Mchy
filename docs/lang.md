@@ -251,7 +251,7 @@ let selected_color: Color = world.colors.red
 print("I am normal text, ", selected_color, "I am scary coloured text!")
 ```
 ### Decorators
-Functions can be proceeded by `@<decorator>` to change/add behaviors of that function.
+Functions can be proceeded by `@<decorator>` to change/add behaviours of that function.
 #### Ticking
 The `@ticking` decorator can proceed any function that executes on world with no return type or parameters.  When the `@ticking` decorator is used the function will run once every 20th of a second.
 ```py
@@ -286,7 +286,7 @@ def output_apples(){
 > apples!
 > ```
 ## Typing
-There are 3 broad catagories of type in mchy: Inert types, Executable types & Struct Types.  Struct types are special types used by structures and minimal knowledge is needed about them, As such they will not be discussed here more than to acknowledge their existence.
+There are 3 broad catagories of type in mchy: Inert types, Executable types & Struct Types.  Struct types are special types used by structures and minimal knowledge is needed about them, as such they will not be discussed here more than to acknowledge their existence.
 ### Inert Types
 Inert types have 5 core subtypes that come under this heading: `float`, `int`, `bool`, `str` & `null`.  Inert types have 2 variants: nullable & compile constant.  These are indicated by adding the suffixes Indicated below.
 | Property          | Suffix        |
@@ -304,7 +304,7 @@ Many operations are not possible at runtime due to the limitations of Minecraft 
 ```MCDP
 /particle <name> [<pos>] [<delta>] <speed> <count> [force|normal]
 ```
-this equate to the following Mchy command
+This equates to the following Mchy command:
 ```py
 particle(location: std::Pos, particle: str!, dx: float!, dy: float!, dz: float!, speed: float!, count: int!, force_render: bool! = False) -> null
 ```
