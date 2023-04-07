@@ -220,412 +220,912 @@ version -> int
   ```
   (?).get_entities()
   ```
-
+  > Begin a partial selector targeting all entities that match the filters
+  > 
+  > Returns:
+  >   - Partial Selector for Entity Groups
   * ### failing_predicate
     ```
     (?).get_entities().failing_predicate(predicate: str!)
     ```
-
+    > FILTER: Filter out all entities passing the specified predicate
+    > 
+    > Params:
+    >   - **predicate**: The predicate passing entities fail
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### from_position
     ```
     (?).get_entities().from_position(x: int!, y: int!, z: int!)
     ```
-
+    > FILTER: Move the coordinates the selector tests from to set coordinates rather than executor coordinates
+    > 
+    > Params:
+    >   - **x**: The x coordinate to originate location based selections at
+    >   - **y**: The y coordinate to originate location based selections at
+    >   - **z**: The z coordinate to originate location based selections at
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### in_radius
     ```
     (?).get_entities().in_radius(min: int!?, max: int!?)
     ```
-
+    > FILTER: Filter out all entities not between the min and max distance
+    > 
+    > Params:
+    >   - **min**: The minimum distance
+    >   - **max**: The maximum distance
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### in_team
     ```
     (?).get_entities().in_team(team: str!?)
     ```
-
+    > FILTER: Filter out all entities not in the volume bounded by the selector location and a point offset from the selector location
+    > 
+    > Params:
+    >   - **team**: The name of the team valid entities must be a member of
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### in_volume
     ```
     (?).get_entities().in_volume(dx: int!, dy: int!, dz: int!)
     ```
-
+    > FILTER: Filter out all entities not in the volume bounded by the selector location and a point offset from the selector location
+    > 
+    > Params:
+    >   - **dx**: Makes the offset point `dx` away from the selector location
+    >   - **dy**: Makes the offset point `dy` away from the selector location
+    >   - **dz**: Makes the offset point `dz` away from the selector location
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### matching_nbt
     ```
     (?).get_entities().matching_nbt(nbt: str!)
     ```
-
+    > FILTER: Filter out all entities not having the specified nbt
+    > 
+    > Params:
+    >   - **nbt**: The required nbt
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### not_in_team
     ```
     (?).get_entities().not_in_team(team: str!)
     ```
-
+    > FILTER: Filter out all entities in the specified team
+    > 
+    > Params:
+    >   - **team**: The name of the team valid entities must not be a member of
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### not_matching_nbt
     ```
     (?).get_entities().not_matching_nbt(nbt: str!)
     ```
-
+    > FILTER: Filter out all entities matching the specified nbt
+    > 
+    > Params:
+    >   - **nbt**: The prohibited nbt
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### of_name
     ```
     (?).get_entities().of_name(name: str!)
     ```
-
+    > FILTER: Filter out all entities not named the specified name
+    > 
+    > Params:
+    >   - **name**: The entity name passing entities have
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### of_type
     ```
     (?).get_entities().of_type(entity_type: str!)
     ```
-
+    > FILTER: Filter out all entities not matching the specified type
+    > 
+    > Params:
+    >   - **entity_type**: The entity type passing entities match
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### passing_predicate
     ```
     (?).get_entities().passing_predicate(predicate: str!)
     ```
-
+    > FILTER: Filter out all entities not passing the specified predicate
+    > 
+    > Params:
+    >   - **predicate**: The predicate passing entities pass
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### with_hrz_rot
     ```
     (?).get_entities().with_hrz_rot(min: int!, max: int!)
     ```
-
+    > FILTER: Filter out all entities not looking in the specified direction
+    > 
+    > Params:
+    >   - **min**: The minimum angle in degrees zeroed at south (+z), increasing clockwise required
+    >   - **max**: The maximum angle in degrees zeroed at south (+z), increasing clockwise required
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### with_no_team
     ```
     (?).get_entities().with_no_team()
     ```
-
+    > FILTER: Filter out all entities in the any team
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### with_score
     ```
     (?).get_entities().with_score(score: str!, min: int!? = null, max: int!? = null)
     ```
-
+    > FILTER: Filter out all entities whose specified score is not in range
+    > 
+    > Params:
+    >   - **score**: The scoreboard objective to test
+    >   - **min**: The score that a passing entity must have greater than or equal to
+    >   - **max**: The score that a passing entity must have less than or equal to
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### with_tag
     ```
     (?).get_entities().with_tag(tag: str!)
     ```
-
+    > FILTER: Filter out all entities with the specified tag
+    > 
+    > Params:
+    >   - **tag**: The name of the tag valid entities must have
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### with_vert_rot
     ```
     (?).get_entities().with_vert_rot(min: int!, max: int!)
     ```
-
+    > FILTER: Filter out all entities not looking in the specified pitch
+    > 
+    > Params:
+    >   - **min**: The minimum angle in degrees zeroed at horizontal, increasing down required
+    >   - **max**: The maximum angle in degrees zeroed at horizontal, increasing down required
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### without_tag
     ```
     (?).get_entities().without_tag(tag: str!)
     ```
-
+    > FILTER: Filter out all entities lacking the specified tag
+    > 
+    > Params:
+    >   - **tag**: The name of the tag valid entities must not have
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### find
     ```
     world.get_entities().find()
     ```
-
+    > Get real entities from a partial selector
+    > 
+    > Returns:
+    >   - The selected Entities
 * ### get_entity
   ```
   (?).get_entity(sort: str! = nearest)
   ```
-
+  > Begin a partial selector targeting one entity that matches the filters
+  > 
+  > Params:
+  >   - **sort**: How to handle multiple valid entities.  Options include: nearest, furthest, random, arbitrary
+  > 
+  > Returns:
+  >   - Partial Selector for Entities
   * ### failing_predicate
     ```
     (?).get_entity(sort: str! = nearest).failing_predicate(predicate: str!)
     ```
-
+    > FILTER: Filter out all entities passing the specified predicate
+    > 
+    > Params:
+    >   - **predicate**: The predicate passing entities fail
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### from_position
     ```
     (?).get_entity(sort: str! = nearest).from_position(x: int!, y: int!, z: int!)
     ```
-
+    > FILTER: Move the coordinates the selector tests from to set coordinates rather than executor coordinates
+    > 
+    > Params:
+    >   - **x**: The x coordinate to originate location based selections at
+    >   - **y**: The y coordinate to originate location based selections at
+    >   - **z**: The z coordinate to originate location based selections at
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### in_radius
     ```
     (?).get_entity(sort: str! = nearest).in_radius(min: int!?, max: int!?)
     ```
-
+    > FILTER: Filter out all entities not between the min and max distance
+    > 
+    > Params:
+    >   - **min**: The minimum distance
+    >   - **max**: The maximum distance
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### in_team
     ```
     (?).get_entity(sort: str! = nearest).in_team(team: str!?)
     ```
-
+    > FILTER: Filter out all entities not in the volume bounded by the selector location and a point offset from the selector location
+    > 
+    > Params:
+    >   - **team**: The name of the team valid entities must be a member of
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### in_volume
     ```
     (?).get_entity(sort: str! = nearest).in_volume(dx: int!, dy: int!, dz: int!)
     ```
-
+    > FILTER: Filter out all entities not in the volume bounded by the selector location and a point offset from the selector location
+    > 
+    > Params:
+    >   - **dx**: Makes the offset point `dx` away from the selector location
+    >   - **dy**: Makes the offset point `dy` away from the selector location
+    >   - **dz**: Makes the offset point `dz` away from the selector location
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### matching_nbt
     ```
     (?).get_entity(sort: str! = nearest).matching_nbt(nbt: str!)
     ```
-
+    > FILTER: Filter out all entities not having the specified nbt
+    > 
+    > Params:
+    >   - **nbt**: The required nbt
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### not_in_team
     ```
     (?).get_entity(sort: str! = nearest).not_in_team(team: str!)
     ```
-
+    > FILTER: Filter out all entities in the specified team
+    > 
+    > Params:
+    >   - **team**: The name of the team valid entities must not be a member of
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### not_matching_nbt
     ```
     (?).get_entity(sort: str! = nearest).not_matching_nbt(nbt: str!)
     ```
-
+    > FILTER: Filter out all entities matching the specified nbt
+    > 
+    > Params:
+    >   - **nbt**: The prohibited nbt
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### of_name
     ```
     (?).get_entity(sort: str! = nearest).of_name(name: str!)
     ```
-
+    > FILTER: Filter out all entities not named the specified name
+    > 
+    > Params:
+    >   - **name**: The entity name passing entities have
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### of_type
     ```
     (?).get_entity(sort: str! = nearest).of_type(entity_type: str!)
     ```
-
+    > FILTER: Filter out all entities not matching the specified type
+    > 
+    > Params:
+    >   - **entity_type**: The entity type passing entities match
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### passing_predicate
     ```
     (?).get_entity(sort: str! = nearest).passing_predicate(predicate: str!)
     ```
-
+    > FILTER: Filter out all entities not passing the specified predicate
+    > 
+    > Params:
+    >   - **predicate**: The predicate passing entities pass
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### with_hrz_rot
     ```
     (?).get_entity(sort: str! = nearest).with_hrz_rot(min: int!, max: int!)
     ```
-
+    > FILTER: Filter out all entities not looking in the specified direction
+    > 
+    > Params:
+    >   - **min**: The minimum angle in degrees zeroed at south (+z), increasing clockwise required
+    >   - **max**: The maximum angle in degrees zeroed at south (+z), increasing clockwise required
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### with_no_team
     ```
     (?).get_entity(sort: str! = nearest).with_no_team()
     ```
-
+    > FILTER: Filter out all entities in the any team
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### with_score
     ```
     (?).get_entity(sort: str! = nearest).with_score(score: str!, min: int!? = null, max: int!? = null)
     ```
-
+    > FILTER: Filter out all entities whose specified score is not in range
+    > 
+    > Params:
+    >   - **score**: The scoreboard objective to test
+    >   - **min**: The score that a passing entity must have greater than or equal to
+    >   - **max**: The score that a passing entity must have less than or equal to
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### with_tag
     ```
     (?).get_entity(sort: str! = nearest).with_tag(tag: str!)
     ```
-
+    > FILTER: Filter out all entities with the specified tag
+    > 
+    > Params:
+    >   - **tag**: The name of the tag valid entities must have
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### with_vert_rot
     ```
     (?).get_entity(sort: str! = nearest).with_vert_rot(min: int!, max: int!)
     ```
-
+    > FILTER: Filter out all entities not looking in the specified pitch
+    > 
+    > Params:
+    >   - **min**: The minimum angle in degrees zeroed at horizontal, increasing down required
+    >   - **max**: The maximum angle in degrees zeroed at horizontal, increasing down required
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### without_tag
     ```
     (?).get_entity(sort: str! = nearest).without_tag(tag: str!)
     ```
-
+    > FILTER: Filter out all entities lacking the specified tag
+    > 
+    > Params:
+    >   - **tag**: The name of the tag valid entities must not have
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### find
     ```
     world.get_entity(sort: str! = nearest).find()
     ```
-
+    > Get a real entity from a partial selector
+    > 
+    > Returns:
+    >   - The selected Entity
 * ### get_player
   ```
   (?).get_player(sort: str! = nearest)
   ```
-
+  > Begin a partial selector targeting one player that matches the filters
+  > 
+  > Params:
+  >   - **sort**: How to handle multiple valid players.  Options include: nearest, furthest, random, arbitrary
+  > 
+  > Returns:
+  >   - Partial Selector for a Player
   * ### advancement_matches
     ```
     (?).get_player(sort: str! = nearest).advancement_matches(advancement: str!)
     ```
-
+    > FILTER: Filter out all players who gamemode is not the specified one
+    > 
+    > Params:
+    >   - **advancement**: The advancement (or advancement criteria) the player must match
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### failing_predicate
     ```
     (?).get_player(sort: str! = nearest).failing_predicate(predicate: str!)
     ```
-
+    > FILTER: Filter out all entities passing the specified predicate
+    > 
+    > Params:
+    >   - **predicate**: The predicate passing entities fail
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### from_position
     ```
     (?).get_player(sort: str! = nearest).from_position(x: int!, y: int!, z: int!)
     ```
-
+    > FILTER: Move the coordinates the selector tests from to set coordinates rather than executor coordinates
+    > 
+    > Params:
+    >   - **x**: The x coordinate to originate location based selections at
+    >   - **y**: The y coordinate to originate location based selections at
+    >   - **z**: The z coordinate to originate location based selections at
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### in_gamemode
     ```
     (?).get_player(sort: str! = nearest).in_gamemode(mode: str!)
     ```
-
+    > FILTER: Filter out all players whose gamemode is not the specified one
+    > 
+    > Params:
+    >   - **mode**: The gamemode players must be in
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### in_radius
     ```
     (?).get_player(sort: str! = nearest).in_radius(min: int!?, max: int!?)
     ```
-
+    > FILTER: Filter out all entities not between the min and max distance
+    > 
+    > Params:
+    >   - **min**: The minimum distance
+    >   - **max**: The maximum distance
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### in_team
     ```
     (?).get_player(sort: str! = nearest).in_team(team: str!?)
     ```
-
+    > FILTER: Filter out all entities not in the volume bounded by the selector location and a point offset from the selector location
+    > 
+    > Params:
+    >   - **team**: The name of the team valid entities must be a member of
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### in_volume
     ```
     (?).get_player(sort: str! = nearest).in_volume(dx: int!, dy: int!, dz: int!)
     ```
-
+    > FILTER: Filter out all entities not in the volume bounded by the selector location and a point offset from the selector location
+    > 
+    > Params:
+    >   - **dx**: Makes the offset point `dx` away from the selector location
+    >   - **dy**: Makes the offset point `dy` away from the selector location
+    >   - **dz**: Makes the offset point `dz` away from the selector location
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### matching_nbt
     ```
     (?).get_player(sort: str! = nearest).matching_nbt(nbt: str!)
     ```
-
+    > FILTER: Filter out all entities not having the specified nbt
+    > 
+    > Params:
+    >   - **nbt**: The required nbt
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### not_in_gamemode
     ```
     (?).get_player(sort: str! = nearest).not_in_gamemode(mode: str!)
     ```
-
+    > FILTER: Filter out all players whose gamemode matches the specified one
+    > 
+    > Params:
+    >   - **mode**: The gamemode players must not be in
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### not_in_team
     ```
     (?).get_player(sort: str! = nearest).not_in_team(team: str!)
     ```
-
+    > FILTER: Filter out all entities in the specified team
+    > 
+    > Params:
+    >   - **team**: The name of the team valid entities must not be a member of
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### not_matching_nbt
     ```
     (?).get_player(sort: str! = nearest).not_matching_nbt(nbt: str!)
     ```
-
+    > FILTER: Filter out all entities matching the specified nbt
+    > 
+    > Params:
+    >   - **nbt**: The prohibited nbt
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### of_name
     ```
     (?).get_player(sort: str! = nearest).of_name(name: str!)
     ```
-
+    > FILTER: Filter out all entities not named the specified name
+    > 
+    > Params:
+    >   - **name**: The entity name passing entities have
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### passing_predicate
     ```
     (?).get_player(sort: str! = nearest).passing_predicate(predicate: str!)
     ```
-
+    > FILTER: Filter out all entities not passing the specified predicate
+    > 
+    > Params:
+    >   - **predicate**: The predicate passing entities pass
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### with_hrz_rot
     ```
     (?).get_player(sort: str! = nearest).with_hrz_rot(min: int!, max: int!)
     ```
-
+    > FILTER: Filter out all entities not looking in the specified direction
+    > 
+    > Params:
+    >   - **min**: The minimum angle in degrees zeroed at south (+z), increasing clockwise required
+    >   - **max**: The maximum angle in degrees zeroed at south (+z), increasing clockwise required
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### with_level
     ```
     (?).get_player(sort: str! = nearest).with_level(min: int!, max: int!)
     ```
-
+    > FILTER: Filter out all players whose level is not within the specified range 
+    > 
+    > Params:
+    >   - **min**: The minimum level players must have
+    >   - **max**: The maximum level players must have
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### with_no_team
     ```
     (?).get_player(sort: str! = nearest).with_no_team()
     ```
-
+    > FILTER: Filter out all entities in the any team
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### with_score
     ```
     (?).get_player(sort: str! = nearest).with_score(score: str!, min: int!? = null, max: int!? = null)
     ```
-
+    > FILTER: Filter out all entities whose specified score is not in range
+    > 
+    > Params:
+    >   - **score**: The scoreboard objective to test
+    >   - **min**: The score that a passing entity must have greater than or equal to
+    >   - **max**: The score that a passing entity must have less than or equal to
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### with_tag
     ```
     (?).get_player(sort: str! = nearest).with_tag(tag: str!)
     ```
-
+    > FILTER: Filter out all entities with the specified tag
+    > 
+    > Params:
+    >   - **tag**: The name of the tag valid entities must have
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### with_vert_rot
     ```
     (?).get_player(sort: str! = nearest).with_vert_rot(min: int!, max: int!)
     ```
-
+    > FILTER: Filter out all entities not looking in the specified pitch
+    > 
+    > Params:
+    >   - **min**: The minimum angle in degrees zeroed at horizontal, increasing down required
+    >   - **max**: The maximum angle in degrees zeroed at horizontal, increasing down required
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### without_tag
     ```
     (?).get_player(sort: str! = nearest).without_tag(tag: str!)
     ```
-
+    > FILTER: Filter out all entities lacking the specified tag
+    > 
+    > Params:
+    >   - **tag**: The name of the tag valid entities must not have
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### find
     ```
     world.get_player(sort: str! = nearest).find()
     ```
-
+    > Get a real player from a partial selector
+    > 
+    > Returns:
+    >   - The selected player
 * ### get_players
   ```
   (?).get_players()
   ```
-
+  > Begin a partial selector targeting all players that match the filters
+  > 
+  > Returns:
+  >   - Partial Selector for Player Groups
   * ### advancement_matches
     ```
     (?).get_players().advancement_matches(advancement: str!)
     ```
-
+    > FILTER: Filter out all players who gamemode is not the specified one
+    > 
+    > Params:
+    >   - **advancement**: The advancement (or advancement criteria) the player must match
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### failing_predicate
     ```
     (?).get_players().failing_predicate(predicate: str!)
     ```
-
+    > FILTER: Filter out all entities passing the specified predicate
+    > 
+    > Params:
+    >   - **predicate**: The predicate passing entities fail
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### from_position
     ```
     (?).get_players().from_position(x: int!, y: int!, z: int!)
     ```
-
+    > FILTER: Move the coordinates the selector tests from to set coordinates rather than executor coordinates
+    > 
+    > Params:
+    >   - **x**: The x coordinate to originate location based selections at
+    >   - **y**: The y coordinate to originate location based selections at
+    >   - **z**: The z coordinate to originate location based selections at
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### in_gamemode
     ```
     (?).get_players().in_gamemode(mode: str!)
     ```
-
+    > FILTER: Filter out all players whose gamemode is not the specified one
+    > 
+    > Params:
+    >   - **mode**: The gamemode players must be in
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### in_radius
     ```
     (?).get_players().in_radius(min: int!?, max: int!?)
     ```
-
+    > FILTER: Filter out all entities not between the min and max distance
+    > 
+    > Params:
+    >   - **min**: The minimum distance
+    >   - **max**: The maximum distance
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### in_team
     ```
     (?).get_players().in_team(team: str!?)
     ```
-
+    > FILTER: Filter out all entities not in the volume bounded by the selector location and a point offset from the selector location
+    > 
+    > Params:
+    >   - **team**: The name of the team valid entities must be a member of
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### in_volume
     ```
     (?).get_players().in_volume(dx: int!, dy: int!, dz: int!)
     ```
-
+    > FILTER: Filter out all entities not in the volume bounded by the selector location and a point offset from the selector location
+    > 
+    > Params:
+    >   - **dx**: Makes the offset point `dx` away from the selector location
+    >   - **dy**: Makes the offset point `dy` away from the selector location
+    >   - **dz**: Makes the offset point `dz` away from the selector location
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### matching_nbt
     ```
     (?).get_players().matching_nbt(nbt: str!)
     ```
-
+    > FILTER: Filter out all entities not having the specified nbt
+    > 
+    > Params:
+    >   - **nbt**: The required nbt
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### not_in_gamemode
     ```
     (?).get_players().not_in_gamemode(mode: str!)
     ```
-
+    > FILTER: Filter out all players whose gamemode matches the specified one
+    > 
+    > Params:
+    >   - **mode**: The gamemode players must not be in
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### not_in_team
     ```
     (?).get_players().not_in_team(team: str!)
     ```
-
+    > FILTER: Filter out all entities in the specified team
+    > 
+    > Params:
+    >   - **team**: The name of the team valid entities must not be a member of
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### not_matching_nbt
     ```
     (?).get_players().not_matching_nbt(nbt: str!)
     ```
-
+    > FILTER: Filter out all entities matching the specified nbt
+    > 
+    > Params:
+    >   - **nbt**: The prohibited nbt
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### of_name
     ```
     (?).get_players().of_name(name: str!)
     ```
-
+    > FILTER: Filter out all entities not named the specified name
+    > 
+    > Params:
+    >   - **name**: The entity name passing entities have
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### passing_predicate
     ```
     (?).get_players().passing_predicate(predicate: str!)
     ```
-
+    > FILTER: Filter out all entities not passing the specified predicate
+    > 
+    > Params:
+    >   - **predicate**: The predicate passing entities pass
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### with_hrz_rot
     ```
     (?).get_players().with_hrz_rot(min: int!, max: int!)
     ```
-
+    > FILTER: Filter out all entities not looking in the specified direction
+    > 
+    > Params:
+    >   - **min**: The minimum angle in degrees zeroed at south (+z), increasing clockwise required
+    >   - **max**: The maximum angle in degrees zeroed at south (+z), increasing clockwise required
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### with_level
     ```
     (?).get_players().with_level(min: int!, max: int!)
     ```
-
+    > FILTER: Filter out all players whose level is not within the specified range 
+    > 
+    > Params:
+    >   - **min**: The minimum level players must have
+    >   - **max**: The maximum level players must have
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### with_no_team
     ```
     (?).get_players().with_no_team()
     ```
-
+    > FILTER: Filter out all entities in the any team
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### with_score
     ```
     (?).get_players().with_score(score: str!, min: int!? = null, max: int!? = null)
     ```
-
+    > FILTER: Filter out all entities whose specified score is not in range
+    > 
+    > Params:
+    >   - **score**: The scoreboard objective to test
+    >   - **min**: The score that a passing entity must have greater than or equal to
+    >   - **max**: The score that a passing entity must have less than or equal to
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### with_tag
     ```
     (?).get_players().with_tag(tag: str!)
     ```
-
+    > FILTER: Filter out all entities with the specified tag
+    > 
+    > Params:
+    >   - **tag**: The name of the tag valid entities must have
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### with_vert_rot
     ```
     (?).get_players().with_vert_rot(min: int!, max: int!)
     ```
-
+    > FILTER: Filter out all entities not looking in the specified pitch
+    > 
+    > Params:
+    >   - **min**: The minimum angle in degrees zeroed at horizontal, increasing down required
+    >   - **max**: The maximum angle in degrees zeroed at horizontal, increasing down required
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### without_tag
     ```
     (?).get_players().without_tag(tag: str!)
     ```
-
+    > FILTER: Filter out all entities lacking the specified tag
+    > 
+    > Params:
+    >   - **tag**: The name of the tag valid entities must not have
+    > 
+    > Returns:
+    >   - Partial Selector of same type as predecessor (this allows unlimited chaining of filters)
   * ### find
     ```
     world.get_players().find()
     ```
-
+    > Get real players from a partial selector
+    > 
+    > Returns:
+    >   - The selected players
 * ### meta
   ```
   (?).meta
@@ -643,22 +1143,22 @@ version -> int
 
   * ### constant
     ```
-    world.pos.constant(x: int!, y: int!, z: int!)
+    world.pos.constant(x: float!, y: float!, z: float!)
     ```
 
   * ### get
     ```
-    Entities.pos.get(dx: int! = 0, dy: int! = 0, dz: int! = 0)
+    Entities.pos.get(dx: float! = 0, dy: float! = 0, dz: float! = 0)
     ```
 
   * ### get_directed
     ```
-    Entities.pos.get_directed(rx: int! = 0, ry: int! = 0, rz: int! = 0)
+    Entities.pos.get_directed(rx: float! = 0, ry: float! = 0, rz: float! = 0)
     ```
 
   * ### set_coord
     ```
-    world.pos.set_coord(old_pos: std::Pos, force_x: int!? = null, force_y: int!? = null, force_z: int!? = null)
+    world.pos.set_coord(old_pos: std::Pos, force_x: float!? = null, force_y: float!? = null, force_z: float!? = null)
     ```
 
 * ### rotate
