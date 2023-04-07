@@ -255,7 +255,7 @@ def <ExecutorType> <func_name>(<param1_name>: <param1_type>, ...) -> <return_typ
 
 ## Properties & Chains
 ### Properties
-Properties are almost identical to functions except that they need no arguments.  As a result they are used in the same way except that the `(...)` must be ommited:
+Properties are almost identical to functions except that they need no arguments.  As a result they are used in the same way except that the `(...)` must be omitted:
 ```py
 let compiler_version: int = world.version
 ```
