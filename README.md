@@ -1,5 +1,5 @@
 # Mchy
-Mchy is a compiler which converts the custom language, *Mchy*, to *Minecraft Datapacks*.  This allows the programmer to write high level code such as for-loops, if-statements and functions yielding return values. They can then call the compiler and let it deal with the many idiosyncrasies of Datapacks that usually make these features difficult to implement and the code near impossible to read.
+Mchy is a compiler which converts the custom language, *Mchy*, to *Minecraft Datapacks*.  This allows a programmer to write high level code such as for-loops, if-statements and functions and then let the compiler deal with the many idiosyncrasies of Datapacks.
 
 ## Quick Links
 * [Getting Started](#getting-started)
@@ -16,7 +16,7 @@ Mchy is a compiler which converts the custom language, *Mchy*, to *Minecraft Dat
     - <details>
         <summary>Linix/Mac etc</summary>
         
-        Other Operating systems are not officially supported but will probably work.  You will need to build the compiler yourself using the build script in [dev_util](/dev_util).  Note: you will need [Java](https://www.java.com/), [ANTLR (v4.10)](https://www.antlr.org/download/antlr-4.10-complete.jar) & [Python](https://www.python.org/downloads/) downloaded along with pip installing the [antlr4-python3-runtime](https://pypi.org/project/antlr4-python3-runtime/).  For the rest of this section I will assume `mchy.exe` is being used on windows, when this is seen other operating systems can use `python -m mchy` as one-to-one replacement assuming mchy is on the path.
+        Other Operating systems are not officially supported but will probably work.  You will need to build the compiler yourself using the build script in [dev_util](/dev_util).  Note: you will need [Java](https://www.java.com/), [ANTLR (v4.10)](https://www.antlr.org/download/antlr-4.10-complete.jar) & [Python](https://www.python.org/downloads/) downloaded along with pip installing the [antlr4-python3-runtime](https://pypi.org/project/antlr4-python3-runtime/).  For the rest of this section I will assume `mchy.exe` is being used on windows, when this is used: other operating systems can use `python -m mchy` as one-to-one replacement assuming mchy is on the path and requirements/prerequisites are installed.
     </details>
 
 2. Get mchy on the path
