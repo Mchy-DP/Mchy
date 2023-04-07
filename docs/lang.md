@@ -1,6 +1,6 @@
 # Language Specification
 
-This file documents the language features of mchy, For specific functions and properties see the [libraries](/docs/home.md).  The examples in this file, unless otherwise noted, will assume that the [standard library](/docs/libs/std.md) is available (Thus functions like print can be used to demonstrate the workings of code structures)
+This file documents the language features of mchy, For specific functions and properties see the [libraries](/docs/home.md).  The examples in this file, unless otherwise noted, will assume that the [standard library](/docs/libs/std.md) is available (thus functions like `print` can be used to demonstrate the workings of code structures).
 
 ## Variables
 ### Var
@@ -16,7 +16,7 @@ apple_count = 5 + 4
 print("I counted ", apple_count, " apples, I expected to count 9!")
 ```
 
-Variable can also be assigned to during creation by adding equals followed by an expression afterwards. 
+Variables can also have values assigned to them during creation by adding equals followed by an expression afterwards.
 ```py
 var apple_count: int = 5 + 4
 print("I counted ", apple_count, " apples, I expected to count 9!")
@@ -69,27 +69,27 @@ If statements can be used to execute some code only if a condition is met:
 ```py
 var ninja_count: int = 17:
 if ninja_count > 11{
-    print("Too many ninja's, Retreat!")
+    print("Too many ninjas: Retreat!")
 }
 ```
-Elif blocks can be added to an if.  These blocks will only execute if their condition resolves True and all preceding conditions resolved false.
+Elif blocks can be added to an if.  These blocks will only execute if their condition resolves True and all preceding conditions resolved False.
 ```py
 var ninja_count: int = 17:
 if ninja_count > 11{
-    print("Too many ninja's, Retreat!")
+    print("Too many ninjas: Retreat!")
 } elif ninja_count == 0 {
     print("It's quiet... too quiet...")
 }
 ```
-An else block can be appended to the end of a if/elif block.  It will only execute if all other condtions resolved False
+An else block can be appended to the end of a if/elif block.  It will only execute if all other condtions resolved False.
 ```py
 var ninja_count: int = 17:
 if ninja_count > 11{
-    print("Too many ninja's, Retreat!")
+    print("Too many ninjas: Retreat!")
 } elif ninja_count == 0 {
     print("It's quiet... too quiet...")
 } else {
-    print("We can take em, Charge!")
+    print("We can take em: Charge!")
 }
 ```
 
@@ -101,7 +101,7 @@ while <condition> {
     <loop body>
 }
 ```
-While loops will continue to execute the loop body until the condition resolves false.
+While loops will continue to execute the loop body until the condition resolves False.
 
 Example while loop:
 ```py
@@ -161,7 +161,7 @@ Functions can be called by writing the function name followed by `()`
 # Print a blank line to chat
 print()
 ```
-Most functions expect arguments, which can be set by passing values to them
+Most functions expect arguments, which can be set by passing values to them.
 ```py
 print("Well hello there!")
 ```
@@ -171,7 +171,7 @@ print("Well ", "hello ", "there!")
 ```
 Some arguments may have a default value thus making them optional.
 ### Executors
-Many functions need to run on an entity/player, To do this first get the entity (see: [.get_entities()](/docs/libs/std.md#get_entities) from the standard library).  Then you can run the function on it via dot accessing:
+Many functions need to run on an entity/player. To do this first get the entity (see: [.get_entities()](/docs/libs/std.md#get_entities) from the standard library).  then you can run the function on it via dot accessing:
 
 ```py
 let random_player: Player = world.get_player("random").find()
@@ -187,13 +187,13 @@ let compiler_version: int = world.version
 ```
 
 ### Chains
-Sometimes library methods & properties may not return a complete type (such as an int or Player) instead they only make sense if further methods or properties are used to clarify the command.  These are called method/property chains.  One example of such a chain was shown above, The `get_entities()` function.
+Sometimes library methods and properties may not return a complete type (such as an int or Player) instead they only make sense if further methods or properties are used to clarify the command.  These are called method/property chains.  One example of such a chain was shown above; the `get_entities()` function.
 ```py
 let random_player: Player = world.get_player("random").find()
 ```
-note here that `world.get_player("random")` does not actually do anything instead it is a partial entity selector.  When `.find()` is called only then is it a real type (A `Player` in this case) which can be stored to a variable.
+Note here that `world.get_player("random")` does not actually do anything, instead it is a partial entity selector.  When `.find()` is called only then is it a real type (A `Player` in this case) which can be stored to a variable.
 
-In the case of `get_player()` the reason that it is a partial selector rather than a player is that further filters can be added.  For instance:
+In the case of `get_player()` the reason that it is a partial selector rather than a Player is that further filters can be added.  For instance:
 ```py
 let random_player_at_level_30: Player = world.get_player("random").with_level(min=30, max=1000000).find()
 
@@ -222,36 +222,36 @@ random_player_at_level_30.say("I'm at level 30!")
 | Null Literal     | `null`    | Yields the literal value `null`                                         |
 | World            | `world`   | Yields the world                                                        |
 | This             | `this`    | Yields the executing entity in a function                               |
-| Not              | `not X`   | Yields true if `X` is false and false if `X` is true                    |
-| And              | `X and Y` | Yields true if both `X` and `Y` are true, False otherwise               |
-| Or               | `X or Y`  | Yields true if either `X` or `Y` are true, False otherwise              |
-| NullCoal         | `X ?? Y`  | Yields `X` if `X` is not null, `Y` otherwise.  `Y` cannot be null.      |
+| Not              | `not X`   | Yields true if `X` is False and False if `X` is True                    |
+| And              | `X and Y` | Yields true if both `X` and `Y` are True, False otherwise               |
+| Or               | `X or Y`  | Yields true if either `X` or `Y` are True, False otherwise              |
+| NullCoal         | `X ?? Y`  | Yields `X` if `X` is not null, `Y` otherwise.  `Y` cannot be null       |
 
 
 ## Misc
 ### Comments
-Any line begining with a `#` symbol is a code comment and will not be executed
+Any line begining with a `#` symbol is a code comment and will not be executed.
 ```py
 # Not a real line
 print("Real line")
 # print("This is a print that has been commented out so won't run!")
 ```
 ### Raw Commands
-Any line starting with a `/` symbol will be directly inserted at that position into the output datapack as a raw minecraft command.
+Any line starting with a `/` symbol will be directly inserted at that position into the output Datapack as a raw Minecraft command.
 ```py
 print("About to force speech")
-/execute as @a run say I decided to say this becuase a raw command made me do it!
+/execute as @a run say I decided to say this because a raw command made me do it!
 print("Finished forcing speech!")
 ```
 Note: If you want to build a raw command out of Compile-time constant Strings (`str!`) then use [`world.cmd(...)`](/docs/libs/std.md#cmd) from the standard library.
 ### Structs
-Some functions & properties such as [`world.pos.constant(...)`](/docs/libs/std.md#constant) return compile-time struct's.  These represent data structures more complicated than simple int's or str's are sufficient for.  Struct's can usually be stored in variables.
+Some functions & properties such as [`world.pos.constant(...)`](/docs/libs/std.md#constant) return compile-time structs.  These represent data structures more complicated than simple int's or str's are sufficient for.  Structs can usually be stored in variables.
 ```py
 let selected_color: Color = world.colors.red
-print("I am normal text, ", selected_color, "I am scary colored text!")
+print("I am normal text, ", selected_color, "I am scary coloured text!")
 ```
 ### Decorators
-Functions can be proceeded by `@<decorator>` to change/add behaviors of that function.
+Functions can be proceeded by `@<decorator>` to change/add behaviours of that function.
 #### Ticking
 The `@ticking` decorator can proceed any function that executes on world with no return type or parameters.  When the `@ticking` decorator is used the function will run once every 20th of a second.
 ```py
@@ -272,7 +272,7 @@ def secondly(){
 }
 ```
 #### Public
-The `@public` decorator can proceed any function with no parameters.  When the `@public` decorator is used the function will be callable from in world via the `/function` command at the location `<file name>:generated/public/<function name>`.
+The `@public` decorator can precede any function with no parameters.  When the `@public` decorator is used the function will be callable from in world via the `/function` command at the location `<file name>:generated/public/<function name>`.
 ```py
 # In the file apple_prints.mchy
 @public
@@ -286,7 +286,7 @@ def output_apples(){
 > apples!
 > ```
 ## Typing
-There are 3 broad catagories of type in mchy: Inert types, Executable types & Struct Types.  Struct types are special types used by structures and minimal knowledge is needed about them, As such they will not be discussed here more than to acknowledge their existence.
+There are 3 broad catagories of type in mchy: Inert types, Executable types & Struct Types.  Struct types are special types used by structures and minimal knowledge is needed about them, as such they will not be discussed here more than to acknowledge their existence.
 ### Inert Types
 Inert types have 5 core subtypes that come under this heading: `float`, `int`, `bool`, `str` & `null`.  Inert types have 2 variants: nullable & compile constant.  These are indicated by adding the suffixes Indicated below.
 | Property          | Suffix        |
@@ -304,7 +304,7 @@ Many operations are not possible at runtime due to the limitations of Minecraft 
 ```MCDP
 /particle <name> [<pos>] [<delta>] <speed> <count> [force|normal]
 ```
-this equate to the following Mchy command
+This equates to the following Mchy command:
 ```py
 particle(location: std::Pos, particle: str!, dx: float!, dy: float!, dz: float!, speed: float!, count: int!, force_render: bool! = False) -> null
 ```

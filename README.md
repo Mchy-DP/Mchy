@@ -1,5 +1,5 @@
 # Mchy
-Mchy is a compiler which converts the custom language, *Mchy*, to *Minecraft Datapacks*.  This allows the programmer to write high level code such as for-loops, if-statements and functions yielding return values. They can then call the compiler and let it deal with the many idiosyncrasies of Datapacks that usually make these features difficult to implement and the code near impossible to read.
+Mchy is a compiler which converts the custom language, *Mchy*, to *Minecraft Datapacks*.  This allows a programmer to write high level code such as for-loops, if-statements and functions and then let the compiler deal with the many idiosyncrasies of Datapacks.
 
 ## Quick Links
 * [Getting Started](#getting-started)
@@ -16,7 +16,7 @@ Mchy is a compiler which converts the custom language, *Mchy*, to *Minecraft Dat
     - <details>
         <summary>Linix/Mac etc</summary>
         
-        Other Operating systems are not officially supported but will probably work.  You will need to build the compiler yourself using the build script in [dev_util](/dev_util).  Note: you will need [Java](https://www.java.com/), [ANTLR (v4.10)](https://www.antlr.org/download/antlr-4.10-complete.jar) & [Python](https://www.python.org/downloads/) downloaded along with pip installing the [antlr4-python3-runtime](https://pypi.org/project/antlr4-python3-runtime/).  For the rest of this section I will assume `mchy.exe` is being used on windows, when this is seen other operating systems can use `python -m mchy` as one-to-one replacement assuming mchy is on the path.
+        Other Operating systems are not officially supported but will probably work.  You will need to build the compiler yourself using the build script in [dev_util](/dev_util).  Note: you will need [Java](https://www.java.com/), [ANTLR (v4.10)](https://www.antlr.org/download/antlr-4.10-complete.jar) & [Python](https://www.python.org/downloads/) downloaded along with pip installing the [antlr4-python3-runtime](https://pypi.org/project/antlr4-python3-runtime/).  For the rest of this section I will assume `mchy.exe` is being used on windows, when this is used: other operating systems can use `python -m mchy` as one-to-one replacement assuming mchy is on the path and requirements/prerequisites are installed.
     </details>
 
 2. Get mchy on the path
@@ -33,7 +33,7 @@ Mchy is a compiler which converts the custom language, *Mchy*, to *Minecraft Dat
         1. Press the windows button/key
         2. Type `edit environment variables for your account` into the search bar
         3. Click the top result
-        4. In the top box of the opend window entitled `User variables for USERNAME` find the `Path` variable
+        4. In the top box of the opened window entitled `User variables for USERNAME` find the `Path` variable
         5. Click the `Path` variable once to select it
         6. Press the `Edit` button directly below the top box
         7. Press the `New` button from the left hand menu
@@ -49,7 +49,7 @@ Mchy is a compiler which converts the custom language, *Mchy*, to *Minecraft Dat
     - Save the file
 
 4. Open the directory containing the program in the terminal
-    - **Shift** + **Right Click** in the direcotry contating the program and select `Open PowerShell window here`.  Note on older versions it may say `Open Command window here`, that is also fine.
+    - **Shift** + **Right Click** in the directory containing the program and select `Open PowerShell window here`.  Note on older versions it may say `Open Command window here`, that is also fine.
 
 5. Run the compiler
     - Type the following into the terminal:
@@ -63,7 +63,7 @@ Mchy is a compiler which converts the custom language, *Mchy*, to *Minecraft Dat
       If all goes well you should see the output `Compilation Successful!` after the compiler finishes.
 
 6. Move your Datapack to your world
-    - In the folder containing the program there should now be a folder called `Hello World`.  This folder is the Datapack.  It can now be moved to the `datapacks` folder of any Minecraft world and then when `/reload` is run in chat in that mincraft world you should see the message `Hello World!` output to chat.
+    - In the folder containing the program there should now be a folder called `Hello World`.  This folder is the Datapack.  It can now be moved to the `datapacks` folder of any Minecraft world and then when `/reload` is run in chat in that Minecraft world you should see the message `Hello World!` output to chat.
 
 ### Tips:
   - Getting bored of copying your Datapack over after making a change, get the compiler to build straight to the `datapacks` directory via the `-o` option.  Example:
@@ -74,4 +74,4 @@ Mchy is a compiler which converts the custom language, *Mchy*, to *Minecraft Dat
     ```
     mchy.exe -v --log-file .\mchy.log .\hello_world.mchy
     ```
-  - Want to know more about the language, check the documentation or examples.  Want to see what over options you can give the compiler try running `mchy.exe --help` to see other options.
+  - Want to know more about the language, check the documentation or examples.  Want to see what other options you can give the compiler try running `mchy.exe --help` to see other options.
