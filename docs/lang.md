@@ -16,7 +16,7 @@ apple_count = 5 + 4
 print("I counted ", apple_count, " apples, I expected to count 9!")
 ```
 
-Variable can also be assigned to during creation by adding equals followed by an expression afterwards. 
+Variables can also have values assigned to them during creation by adding equals followed by an expression afterwards.
 ```py
 var apple_count: int = 5 + 4
 print("I counted ", apple_count, " apples, I expected to count 9!")
@@ -69,14 +69,14 @@ If statements can be used to execute some code only if a condition is met:
 ```py
 var ninja_count: int = 17:
 if ninja_count > 11{
-    print("Too many ninjas, Retreat!")
+    print("Too many ninjas: Retreat!")
 }
 ```
 Elif blocks can be added to an if.  These blocks will only execute if their condition resolves True and all preceding conditions resolved False.
 ```py
 var ninja_count: int = 17:
 if ninja_count > 11{
-    print("Too many ninjas, Retreat!")
+    print("Too many ninjas: Retreat!")
 } elif ninja_count == 0 {
     print("It's quiet... too quiet...")
 }
@@ -85,11 +85,11 @@ An else block can be appended to the end of a if/elif block.  It will only execu
 ```py
 var ninja_count: int = 17:
 if ninja_count > 11{
-    print("Too many ninjas, Retreat!")
+    print("Too many ninjas: Retreat!")
 } elif ninja_count == 0 {
     print("It's quiet... too quiet...")
 } else {
-    print("We can take em, Charge!")
+    print("We can take em: Charge!")
 }
 ```
 
@@ -237,7 +237,7 @@ print("Real line")
 # print("This is a print that has been commented out so won't run!")
 ```
 ### Raw Commands
-Any line starting with a `/` symbol will be directly inserted at that position into the output datapack as a raw Minecraft command.
+Any line starting with a `/` symbol will be directly inserted at that position into the output Datapack as a raw Minecraft command.
 ```py
 print("About to force speech")
 /execute as @a run say I decided to say this because a raw command made me do it!
@@ -245,7 +245,7 @@ print("Finished forcing speech!")
 ```
 Note: If you want to build a raw command out of Compile-time constant Strings (`str!`) then use [`world.cmd(...)`](/docs/libs/std.md#cmd) from the standard library.
 ### Structs
-Some functions & properties such as [`world.pos.constant(...)`](/docs/libs/std.md#constant) return compile-time struct's.  These represent data structures more complicated than simple int's or str's are sufficient for.  Struct's can usually be stored in variables.
+Some functions & properties such as [`world.pos.constant(...)`](/docs/libs/std.md#constant) return compile-time structs.  These represent data structures more complicated than simple int's or str's are sufficient for.  Structs can usually be stored in variables.
 ```py
 let selected_color: Color = world.colors.red
 print("I am normal text, ", selected_color, "I am scary coloured text!")
@@ -272,7 +272,7 @@ def secondly(){
 }
 ```
 #### Public
-The `@public` decorator can proceed any function with no parameters.  When the `@public` decorator is used the function will be callable from in world via the `/function` command at the location `<file name>:generated/public/<function name>`.
+The `@public` decorator can precede any function with no parameters.  When the `@public` decorator is used the function will be callable from in world via the `/function` command at the location `<file name>:generated/public/<function name>`.
 ```py
 # In the file apple_prints.mchy
 @public
