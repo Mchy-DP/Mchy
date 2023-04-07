@@ -14,26 +14,46 @@ def Group[Player] give_fireball_staff(){
     this.give("minecraft:carrot_on_a_stick", 1, "{display:{Name:'{\"text\":\"Fireball Staff\",\"color\":\"#FF0000\",\"bold\":true}'},Unbreakable:1b,fb_fireball_staff:1b,Enchantments:[{}]}")
 }
 
+def Entity _explode_entity(source: Player){
+    # Cause damage to executing entity via raw minecraft commands
+    source.tag_add("fb_damage_source")
+    this.tag_add("fb_to_be_damaged")
+    /damage @e[tag=fb_to_be_damaged,limit=1,sort=nearest] 2 minecraft:explosion by @e[tag=fb_damage_source,limit=1,sort=nearest] from @e[tag=fb_damage_source,limit=1,sort=nearest]
+    /damage @e[tag=fb_to_be_damaged,limit=1,sort=nearest] 3 minecraft:fireball by @e[tag=fb_damage_source,limit=1,sort=nearest] from @e[tag=fb_damage_source,limit=1,sort=nearest]
+    source.tag_remove("fb_damage_source")
+    this.tag_remove("fb_to_be_damaged")
+}
+
 def Player cast_fireball(){
     # Reset clicked
     this.scoreboard.obj(RIGHT_CLICK_OBJ).set(0)
 
     # Make fireball
-    let fireball: Entity = world.summon(this.pos.get(dy=1.5), "minecraft:marker")
+    let fireball: Entity = world.summon(this.pos.get(dy=1.5), "minecraft:marker", "{CustomName:'{\"text\":\"fireball\",\"color\":\"#FF9900\"}'}")
     fireball.rotate.match(this)
-    var collided: bool = False
-    var ittertaion_count: int = 0
+    
+    # Move fireball a little to the right so it';s not quite so in your face
+    fireball.tp(fireball.pos.get_directed(rx=-0.2))
+    
 
     # Shoot fireball
     let all_players: Group[Player] = world.get_players().find()
     all_players.play_sound(fireball.pos.get(), "entity.ghast.shoot", channel="player")
 
     # Move fireball
+    var collided: bool = False
+    var ittertaion_count: int = 0
     while ((not collided) and (ittertaion_count < FIREBALL_STEPS)){
         # fireball motion & effects
         fireball.tp(fireball.pos.get_directed(rz=FIREBALL_RESOLUTION))
-        world.particle(fireball.pos.get(), "minecraft:flame", 0.03, 0.03, 0.03, 0.05, count=5)
-        world.particle(fireball.pos.get(), "minecraft:lava", 0.01, 0.01, 0.01, 0.01, count=1)
+        if ittertaion_count > 3{
+            # only spawn graphics once the fireball is out of your face
+            world.particle(fireball.pos.get(), "minecraft:flame", 0.03, 0.03, 0.03, 0.01, count=1, force_render=True)
+            if (ittertaion_count % 5) == 0{
+                # Only emit lava particles every 5 steps as they become distracting
+                world.particle(fireball.pos.get(), "minecraft:lava", 0.5, 0.5, 0.5, 0.01, count=1)
+            }
+        }
 
         # allow checks for loop end
         ittertaion_count = ittertaion_count + 1
@@ -43,9 +63,17 @@ def Player cast_fireball(){
     }
 
     # Detonate Fireball
-    world.particle(fireball.pos.get(), "minecraft:flame", 0.2, 0.2, 0.2, 0.1, count=25)
-    world.particle(fireball.pos.get(), "minecraft:flame", 0.5, 0.5, 0.5, 0.7, count=25)
-    world.particle(fireball.pos.get(), "minecraft:lava", 0.01, 0.01, 0.01, 0.01, count=20)
+    world.particle(fireball.pos.get(), "minecraft:flame", 0.2, 0.2, 0.2, 0.1, count=140, force_render=True)
+    world.particle(fireball.pos.get(), "minecraft:flame", 0.5, 0.5, 0.5, 0.25, count=55, force_render=True)
+    world.particle(fireball.pos.get(), "minecraft:lava", 0.01, 0.01, 0.01, 0.01, count=35, force_render=True)
+    world.particle(fireball.pos.get(), "minecraft:explosion_emitter", 0, 0, 0, 0, count=1, force_render=True)
+
+    # damage
+    fireball.get_entities().in_radius(0, 4).find()._explode_entity(this)
+    
+
+    # Destroy the fireball
+    fireball.kill()
 }
 
 @ticking
