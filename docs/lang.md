@@ -1,6 +1,6 @@
 # Language Specification
 
-This file documents the language features of mchy, For specific functions and properties see the [libraries](/docs/home.md).  The examples in this file, unless otherwise noted, will assume that the [standard library](/docs/libs/std.md) is available (Thus functions like print can be used to demonstrate the workings of code structures)
+This file documents the language features of mchy, For specific functions and properties see the [libraries](/docs/home.md).  The examples in this file, unless otherwise noted, will assume that the [standard library](/docs/libs/std.md) is available (thus functions like 'print' can be used to demonstrate the workings of code structures).
 
 ## Variables
 ### Var
