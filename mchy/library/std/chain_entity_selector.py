@@ -14,7 +14,7 @@ from mchy.contextual.struct.expr.literals import CtxExprLitNull
 from mchy.errors import StatementRepError
 from mchy.library.std.ns import STD_NAMESPACE
 from mchy.stmnt.struct import SmtAtom, SmtCmd, SmtFunc, SmtModule
-from mchy.stmnt.struct.atoms import SmtConstInt, SmtConstNull, SmtConstStr, SmtVar
+from mchy.stmnt.struct.atoms import SmtConstFloat, SmtConstInt, SmtConstNull, SmtConstStr, SmtVar
 from mchy.stmnt.struct.cmds.tag_ops import SmtRawEntitySelector
 
 
@@ -28,8 +28,8 @@ class SelectorBuilder:
     from_x: Optional[int] = None
     from_y: Optional[int] = None
     from_z: Optional[int] = None
-    distance_min: Optional[int] = None
-    distance_max: Optional[int] = None
+    distance_min: Optional[float] = None
+    distance_max: Optional[float] = None
     from_dx: Optional[int] = None
     from_dy: Optional[int] = None
     from_dz: Optional[int] = None
@@ -313,19 +313,19 @@ class ChainLinkPartialSelectorInRadius(ChainLinkPartialSelector, abstract=True):
 
     def get_params(self) -> Optional[Sequence[IParam]]:
         return [
-            IParam("min", InertType(InertCoreTypes.INT, const=True, nullable=True)),
-            IParam("max", InertType(InertCoreTypes.INT, const=True, nullable=True)),
+            IParam("min", InertType(InertCoreTypes.FLOAT, const=True, nullable=True), CtxExprLitNull(src_loc=ComLoc())),
+            IParam("max", InertType(InertCoreTypes.FLOAT, const=True, nullable=True), CtxExprLitNull(src_loc=ComLoc())),
         ]
 
     def build_selector(self, builder: SelectorBuilder, param_binding: Dict[str, SmtAtom]) -> None:
         try:
-            builder.distance_min = get_key_with_type(param_binding, "min", SmtConstInt).value
+            builder.distance_min = get_key_with_type(param_binding, "min", SmtConstFloat).value
         except StatementRepError:
             # This will re-crash if it is neither an int or null
             get_key_with_type(param_binding, "min", SmtConstNull)
             builder.distance_min = None
         try:
-            builder.distance_max = get_key_with_type(param_binding, "max", SmtConstInt).value
+            builder.distance_max = get_key_with_type(param_binding, "max", SmtConstFloat).value
         except StatementRepError:
             # This will re-crash if it is neither an int or null
             get_key_with_type(param_binding, "max", SmtConstNull)
