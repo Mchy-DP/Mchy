@@ -42,6 +42,29 @@ class SmtBlockExistsCmd(SmtCmd):
             )]
 
 
+class SmtEntityExistsCmd(SmtCmd):
+
+    def __init__(self, entity: SmtAtom, out_reg: SmtVar) -> None:
+        self.entity: SmtAtom = entity
+        entity_type = self.entity.get_type()
+        if not isinstance(entity_type, ExecType):
+            raise StatementRepError(f"Attempted to create {type(self).__name__} with entity of type {entity_type}, ExecType required")
+        self.out_reg: SmtVar = out_reg
+
+    def __repr__(self) -> str:
+        return f"{type(self).__name__}(entity={self.entity} ,out_reg={self.out_reg})"
+
+    def virtualize(self, linker: SmtLinker, stack_level: int) -> List[ComCmd]:
+        ent_vdat = get_exec_vdat(self.entity, linker)
+        out_vdat = linker.lookup_var(self.out_reg)
+        if not isinstance(out_vdat, SmtObjVarLinkage):
+            raise VirtualRepError(f"Output register does not have linked scoreboard?")
+        return [ComCmd(
+            f"execute store result score {out_vdat.var_name} {out_vdat.get_objective(stack_level)} " +
+            f"run execute if entity {ent_vdat.get_selector(stack_level)}"
+        )]
+
+
 class CmdBlockExists(IFunc):
 
     def get_namespace(self) -> Namespace:
@@ -69,3 +92,30 @@ class CmdBlockExists(IFunc):
         required_block: str = get_key_with_type(param_binding, "required_block", SmtConstStr).value
         output_register = function.new_pseudo_var(InertType(InertCoreTypes.BOOL))
         return [SmtBlockExistsCmd(location, required_block, output_register)], output_register
+
+
+class CmdEntityExists(IFunc):
+
+    def get_namespace(self) -> Namespace:
+        return STD_NAMESPACE
+
+    def get_executor_type(self) -> ExecType:
+        return ExecType(ExecCoreTypes.WORLD, False)
+
+    def get_name(self) -> str:
+        return "entity_exists"
+
+    def get_params(self) -> Sequence[IParam]:
+        return [
+            IParam("entity", ExecType(ExecCoreTypes.ENTITY, True))
+        ]
+
+    def get_return_type(self) -> ComType:
+        return InertType(InertCoreTypes.BOOL)
+
+    def stmnt_conv(
+                self, executor: SmtAtom, param_binding: Dict[str, SmtAtom], extra_binding: List['SmtAtom'], module: SmtModule, function: SmtFunc, config: Config
+            ) -> Tuple[List[SmtCmd], 'SmtAtom']:
+        entity = param_binding["entity"]
+        output_register = function.new_pseudo_var(InertType(InertCoreTypes.BOOL))
+        return [SmtEntityExistsCmd(entity, output_register)], output_register
