@@ -68,12 +68,19 @@ def convert_function_decl(ast_fdecl: FunctionDecl, executing_type: Optional[Exec
     params: List[CtxMchyParam] = []
     pmarkers: List[MarkerParamDefault] = []
     for param in ast_fdecl.params:
+        ptype = convert_explicit_type(param.param_type, module)
+        if isinstance(ptype, InertType) and ptype.const:
+            raise ConversionError(
+                f"Parameter `{param.param_name.value}` of function `{ast_fdecl.func_name}` has compile-constant type `{ptype.render()}`, this is forbidden. " +
+                f"Consider using a global OR making runtime type " +
+                f"(`{param.param_name.value}: {ptype.render()}` ---> `{param.param_name.value}: {InertType(ptype.target, False, ptype.nullable).render()}`)"
+            ).with_loc(param.loc)
         pmarker = (
             MarkerParamDefault(param.param_name.value, None) if param.default_value is None else
             MarkerParamDefault(param.param_name.value, convert_expr(param.default_value, executing_type, module, var_scopes))
         )
         pmarkers.append(pmarker)
-        params.append(CtxMchyParam(param.param_name.value, param.param_name.loc, convert_explicit_type(param.param_type, module), pmarker))
+        params.append(CtxMchyParam(param.param_name.value, param.param_name.loc, ptype, pmarker))
 
     # Check for duplicate param labels
     _params_labels = [para.get_label() for para in params]
