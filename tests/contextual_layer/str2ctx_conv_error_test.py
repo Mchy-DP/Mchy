@@ -23,6 +23,7 @@ def func(x: int, y: int, z: int = null) -> int{
     ([], r"""return 5""", ["Return", "outside", "function"], ComLoc(1, 0, 1, 8)),
     ([], r"""def int func(){}""", ["executor type", "cannot be inert", "int"], ComLoc(1, 4, 1, 7)),
     ([], r"""def func_name(param_a: int, param_a: str){}""", ["Duplicate argument", "param_a", "func_name"], ComLoc(1, 0, 1, 43)),
+    ([], r"""def echo_text(msg: str!){}""", ["msg", "echo_text", "has compile-constant type", "str!", "Consider using a global OR making runtime type"], ComLoc(1, 14, 1, 23)),
     ([], r"""if 42 {}""", ["If", "int", "bool"], ComLoc(1, 3, 1, 5)),
     ([], r"""if True {} elif 42 {}""", ["Elif", "int", "bool"], ComLoc(1, 16, 1, 18)),
     ([], r"""this""", ["this", "cannot be used outside", "function"], ComLoc(1, 0, 1, 4)),
@@ -51,7 +52,6 @@ def func(x: int, y: int, z: int = null) -> int{
     ([], """@public\ndef foo(nope: int){}""", ["Published functions cannot have any parameters", "Consider deleting params"], ComLoc(2, 8, 2, 12)),
     ([], """@ticking\ndef foo() -> int {}""", ["Ticking functions cannot return anything", "Consider deleting return type"], ComLoc(2, 13, 2, 16)),
     ([], """@made_up_decorator\ndef foo(){}""", ["Unknown decorator", "made_up_decorator", "ticking"], ComLoc(1, 1, 1, 18)),
-    ([], r"""def echo_text(msg: str!){}""", ["msg", "echo_text", "has compile-constant type", "str!", "Consider using a global OR making runtime type"], ComLoc(1, 14, 1, 23)),
 ])
 def test_conv_error_expected(test_code: str, expected_msgs: List[str], err_loc: ComLoc, setup_code: List[str]):
     # Fix line numbers
