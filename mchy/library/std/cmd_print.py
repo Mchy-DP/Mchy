@@ -199,8 +199,8 @@ class CmdPrint(IFunc):
 
     def get_extra_param_type(self) -> Optional[Union[ComType, TypeUnion]]:
         return TypeUnion(
-            InertType(InertCoreTypes.STR, const=True, nullable=True),
-            InertType(InertCoreTypes.FLOAT, const=True, nullable=True),
+            InertType(InertCoreTypes.STR, nullable=True),
+            InertType(InertCoreTypes.FLOAT, nullable=True),
             InertType(InertCoreTypes.INT, nullable=True),
             InertType(InertCoreTypes.BOOL, nullable=True),
             InertType(InertCoreTypes.NULL),
