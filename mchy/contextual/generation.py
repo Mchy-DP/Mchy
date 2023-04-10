@@ -346,7 +346,7 @@ def convert_assignment(ast_assign: Assignment, executing_type: Optional[ExecType
             ).with_loc(ast_assign.loc)
         else:
             return CtxAssignment(lhs_expr.var, rhs_expr)
-    raise ConversionError(f"Assignment lhs is not a variable? (Encountered: {ast_assign.lhs.get_src()})")
+    raise ContextualisationError(f"Assignment lhs is not a variable? (Encountered: {ast_assign.lhs.get_src()})")
 
 
 def convert_explicit_type(ast_type: TypeNode, module: CtxModule) -> ComType:
