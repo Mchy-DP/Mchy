@@ -368,21 +368,19 @@ def convert_explicit_type(ast_type: TypeNode, module: CtxModule) -> ComType:
         # If it's not a built-in maybe it's a library type
         struct = module.get_struct(ast_type.core_type)
         if struct is None:
-            raise e
+            raise e.with_loc(ast_type.loc)
         if ast_type.compile_const:
             fixed_render = ast_type.clone()
             fixed_render.compile_const = False
-            raise ConversionError(f"Structs cannot be compile constant.  {ast_type.get_typestr()} -> {fixed_render.get_typestr()}")
-        if ast_type.compile_const:
-            fixed_render = ast_type.clone()
-            fixed_render.compile_const = False
-            raise ConversionError(f"Structs cannot be compile constant.  {ast_type.get_typestr()} -> {fixed_render.get_typestr()}")
+            raise ConversionError(f"Structs cannot be compile-constant.  `{ast_type.get_typestr()}` -> `{fixed_render.get_typestr()}`").with_loc(ast_type.loc)
         if ast_type.nullable:
             fixed_render = ast_type.clone()
             fixed_render.nullable = False
-            raise ConversionError(f"Structs cannot be nullable.  {ast_type.get_typestr()} -> {fixed_render.get_typestr()}")
+            raise ConversionError(f"Structs cannot be nullable.  `{ast_type.get_typestr()}` -> `{fixed_render.get_typestr()}`").with_loc(ast_type.loc)
         if ast_type.group:
-            raise ConversionError(f"Structs cannot be grouped")
+            fixed_render = ast_type.clone()
+            fixed_render.group = False
+            raise ConversionError(f"Structs cannot be grouped.  `{ast_type.get_typestr()}` -> `{fixed_render.get_typestr()}`").with_loc(ast_type.loc)
         # There is a struct of that name!
         return struct.get_type()
 
@@ -429,6 +427,6 @@ def get_type_enum(type_string: str) -> CoreTypes:
         lower_valid: Dict[str, str] = {ts.lower(): ts for ts in VALID_TYPE_STRINGS}
         if type_string.lower() in lower_valid.keys():
             # Added to hopefully easy the transition to mchy from other languages with different standards for type capitalization
-            raise ConversionError(f"Core type `{type_string}` is not known, did you mean `{lower_valid[type_string.lower()]}`")
+            raise ConversionError(f"Mchy type `{type_string}` is not known, did you mean `{lower_valid[type_string.lower()]}`")  # Location added at call-site
         else:
-            raise ConversionError(f"Core type `{type_string}` is not known")
+            raise ConversionError(f"Mchy type `{type_string}` is not known")  # Location added at call-site

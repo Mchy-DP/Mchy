@@ -64,6 +64,11 @@ def func(x: int, y: int, z: int = null) -> int{
     ([], """var x: int! = 5\nx = 10""", ["compile-constant", "cannot be assigned to", "int"], ComLoc(2, 0, 2, 6)),
     ([], """let x: int = 5\nx = 10""", ["read-only", "cannot be assigned to", "int"], ComLoc(2, 0, 2, 6)),
     ([], """var x: Color = world.colors.red\nx = world.colors.blue""", ["struct variables", "read-only", "cannot be assigned to", "Color"], ComLoc(2, 0, 2, 21)),
+    ([], r"""var x: pop""", ["type", "pop", "not known"], ComLoc(1, 7, 1, 10)),
+    ([], r"""var x: Int""", ["type", "Int", "not known", "did you mean", "int"], ComLoc(1, 7, 1, 10)),
+    ([], r"""var x: Pos!""", ["Struct", "compile-constant", "`Pos!` -> `Pos`"], ComLoc(1, 7, 1, 11)),
+    ([], r"""var x: Pos?""", ["Struct", "nullable", "`Pos?` -> `Pos`"], ComLoc(1, 7, 1, 11)),
+    ([], r"""var x: Group[Pos]""", ["Struct", "grouped", "`Group[Pos]` -> `Pos`"], ComLoc(1, 7, 1, 17)),
 ])
 def test_conv_error_expected(test_code: str, expected_msgs: List[str], err_loc: ComLoc, setup_code: List[str]):
     # Fix line numbers
