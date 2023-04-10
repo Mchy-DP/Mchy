@@ -4,7 +4,7 @@ from mchy.common.com_logger import ComLogger
 from mchy.common.config import Config
 from mchy.errors import MchySyntaxError
 
-from mchy.mchy_ast.mchy_parse import mchy_parse
+from mchy.mchy_ast.convert_parse import mchy_parse
 
 
 _TEST_CONFIG = Config(verbosity=Config.Verbosity.VV, logger=ComLogger(std_out_level=ComLogger.Level.VeryVerbose, unique_name=f"PYTEST-{__name__}"))

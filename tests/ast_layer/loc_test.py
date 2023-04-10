@@ -3,7 +3,7 @@ from typing import List, Tuple, Type
 import pytest
 from mchy.common.com_loc import ComLoc
 from mchy.common.config import Config
-from mchy.mchy_ast.mchy_parse import mchy_parse
+from mchy.mchy_ast.convert_parse import mchy_parse
 
 from mchy.mchy_ast.nodes import *
 from tests.helpers.diff_locs import loc_diff

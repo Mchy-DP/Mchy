@@ -1,6 +1,6 @@
 from typing import Tuple
 from mchy.contextual.struct.module import CtxModule
-from mchy.mchy_ast.mchy_parse import mchy_parse
+from mchy.mchy_ast.convert_parse import mchy_parse
 from mchy.mchy_ast.nodes import Root as ASTRoot
 from mchy.contextual.generation import convert as conv_ast_cst
 from mchy.stmnt.generation import convert as conv_cst_smt

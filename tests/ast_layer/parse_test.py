@@ -1,6 +1,6 @@
 
 from mchy.common.config import Config
-from mchy.mchy_ast.mchy_parse import mchy_parse
+from mchy.mchy_ast.convert_parse import mchy_parse
 
 from mchy.mchy_ast.nodes import *
 
