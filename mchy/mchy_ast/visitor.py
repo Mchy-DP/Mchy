@@ -110,7 +110,10 @@ class AstBuilderVisitor(MchyVisitor):
         else:
             raise TypeError(f"variable declaration keyword is neither `var` nor `const`? (found: {MchyParser.symbolicNames[ctx.varkw.type]})")
         return VariableDecl(
-            read_only, self.visit(ctx.var_type), str(ctx.var_name.text), (self.visit(ctx.assignment_target) if ctx.assignment_target is not None else None)
+            read_only,
+            self.visit(ctx.var_type),
+            ExprLitIdent(ctx.var_name.text).with_loc(loc_from_tok(ctx.var_name)),
+            (self.visit(ctx.assignment_target) if ctx.assignment_target is not None else None)
         ).with_loc(loc_from_ctx(ctx))
 
     def visitAssignment(self, ctx: MchyParser.AssignmentContext):

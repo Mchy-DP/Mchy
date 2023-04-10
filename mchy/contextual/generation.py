@@ -179,7 +179,7 @@ def convert_for_loop(
             enc_func: Optional[CtxMchyFunc],
             config: Config
         ) -> List[CtxStmnt]:
-    var_decl_marker = convert_variable_decl(VariableDecl(False, TypeNode("int"), ast_for.index_var_ident.value, ast_for.lower_bound), executing_type, module, var_scopes, enc_func)
+    var_decl_marker = convert_variable_decl(VariableDecl(False, TypeNode("int"), ast_for.index_var_ident, ast_for.lower_bound), executing_type, module, var_scopes, enc_func)
     new_var = convert_lit_ident(ast_for.index_var_ident, module, var_scopes).var
     loop = CtxForLoop(
         new_var,
@@ -270,7 +270,11 @@ def convert_variable_decl(
         ) -> MarkerDeclVar:
     # Is variable already defined as a variable anywhere?
     if var_scopes[-1].var_defined(ast_var_decl.var_name):
-        raise ConversionError(f"Variable of name {ast_var_decl.var_name} is already defined in current scope as {var_scopes[-1].get_var_oerr(ast_var_decl.var_name).render()}")
+        _existing_def = var_scopes[-1].get_var_oerr(ast_var_decl.var_name)
+        raise ConversionError(
+            f"Variable of name {ast_var_decl.var_name} is already defined in current scope as {_existing_def.render()}" +
+            (f", did you mean `{ast_var_decl.var_name} = {ast_var_decl.rhs.get_src()}`?" if (ast_var_decl.rhs is not None) else "")
+        ).with_loc(ast_var_decl.var_ident.loc)
 
     # Get var type
     var_ctx_type: ComType = convert_explicit_type(ast_var_decl.var_type, module)

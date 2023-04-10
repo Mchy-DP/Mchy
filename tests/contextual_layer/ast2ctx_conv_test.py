@@ -62,7 +62,7 @@ def test_e2h_convert_var_decl():
     ast_root = Root(
         Scope(
             Stmnt(
-                VariableDecl(True, TypeNode("int"), "x", ExprLitInt(42))
+                VariableDecl(True, TypeNode("int"), ExprLitIdent("x"), ExprLitInt(42))
             )
         )
     )
@@ -84,7 +84,7 @@ class TestE2HFuncDecl:
     def module(self):
         ast_root = Root(
             Scope(
-                Stmnt(VariableDecl(True, TypeNode("int"), "global_foo", ExprLitInt(42))),
+                Stmnt(VariableDecl(True, TypeNode("int"), ExprLitIdent("global_foo"), ExprLitInt(42))),
                 FunctionDecl(
                     "add2nums", TypeNode("world"), TypeNode("int"), Scope(CodeBlock(Stmnt(ReturnLn(ExprPlus(ExprLitIdent("a"), ExprLitIdent("b")))))), [],
                     ParamDecl(ExprLitIdent("a"), TypeNode("int")),
@@ -154,7 +154,7 @@ class TestFuncCall1:
 
     ast_root = Root(Scope(
         FunctionDecl("get42", TypeNode("world"), TypeNode("int"), Scope(CodeBlock(Stmnt(ReturnLn(ExprLitInt(42))))), []),
-        Stmnt(VariableDecl(False, TypeNode("int"), "foo", ExprFuncCall(ExprLitWorld(None), ExprLitIdent("get42")))),
+        Stmnt(VariableDecl(False, TypeNode("int"), ExprLitIdent("foo"), ExprFuncCall(ExprLitWorld(None), ExprLitIdent("get42")))),
     ))
 
     def test_calling_declared_function(self):
@@ -179,7 +179,7 @@ def test_nested_calls():
     ast_root = Root(Scope(
         FunctionDecl("get42", TypeNode("world"), TypeNode("int"), Scope(CodeBlock(Stmnt(ReturnLn(ExprLitInt(42))))), []),
         FunctionDecl("get42from_get42", TypeNode("world"), TypeNode("int"), Scope(CodeBlock(Stmnt(ReturnLn(ExprFuncCall(ExprLitThis(None), ExprLitIdent("get42")))))), []),
-        Stmnt(VariableDecl(False, TypeNode("int"), "foo", ExprFuncCall(ExprLitWorld(None), ExprLitIdent("get42from_get42")))),
+        Stmnt(VariableDecl(False, TypeNode("int"), ExprLitIdent("foo"), ExprFuncCall(ExprLitWorld(None), ExprLitIdent("get42from_get42")))),
     ))
     module = convert(ast_root, Config())
 

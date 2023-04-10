@@ -36,7 +36,7 @@ def test_flatten_struct_var():
     # Setup
     config = Config()
     ast = Root(Scope(Stmnt(VariableDecl(
-        False, TypeNode("Pos"), "foo",
+        False, TypeNode("Pos"), ExprLitIdent("foo"),
         ExprFuncCall(
             ExprPropertyAccess(
                 ExprLitWorld(None),

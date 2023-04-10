@@ -52,10 +52,16 @@ def func(x: int, y: int, z: int = null) -> int{
     ([], """@public\ndef foo(nope: int){}""", ["Published functions cannot have any parameters", "Consider deleting params"], ComLoc(2, 8, 2, 12)),
     ([], """@ticking\ndef foo() -> int {}""", ["Ticking functions cannot return anything", "Consider deleting return type"], ComLoc(2, 13, 2, 16)),
     ([], """@made_up_decorator\ndef foo(){}""", ["Unknown decorator", "made_up_decorator", "ticking"], ComLoc(1, 1, 1, 18)),
+    ([], """var x: int\nvar x: int""", ["x", "already defined in current scope", "var x: int"], ComLoc(2, 4, 2, 5)),
+    ([], """var x: int = 1\nvar x: int = 2""", ["x", "already defined in current scope", "var x: int", "did you mean `x = 2`"], ComLoc(2, 4, 2, 5)),
+    ([], """var x: int\nvar x: int = 1""", ["x", "already defined in current scope", "var x: int"], ComLoc(2, 4, 2, 5)),
+    ([], """var x: int = 1\nvar x: int""", ["x", "already defined in current scope", "var x: int"], ComLoc(2, 4, 2, 5)),
+    ([], """let x: int = 1\nvar x: int""", ["x", "already defined in current scope", "let x: int"], ComLoc(2, 4, 2, 5)),
+    ([], """var x: int\nvar x: str""", ["x", "already defined in current scope", "var x: int"], ComLoc(2, 4, 2, 5)),
 ])
 def test_conv_error_expected(test_code: str, expected_msgs: List[str], err_loc: ComLoc, setup_code: List[str]):
     # Fix line numbers
-    setup_code_str = "\n".join(setup_code)+"\n"
+    setup_code_str = ("\n".join(setup_code)+"\n").lstrip("\n")
     line_offset = setup_code_str.count("\n")
     err_loc = err_loc.with_line(err_loc.line_start_int + line_offset).with_line_end(err_loc.line_end_int + line_offset)
     # Get AST

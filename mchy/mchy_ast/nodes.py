@@ -188,18 +188,22 @@ class CodeBlock(Stmnt):
 
 class VariableDecl(Stmnt):
 
-    def __init__(self, read_only_type: bool, var_type: 'TypeNode', var_name: str, assignment_target: Optional['ExprGen'] = None, **kwargs):
+    def __init__(self, read_only_type: bool, var_type: 'TypeNode', var_ident: 'ExprLitIdent', assignment_target: Optional['ExprGen'] = None, **kwargs):
         initial_children: List[Node] = [var_type]
         if assignment_target is not None:
             initial_children.append(assignment_target)
         super().__init__(*initial_children, **kwargs)
         self.read_only_type: bool = read_only_type
         self.var_type: TypeNode = var_type
-        self.var_name: str = var_name
+        self.var_ident: ExprLitIdent = var_ident
         self.rhs: Optional['ExprGen'] = assignment_target
 
+    @property
+    def var_name(self) -> str:
+        return self.var_ident.value
+
     def clone(self: 'VariableDecl') -> 'VariableDecl':
-        return type(self)(self.read_only_type, self.var_type.clone(), self.var_name, self.rhs.clone() if self.rhs is not None else None)
+        return type(self)(self.read_only_type, self.var_type.clone(), self.var_ident, self.rhs.clone() if self.rhs is not None else None)
 
     def __eq__(self, other: object) -> bool:
         return (
@@ -293,7 +297,10 @@ class TypeNode(Node):
 
 class ExprGen(Stmnt):
     """common parent of expression classes"""
-    pass
+
+    @abstractmethod
+    def get_src(self) -> str:
+        ...
 
 
 class ExprFuncCall(ExprGen):
@@ -308,6 +315,9 @@ class ExprFuncCall(ExprGen):
     def func_name(self) -> str:
         return self.func_name_ident.value
 
+    def get_src(self) -> str:
+        return self.executor.get_src() + "." + self.func_name_ident.value + "("+", ".join(param.get_src() for param in self.params)+")"
+
 
 class ExprFragParam(ExprGen):
     """Represents Call-site `parameter=expr` in a function call"""
@@ -321,6 +331,9 @@ class ExprFragParam(ExprGen):
         self.value: ExprGen = value
         self.label: Optional[str] = None if label is None else label.value
 
+    def get_src(self) -> str:
+        return (f"{self.label} = " if self.label is None else "") + self.value.get_src()
+
 
 class ExprPropertyAccess(ExprGen):
 
@@ -333,6 +346,9 @@ class ExprPropertyAccess(ExprGen):
     def property_name(self) -> str:
         return self.property_name_ident.value
 
+    def get_src(self) -> str:
+        return self.source.get_src() + "." + self.property_name
+
 
 class ExprExponent(ExprGen):
 
@@ -340,6 +356,9 @@ class ExprExponent(ExprGen):
         super().__init__(base, exponent, **kwargs)
         self.base: ExprGen = base
         self.exponent: ExprGen = exponent
+
+    def get_src(self) -> str:
+        return self.base.get_src() + "**" + self.exponent.get_src()
 
 
 class ExprMult(ExprGen):
@@ -349,6 +368,9 @@ class ExprMult(ExprGen):
         self.left: ExprGen = left
         self.right: ExprGen = right
 
+    def get_src(self) -> str:
+        return self.left.get_src() + " * " + self.right.get_src()
+
 
 class ExprDiv(ExprGen):
 
@@ -356,6 +378,9 @@ class ExprDiv(ExprGen):
         super().__init__(left, right, **kwargs)
         self.left: ExprGen = left
         self.right: ExprGen = right
+
+    def get_src(self) -> str:
+        return self.left.get_src() + " / " + self.right.get_src()
 
 
 class ExprMod(ExprGen):
@@ -365,6 +390,9 @@ class ExprMod(ExprGen):
         self.left: ExprGen = left
         self.right: ExprGen = right
 
+    def get_src(self) -> str:
+        return self.left.get_src() + " % " + self.right.get_src()
+
 
 class ExprPlus(ExprGen):
 
@@ -372,6 +400,9 @@ class ExprPlus(ExprGen):
         super().__init__(left, right, **kwargs)
         self.left: ExprGen = left
         self.right: ExprGen = right
+
+    def get_src(self) -> str:
+        return self.left.get_src() + " + " + self.right.get_src()
 
 
 class ExprMinus(ExprGen):
@@ -381,6 +412,9 @@ class ExprMinus(ExprGen):
         self.left: ExprGen = left
         self.right: ExprGen = right
 
+    def get_src(self) -> str:
+        return self.left.get_src() + " - " + self.right.get_src()
+
 
 class ExprEquality(ExprGen):
 
@@ -388,6 +422,9 @@ class ExprEquality(ExprGen):
         super().__init__(left, right, **kwargs)
         self.left: ExprGen = left
         self.right: ExprGen = right
+
+    def get_src(self) -> str:
+        return self.left.get_src() + " == " + self.right.get_src()
 
 
 class ExprInequality(ExprGen):
@@ -397,6 +434,9 @@ class ExprInequality(ExprGen):
         self.left: ExprGen = left
         self.right: ExprGen = right
 
+    def get_src(self) -> str:
+        return self.left.get_src() + " != " + self.right.get_src()
+
 
 class ExprCompGTE(ExprGen):
 
@@ -404,6 +444,9 @@ class ExprCompGTE(ExprGen):
         super().__init__(left, right, **kwargs)
         self.left: ExprGen = left
         self.right: ExprGen = right
+
+    def get_src(self) -> str:
+        return self.left.get_src() + " >= " + self.right.get_src()
 
 
 class ExprCompGT(ExprGen):
@@ -413,6 +456,9 @@ class ExprCompGT(ExprGen):
         self.left: ExprGen = left
         self.right: ExprGen = right
 
+    def get_src(self) -> str:
+        return self.left.get_src() + " > " + self.right.get_src()
+
 
 class ExprCompLTE(ExprGen):
 
@@ -420,6 +466,9 @@ class ExprCompLTE(ExprGen):
         super().__init__(left, right, **kwargs)
         self.left: ExprGen = left
         self.right: ExprGen = right
+
+    def get_src(self) -> str:
+        return self.left.get_src() + " <= " + self.right.get_src()
 
 
 class ExprCompLT(ExprGen):
@@ -429,12 +478,18 @@ class ExprCompLT(ExprGen):
         self.left: ExprGen = left
         self.right: ExprGen = right
 
+    def get_src(self) -> str:
+        return self.left.get_src() + " < " + self.right.get_src()
+
 
 class ExprNot(ExprGen):
 
     def __init__(self, target: ExprGen, **kwargs):
         super().__init__(target, **kwargs)
         self.target: ExprGen = target
+
+    def get_src(self) -> str:
+        return "not " + self.target.get_src()
 
 
 class ExprAnd(ExprGen):
@@ -444,6 +499,9 @@ class ExprAnd(ExprGen):
         self.left: ExprGen = left
         self.right: ExprGen = right
 
+    def get_src(self) -> str:
+        return self.left.get_src() + " and " + self.right.get_src()
+
 
 class ExprOr(ExprGen):
 
@@ -452,6 +510,9 @@ class ExprOr(ExprGen):
         self.left: ExprGen = left
         self.right: ExprGen = right
 
+    def get_src(self) -> str:
+        return self.left.get_src() + " or " + self.right.get_src()
+
 
 class ExprNullCoal(ExprGen):
 
@@ -459,6 +520,9 @@ class ExprNullCoal(ExprGen):
         super().__init__(optional_expr, default_expr, **kwargs)
         self.optional_expr: ExprGen = optional_expr
         self.default_expr: ExprGen = default_expr
+
+    def get_src(self) -> str:
+        return self.optional_expr.get_src() + " ?? " + self.default_expr.get_src()
 
 
 class ExprLitGen(ExprGen):
@@ -495,6 +559,9 @@ class ExprLitGen(ExprGen):
     def deep_repr(self) -> str:
         return repr(self)
 
+    def get_src(self) -> str:
+        return self.value
+
 
 class ExprLitIdent(ExprLitGen):
 
@@ -516,6 +583,9 @@ class ExprLitStr(ExprLitGen):
     def _validate_value(self, value) -> None:
         if not isinstance(value, str):
             raise TypeError(f"value for `{type(self).__name__}` must be an `str` not `{type(value).__name__}`")
+
+    def get_src(self) -> str:
+        return '"' + self.value.replace('"', '\\"') + '"'
 
 
 class ExprLitFloat(ExprLitGen):
@@ -550,6 +620,9 @@ class ExprLitNull(ExprLitGen):
         if value is not None:
             raise TypeError(f"value for `{type(self).__name__}` must be `None` not of type `{type(value).__name__}`")
 
+    def get_src(self) -> str:
+        return "null"
+
 
 class ExprLitWorld(ExprLitGen):
 
@@ -561,6 +634,9 @@ class ExprLitWorld(ExprLitGen):
         if value is not None:
             raise TypeError(f"value for `{type(self).__name__}` must be `None` not of type `{type(value).__name__}`")
 
+    def get_src(self) -> str:
+        return "world"
+
 
 class ExprLitThis(ExprLitGen):
 
@@ -571,6 +647,9 @@ class ExprLitThis(ExprLitGen):
     def _validate_value(self, value) -> None:
         if value is not None:
             raise TypeError(f"value for `{type(self).__name__}` must be `None` not of type `{type(value).__name__}`")
+
+    def get_src(self) -> str:
+        return "this"
 
 
 class ExprLitBool(ExprLitGen):
