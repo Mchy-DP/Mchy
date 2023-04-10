@@ -1,7 +1,7 @@
 
 import re
 from typing import List, Optional, Set
-from antlr4 import ParserRuleContext
+from antlr4 import ParserRuleContext, CommonTokenStream
 from antlr4.error.ErrorListener import ErrorListener
 from antlr4.Token import CommonToken
 from antlr4.error.Errors import RecognitionException, InputMismatchException, NoViableAltException, FailedPredicateException, LexerNoViableAltException
@@ -97,16 +97,26 @@ class MchyErrorListener(ErrorListener):
         if (match := _PREDICATE_PATTERN.match(msg)):
             rule_name = match.group(1)
             if rule_name == "stmnt_ending":
-                try:
-                    stmnt_matched_text: Optional[str] = parent_ctx.start.getInputStream().getText(parent_ctx.start.start, offendingSymbol.column)
-                except:  # noqa
-                    # Unsure if anything might go wrong with this so if it does i'll make sure we still get an error out
+                stream: CommonTokenStream = recognizer.getInputStream()
+                # Get the entire statement parsed so far
+                if isinstance(parent_ctx, recognizer.StmntContext):
+                    stmnt_matched_text: Optional[str] = stream.getText(parent_ctx.start.start, offendingSymbol.stop)
+                else:
                     stmnt_matched_text = None
+
+                # Raise more specific error
                 if offendingSymbol.type == recognizer.EQUAL:
                     raise MchySyntaxError(f"Cannot assign to non-variable {f'`{stmnt_matched_text}` ' if stmnt_matched_text is not None else ''}")
+                if offendingSymbol.type == recognizer.SBOPEN:
+                    extra_err_info: str = ""
+                    if assert_is_token(stream.tokens[offendingSymbol.tokenIndex-1]).type == recognizer.IDENTIFIER:
+                        extra_err_info = "Note: This looks like an attempt to index a list/array, arrays are not yet supported so this won't work"
+                    raise MchySyntaxError(f"Cannot use '[' in this context? {extra_err_info}")
+
+                # raise slightly less generic error
                 raise MchySyntaxError(
                     f"During line {offendingSymbol.line} " + (f"(`{stmnt_matched_text}...`) " if stmnt_matched_text is not None else "") +
-                    f"Found `{get_token_text(offendingSymbol)}`, this is invalid. (Note: this usually indicates bad syntax immediately before this error)"
+                    f"Found `{get_token_text(offendingSymbol)}`, this is invalid. (Note: this can indicate bad syntax immediately before this error as well as at it)"
                 )
             raise MchySyntaxError(f"Confusing syntax encountered: intentions unclear.  Expected: {get_expected_toks_str(recognizer, list(expected_toks))} (rule: {rule_name})")
         # Super generic catch-all error
