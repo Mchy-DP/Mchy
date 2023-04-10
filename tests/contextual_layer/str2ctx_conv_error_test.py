@@ -61,6 +61,9 @@ def func(x: int, y: int, z: int = null) -> int{
     ([], r"""var x: int = 'foo'""", ["Cannot assign expression", "str!", "int"], ComLoc(1, 13, 1, 18)),
     ([FD], r"""var x: str! = func(1, 2, 3)""", ["Cannot assign expression", "int", "str!"], ComLoc(1, 14, 1, 27)),
     ([FD], r"""var x: int! = func(1, 2, 3)""", ["Compile-constants", "constant type", "int"], ComLoc(1, 14, 1, 27)),
+    ([], """var x: int! = 5\nx = 10""", ["compile-constant", "cannot be assigned to", "int"], ComLoc(2, 0, 2, 6)),
+    ([], """let x: int = 5\nx = 10""", ["read-only", "cannot be assigned to", "int"], ComLoc(2, 0, 2, 6)),
+    ([], """var x: Color = world.colors.red\nx = world.colors.blue""", ["struct variables", "read-only", "cannot be assigned to", "Color"], ComLoc(2, 0, 2, 21)),
 ])
 def test_conv_error_expected(test_code: str, expected_msgs: List[str], err_loc: ComLoc, setup_code: List[str]):
     # Fix line numbers

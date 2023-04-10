@@ -332,14 +332,21 @@ def convert_assignment(ast_assign: Assignment, executing_type: Optional[ExecType
     rhs_expr = convert_expr(ast_assign.rhs, executing_type, module, var_scopes)
     if isinstance(lhs_expr, CtxExprVar):
         if isinstance(lhs_expr.var.var_type, InertType) and lhs_expr.var.var_type.const:
-            raise ConversionError(f"The compile-constant variable `{lhs_expr.var.render()}` cannot be assigned to.  (Attempted: `{lhs_expr.var.name} = {repr(rhs_expr)}`)")
+            raise ConversionError(
+                f"The compile-constant variable `{lhs_expr.var.render()}` cannot be assigned to.  (Attempted: `{ast_assign.lhs.get_src()} = {ast_assign.rhs.get_src()}`)"
+            ).with_loc(ast_assign.loc)
         elif lhs_expr.var.read_only:
-            raise ConversionError(f"The read-only variable `{lhs_expr.var.render()}` cannot be assigned to.  (Attempted: `{lhs_expr.var.name} = {repr(rhs_expr)}`)")
+            raise ConversionError(
+                f"The read-only variable `{lhs_expr.var.render()}` cannot be assigned to.  (Attempted: `{ast_assign.lhs.get_src()} = {ast_assign.rhs.get_src()}`)"
+            ).with_loc(ast_assign.loc)
         elif isinstance(lhs_expr.var.var_type, StructType):
-            raise ConversionError(f"The struct variable `{lhs_expr.var.render()}` cannot be assigned to.  (Attempted: `{lhs_expr.var.name} = {repr(rhs_expr)}`)")
+            raise ConversionError(
+                f"The struct variables are always implicitly read-only, thus `{lhs_expr.var.render()}` cannot be assigned to.  " +
+                f"Consider declaring a new variable.  (Attempted: `{ast_assign.lhs.get_src()} = {ast_assign.rhs.get_src()}`)"
+            ).with_loc(ast_assign.loc)
         else:
             return CtxAssignment(lhs_expr.var, rhs_expr)
-    raise ConversionError(f"Assignment lhs is not a variable? {repr(lhs_expr)}")  # TODO: render CtxExprNode nicer
+    raise ConversionError(f"Assignment lhs is not a variable? (Encountered: {ast_assign.lhs.get_src()})")
 
 
 def convert_explicit_type(ast_type: TypeNode, module: CtxModule) -> ComType:
