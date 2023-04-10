@@ -1,4 +1,5 @@
 
+import re
 from typing import List, Optional, Set
 from antlr4 import ParserRuleContext
 from antlr4.error.ErrorListener import ErrorListener
@@ -17,6 +18,8 @@ KEYWORD_TOKENS = [
     MchyParser.IF, MchyParser.ELIF, MchyParser.ELSE, MchyParser.WHILE, MchyParser.NOT, MchyParser.AND,
     MchyParser.OR, MchyParser.FOR, MchyParser.IN
 ]
+
+_PREDICATE_PATTERN = re.compile(r"rule ([^ ]+) failed predicate: ")
 
 
 class MchyErrorListener(ErrorListener):
@@ -91,5 +94,20 @@ class MchyErrorListener(ErrorListener):
         if isinstance(ctx, recognizer.ExprContext) and (recognizer.DBQ_STRING in expected_toks):
             # DBQ_STRING is only in expecting_toks if the start of an expression is expected
             raise MchySyntaxError(f"Encountered '{get_token_text(offendingSymbol)}', expected expression")
+        if (match := _PREDICATE_PATTERN.match(msg)):
+            rule_name = match.group(1)
+            if rule_name == "stmnt_ending":
+                try:
+                    stmnt_matched_text: Optional[str] = parent_ctx.start.getInputStream().getText(parent_ctx.start.start, offendingSymbol.column)
+                except:  # noqa
+                    # Unsure if anything might go wrong with this so if it does i'll make sure we still get an error out
+                    stmnt_matched_text = None
+                if offendingSymbol.type == recognizer.EQUAL:
+                    raise MchySyntaxError(f"Cannot assign to non-variable {f'`{stmnt_matched_text}` ' if stmnt_matched_text is not None else ''}")
+                raise MchySyntaxError(
+                    f"During line {offendingSymbol.line} " + (f"(`{stmnt_matched_text}...`) " if stmnt_matched_text is not None else "") +
+                    f"Found `{get_token_text(offendingSymbol)}`, this is invalid. (Note: this usually indicates bad syntax immediately before this error)"
+                )
+            raise MchySyntaxError(f"Confusing syntax encountered: intentions unclear.  Expected: {get_expected_toks_str(recognizer, list(expected_toks))} (rule: {rule_name})")
         # Super generic catch-all error
         raise MchySyntaxError(msg)
