@@ -310,13 +310,20 @@ def convert_variable_decl(
     if ast_var_decl.rhs is None:
         marker.with_default_assignment(None)
     else:
-        assign = CtxAssignment(new_var, convert_expr(ast_var_decl.rhs, executing_type, module, var_scopes))
+        rhs_ctx = convert_expr(ast_var_decl.rhs, executing_type, module, var_scopes)
+        _rhs_type = rhs_ctx.get_type()
+        if (
+                    (isinstance(_rhs_type, InertType) and isinstance(var_ctx_type, InertType)) and  # both types inert
+                    _rhs_type.target == var_ctx_type.target and  # Targets match
+                    _rhs_type.nullable == var_ctx_type.nullable and  # Nullability matches
+                    (var_ctx_type.const and (not _rhs_type.const))  # Var is constant and rhs isn't
+                ):
+            # give a more useful message if the only thing wrong with they type is compile-time vs run-time issues
+            raise ConversionError(f"Compile-constants must be assigned to constant types, not `{_rhs_type.render()}`").with_loc(ast_var_decl.rhs.loc)
+        assign = CtxAssignment(new_var, rhs_ctx)
         marker.with_default_assignment(assign)
-        _rhs_type = assign.rhs.get_type()
-        if ast_var_decl.var_type.compile_const and (not (isinstance(_rhs_type, InertType) and _rhs_type.const)):
-            raise ConversionError(f"Compile time constants must be assigned to constant types, not `{_rhs_type.render()}`")
         if ast_var_decl.var_type.compile_const and (not isinstance(assign.rhs, CtxExprLits)):
-            raise ContextualisationError(f"Compile time constants must be assigned to literal values - flatten failed to literalize")
+            raise ContextualisationError(f"Compile-constants must be assigned to literal values - flatten failed to literalize")
     return marker
 
 

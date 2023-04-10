@@ -58,6 +58,9 @@ def func(x: int, y: int, z: int = null) -> int{
     ([], """var x: int = 1\nvar x: int""", ["x", "already defined in current scope", "var x: int"], ComLoc(2, 4, 2, 5)),
     ([], """let x: int = 1\nvar x: int""", ["x", "already defined in current scope", "let x: int"], ComLoc(2, 4, 2, 5)),
     ([], """var x: int\nvar x: str""", ["x", "already defined in current scope", "var x: int"], ComLoc(2, 4, 2, 5)),
+    ([], r"""var x: int = 'foo'""", ["Cannot assign expression", "str!", "int"], ComLoc(1, 13, 1, 18)),
+    ([FD], r"""var x: str! = func(1, 2, 3)""", ["Cannot assign expression", "int", "str!"], ComLoc(1, 14, 1, 27)),
+    ([FD], r"""var x: int! = func(1, 2, 3)""", ["Compile-constants", "constant type", "int"], ComLoc(1, 14, 1, 27)),
 ])
 def test_conv_error_expected(test_code: str, expected_msgs: List[str], err_loc: ComLoc, setup_code: List[str]):
     # Fix line numbers
