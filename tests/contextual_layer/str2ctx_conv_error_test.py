@@ -75,6 +75,11 @@ def func(x: int, y: int, z: int = null) -> int{
     ([], r"""var x: null?""", ["nullable", "`null?` -> `null`"], ComLoc(1, 7, 1, 12)),
     ([], """def foo(old_param: int) -> int {}\ndef foo(new_param: int) -> int {}""", ["foo", "already defined"], ComLoc(2, 0, 2, 30)),
     ([], """@public\ndef foo() -> int {}\n@public\ndef foo() -> str {}""", ["public", "same name", "foo"], ComLoc(4, 0, 4, 16)),
+    ([], """3^world.colors.red""", ["Struct", "Color", "not valid", "exponent"], ComLoc(1, 2, 1, 18)),
+    ([], """world.colors.red^3""", ["Struct", "Color", "not valid", "base"], ComLoc(1, 0, 1, 16)),
+    ([], """3^world.get_player().find()""", ["executable types"], ComLoc(1, 2, 1, 27)),
+    ([], """world.get_player().find()^3""", ["executable types"], ComLoc(1, 0, 1, 25)),
+    ([], """world.get_player().find()^world.get_player().find()""", ["executable types"], ComLoc(1, 0, 1, 51)),
 ])
 def test_conv_error_expected(test_code: str, expected_msgs: List[str], err_loc: ComLoc, setup_code: List[str]):
     # Fix line numbers

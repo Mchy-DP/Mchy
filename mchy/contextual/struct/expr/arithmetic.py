@@ -16,14 +16,16 @@ class CtxExprExponent(CtxExprNode):
     def _get_type(self) -> ComType:
         base_type = self.base.get_type()
         exponent_type = self.exponent.get_type()
-        if isinstance(base_type, StructType) or isinstance(exponent_type, StructType):
-            raise ConversionError(f"StructTypes are not valid in Exponents")
+        if isinstance(base_type, StructType):
+            raise ConversionError(f"StructTypes (`{base_type.render()}`) are not valid exponent bases").with_loc(self.base.loc)
+        if isinstance(exponent_type, StructType):
+            raise ConversionError(f"StructTypes (`{exponent_type.render()}`) are not valid in exponents").with_loc(self.exponent.loc)
         elif isinstance(base_type, ExecType) and isinstance(exponent_type, ExecType):
-            raise ConversionError("Cannot raise Executable types to the power of Executable types")
+            raise ConversionError("Cannot raise executable types to the power of executable types").with_loc(self.loc)
         elif isinstance(base_type, ExecType) and isinstance(exponent_type, InertType):
-            raise ConversionError("Cannot raise executable types to the power of inert types")
+            raise ConversionError("Cannot raise executable types to the power of inert types").with_loc(self.base.loc)
         elif isinstance(base_type, InertType) and isinstance(exponent_type, ExecType):
-            raise ConversionError("Cannot raise inert types to the power of executable types")
+            raise ConversionError("Cannot raise inert types to the power of executable types").with_loc(self.exponent.loc)
         elif isinstance(base_type, InertType) and isinstance(exponent_type, InertType):
             match (base_type, exponent_type):
                 case (InertType(InertCoreTypes.INT | InertCoreTypes.BOOL, nullable=False), InertType(InertCoreTypes.INT | InertCoreTypes.BOOL, nullable=False)):
