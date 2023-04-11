@@ -27,7 +27,7 @@ _GENT_VAR = _MODULE.global_var_scope.register_new_var("ents", ExecType(ExecCoreT
 
 def _ctx_chainlink_helper(ichainlink_type: Type[IChainLink], data: Dict[str, CtxExprNode]) -> CtxChainLink:
     ichainlink = [link for link in _MODULE._chain_links if isinstance(link, ichainlink_type)][0]
-    link = CtxChainLink(ichainlink)
+    link = CtxChainLink(ichainlink, ComLoc())
     arg_binding: Dict[AbsCtxParam, Optional['CtxExprNode']] = {}
     for ctx_param in ichainlink.get_ctx_params():
         arg_binding[ctx_param] = data.get(ctx_param.get_label(), None)
@@ -37,7 +37,7 @@ def _ctx_chainlink_helper(ichainlink_type: Type[IChainLink], data: Dict[str, Ctx
 
 def _ctx_chain_helper(ichain_type: Type[IChain], data: Dict[str, CtxExprNode]) -> CtxChain:
     ichain = [link for link in _MODULE._chain_links if isinstance(link, ichain_type)][0]
-    link = CtxChain(ichain, _MODULE)
+    link = CtxChain(ichain, ComLoc(), _MODULE)
     arg_binding: Dict[AbsCtxParam, Optional['CtxExprNode']] = {}
     for ctx_param in ichain.get_ctx_params():
         arg_binding[ctx_param] = data.get(ctx_param.get_label(), None)

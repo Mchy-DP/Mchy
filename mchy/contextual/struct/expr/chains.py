@@ -23,10 +23,11 @@ T = TypeVar("T", bound=CtxExprNode)
 
 class CtxChainLink:
 
-    def __init__(self, chain_link: IChainLink) -> None:
+    def __init__(self, chain_link: IChainLink, chain_loc: ComLoc) -> None:
         self._chain_link: IChainLink = chain_link
         self._chain_data: Optional[Dict[CtxIParam, Optional[CtxExprNode]]] = None  # None means unset
         self._extra_args: Optional[List[CtxExprNode]] = None  # None means unset
+        self.chain_loc: ComLoc = chain_loc
 
     @property
     def expects_args(self) -> bool:
@@ -62,7 +63,7 @@ class CtxChainLink:
         for param, binding in chain_data.items():
             if binding is None:
                 if not param.is_defaulted():
-                    raise ConversionError(f"Non-optional argument `{self.render()}` has no value")
+                    raise ConversionError(f"Non-optional argument `{param.render()}` has no value").with_loc(self.chain_loc)  # This should be caught earlier ideally
             else:
                 ptype = param.get_param_type()
                 if isinstance(ptype, InertType) and ptype.const and (not isinstance(binding, CtxExprLits)):
@@ -148,8 +149,8 @@ Self = TypeVar("Self", bound='CtxChain')
 
 class CtxChain(CtxChainLink):
 
-    def __init__(self, chain: IChain, module: 'CtxModule') -> None:
-        super().__init__(chain)
+    def __init__(self, chain: IChain, chain_loc: ComLoc, module: 'CtxModule') -> None:
+        super().__init__(chain, chain_loc)
         self.chain: IChain = chain
         self._struct: Optional[CtxPyStruct] = None  # Stores the struct if this chain is associated with one
         chain_type = self.get_chain_type()
@@ -212,7 +213,14 @@ class CtxExprPartialChain(CtxExprGenericChain):
 
     def render(self) -> str:
         if len(self._chaining) >= 1:
-            return self._chaining[0].opt_get_executor_render() + "." + ".".join(str(link.get_link_name()) for link in self._chaining)
+            return (
+                self._chaining[0].opt_get_executor_render() + "." +
+                ".".join(
+                    (
+                        f"{link.get_link_name()}" + ("()" if link.expects_args else "")
+                    ) for link in self._chaining
+                )
+            )
         return repr(self) + ".render()"
 
     @property

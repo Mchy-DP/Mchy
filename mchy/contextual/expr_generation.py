@@ -176,7 +176,7 @@ def convert_func_call(ast_func_call: ExprFuncCall, executing_type: Optional[Exec
     ctx_executor = convert_expr(ast_func_call.executor, executing_type, module, var_scopes)
     # If we are building a chain: extend the chain
     if isinstance(ctx_executor, CtxExprPartialChain):
-        chain_link = module.get_chain_link(ctx_executor.peek, ast_func_call.func_name)
+        chain_link = module.get_chain_link(ctx_executor.peek, ast_func_call.func_name, ast_func_call.loc)
         if chain_link is None:
             raise ConversionError(
                 f"The chained expression `{ctx_executor.render()}` cannot be continued with function of name `{ast_func_call.func_name}`"
@@ -227,7 +227,7 @@ def convert_func_call(ast_func_call: ExprFuncCall, executing_type: Optional[Exec
                 extra_pvals.append(CtxExprExtraParamVal(extra_arg_type, ebind, src_loc=ebind.loc))
         # Return function call
         return CtxExprFuncCall(ctx_executor, ctx_func, param_values, extra_pvals, src_loc=ast_func_call.loc)
-    elif (chain_link := module.get_chain_link(ctx_executor_type, ast_func_call.func_name)) is not None:
+    elif (chain_link := module.get_chain_link(ctx_executor_type, ast_func_call.func_name, ast_func_call.loc)) is not None:
         if not chain_link.expects_args:
             raise ConversionError(
                 f"The chained expression `{chain_link.render()}` does not expect arguments, cannot invoke it as a function"
@@ -249,7 +249,7 @@ def convert_property_access(ast_prop_access: ExprPropertyAccess, executing_type:
     executor_source: CtxExprNode = convert_expr(ast_prop_access.source, executing_type, module, var_scopes)
     if isinstance(executor_source, CtxExprPartialChain):
         # If we are building a chain: extend the chain
-        chain_link = module.get_chain_link(executor_source.peek, ast_prop_access.property_name)
+        chain_link = module.get_chain_link(executor_source.peek, ast_prop_access.property_name, ast_prop_access.loc)
         if chain_link is None:
             raise ConversionError(
                 f"The chained expression `{executor_source.render()}` cannot be continued with property of name `{ast_prop_access.property_name}`"
@@ -271,7 +271,7 @@ def convert_property_access(ast_prop_access: ExprPropertyAccess, executing_type:
 
     # If it's not a property maybe it is the start of a chain
     if prop is None:
-        chain_link = module.get_chain_link(exec_type, ast_prop_access.property_name)
+        chain_link = module.get_chain_link(exec_type, ast_prop_access.property_name, ast_prop_access.loc)
         if chain_link is None:
             raise ConversionError(
                 f"Property of name `{ast_prop_access.property_name}` executing on `{exec_type.render()}` is not defined"

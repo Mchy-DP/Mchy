@@ -6,6 +6,7 @@ from mchy.cmd_modules.function import CtxIFunc
 from mchy.cmd_modules.name_spaces import Namespace
 from mchy.cmd_modules.properties import IProp
 from mchy.common.abs_ctx import AbsCtxFunc
+from mchy.common.com_loc import ComLoc
 from mchy.common.com_types import ComType, ExecCoreTypes, ExecType, InertType, StructType, matches_type
 from mchy.common.config import Config
 from mchy.contextual.struct.ctx_func import CtxMchyFunc
@@ -141,7 +142,7 @@ class CtxModule:
                 return prop
         return None
 
-    def get_chain_link(self, predecessor: Union[CtxChainLink, ExecType], name: str) -> Optional[CtxChainLink]:
+    def get_chain_link(self, predecessor: Union[CtxChainLink, ExecType], name: str, chain_loc: ComLoc) -> Optional[CtxChainLink]:
         for chain_link in self._chain_links:
             pred_type = chain_link.get_predecessor_type()
             if name == chain_link.get_name():
@@ -150,9 +151,9 @@ class CtxModule:
                             (isinstance(predecessor, CtxChainLink) and isinstance(pred_type, type)) and (predecessor.is_iclick_of_type(pred_type))
                         ):
                     if isinstance(chain_link, IChain):
-                        return CtxChain(chain_link, self)
+                        return CtxChain(chain_link, chain_loc, self)
                     else:
-                        return CtxChainLink(chain_link)
+                        return CtxChainLink(chain_link, chain_loc)
         return None
 
     def get_property_oerr(self, executor: ExecType, name: str) -> IProp:
