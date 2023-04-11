@@ -18,7 +18,7 @@ class CtxExprExponent(CtxExprNode):
         exponent_type = self.exponent.get_type()
         if isinstance(base_type, StructType):
             raise ConversionError(f"StructTypes (`{base_type.render()}`) are not valid exponent bases").with_loc(self.base.loc)
-        if isinstance(exponent_type, StructType):
+        elif isinstance(exponent_type, StructType):
             raise ConversionError(f"StructTypes (`{exponent_type.render()}`) are not valid in exponents").with_loc(self.exponent.loc)
         elif isinstance(base_type, ExecType) and isinstance(exponent_type, ExecType):
             raise ConversionError("Cannot raise executable types to the power of executable types").with_loc(self.loc)
@@ -68,18 +68,20 @@ class CtxExprDiv(CtxExprNode):
     def _get_type(self) -> ComType:
         numerator_type = self.numerator.get_type()
         denom_type = self.denominator.get_type()
-        if isinstance(numerator_type, StructType) or isinstance(denom_type, StructType):
-            raise ConversionError(f"StructTypes are not valid in Integer Division")
-        elif isinstance(numerator_type, ExecType) and isinstance(denom_type, ExecType):
-            raise ConversionError("Cannot divide Executable types")
-        elif (isinstance(numerator_type, ExecType) and isinstance(denom_type, InertType)) or (isinstance(numerator_type, InertType) and isinstance(denom_type, ExecType)):
-            raise ConversionError("Cannot divide inert types and executable types")
+        if isinstance(numerator_type, StructType):
+            raise ConversionError(f"Cannot divide struct-types {numerator_type.render()}").with_loc(self.numerator.loc)
+        elif isinstance(denom_type, StructType):
+            raise ConversionError(f"Cannot divide struct-types {denom_type.render()}").with_loc(self.denominator.loc)
+        elif isinstance(numerator_type, ExecType):
+            raise ConversionError(f"Cannot divide executable types {numerator_type.render()}").with_loc(self.numerator.loc)
+        elif isinstance(denom_type, ExecType):
+            raise ConversionError(f"Cannot divide executable types {denom_type.render()}").with_loc(self.denominator.loc)
         elif isinstance(numerator_type, InertType) and isinstance(denom_type, InertType):
             match (numerator_type, denom_type):
                 case (InertType(InertCoreTypes.INT, nullable=False), InertType(InertCoreTypes.INT, nullable=False)):
                     return InertType(InertCoreTypes.INT, (numerator_type.const and denom_type.const))
                 case _:
-                    raise ConversionError(f"Invalid operation types: Cannot divide `{self.numerator.get_type().render()}` by `{self.denominator.get_type().render()}`")
+                    raise ConversionError(f"Invalid operation types: Cannot divide `{self.numerator.get_type().render()}` by `{self.denominator.get_type().render()}`").with_loc(self.loc)
         else:
             raise UnreachableError(f"Type types unexpectedly did not match any option {numerator_type.render()} vs {denom_type.render()}")
 
