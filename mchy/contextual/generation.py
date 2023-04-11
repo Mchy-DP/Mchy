@@ -388,19 +388,25 @@ def convert_explicit_type(ast_type: TypeNode, module: CtxModule) -> ComType:
         if ast_type.compile_const:
             fixed_render = ast_type.clone()
             fixed_render.compile_const = False
-            raise ConversionError(f"Executable types (world, player, etc) cannot be compile-constant.  {ast_type.get_typestr()} -> {fixed_render.get_typestr()}")
+            raise ConversionError(
+                f"Executable types (world, Player, etc) cannot be compile-constant.  {ast_type.get_typestr()} -> {fixed_render.get_typestr()}"
+            ).with_loc(ast_type.loc)
         if ast_type.nullable:
             fixed_render = ast_type.clone()
             fixed_render.nullable = False
-            raise ConversionError(f"Executable types (world, player, etc) cannot be nullable.  {ast_type.get_typestr()} -> {fixed_render.get_typestr()}")
+            raise ConversionError(f"Executable types (world, Player, etc) cannot be nullable.  {ast_type.get_typestr()} -> {fixed_render.get_typestr()}").with_loc(ast_type.loc)
         if ast_type.group is True and core_type_enum == ExecCoreTypes.WORLD:
-            raise ConversionError(f"Cannot have a group of world")
+            raise ConversionError(f"Cannot have a group of world").with_loc(ast_type.loc)  # This should have been caught by the compiler
         return ExecType(core_type_enum, ast_type.group)
     elif isinstance(core_type_enum, InertCoreTypes):
         if ast_type.group:
-            raise ConversionError(f"Cannot have groups of inert types (bool, int, float, str, etc)")
+            fixed_render = ast_type.clone()
+            fixed_render.group = False
+            raise ConversionError(
+                f"Cannot have groups of inert types (bool, int, float, str, etc)  {ast_type.get_typestr()} -> {fixed_render.get_typestr()}"
+            ).with_loc(ast_type.loc)
         if core_type_enum == InertCoreTypes.NULL and ast_type.nullable:
-            raise ConversionError(f"Null is innately nullable, `?` is redundant (`null?` -> `null`)")
+            raise ConversionError(f"Null is innately nullable, `?` is redundant (`null?` -> `null`)").with_loc(ast_type.loc)
         return InertType(core_type_enum, ast_type.compile_const, ast_type.nullable)
     else:
         raise UnreachableError("Unhandled return type")
