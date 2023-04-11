@@ -224,7 +224,7 @@ class CtxExprMinus(CtxExprNode):
                         f"Invalid operation types: Cannot subtract from `{self.left.get_type().render()}` the type `{self.right.get_type().render()}`"
                     ).with_loc(self.loc)
         elif isinstance(left_type, ExecType) and isinstance(right_type, InertType):
-            raise ConversionError(f"Cannot subtract Inert-types ({right_type}) from executable types ({left_type.render()}-{right_type.render()})").with_loc(self.loc)
+            raise ConversionError(f"Cannot subtract Inert-types from executable types ({left_type.render()}-{right_type.render()})").with_loc(self.loc)
         elif isinstance(left_type, InertType) and isinstance(right_type, ExecType):
             raise ConversionError(f"Cannot subtract executable types from Inert-types ({left_type.render()}-{right_type.render()})").with_loc(self.loc)
         elif isinstance(left_type, InertType) and isinstance(right_type, InertType):
@@ -270,8 +270,10 @@ class CtxExprPlus(CtxExprNode):
     def _get_type(self) -> ComType:
         left_type = self.left.get_type()
         right_type = self.right.get_type()
-        if isinstance(left_type, StructType) or isinstance(right_type, StructType):
-            raise ConversionError(f"StructTypes are not valid in Addition")
+        if isinstance(left_type, StructType):
+            raise ConversionError(f"Cannot add struct-types {left_type.render()}").with_loc(self.left.loc)
+        elif isinstance(right_type, StructType):
+            raise ConversionError(f"Cannot add struct-types {right_type.render()}").with_loc(self.right.loc)
         elif isinstance(left_type, ExecType) and isinstance(right_type, ExecType):
             match (left_type, right_type):
                 case (ExecType(ExecCoreTypes.PLAYER), ExecType(ExecCoreTypes.PLAYER)):
@@ -279,9 +281,11 @@ class CtxExprPlus(CtxExprNode):
                 case (ExecType(ExecCoreTypes.PLAYER | ExecCoreTypes.ENTITY), ExecType(ExecCoreTypes.PLAYER | ExecCoreTypes.ENTITY)):
                     return ExecType(ExecCoreTypes.ENTITY, True)
                 case _:
-                    raise ConversionError(f"Invalid operation types: Cannot add `{self.left.get_type().render()}` and `{self.right.get_type().render()}`")
-        elif (isinstance(left_type, ExecType) and isinstance(right_type, InertType)) or (isinstance(left_type, InertType) and isinstance(right_type, ExecType)):
-            raise ConversionError("Cannot add inert types and executable types")
+                    raise ConversionError(f"Invalid operation types: Cannot add `{self.left.get_type().render()}` and `{self.right.get_type().render()}`").with_loc(self.loc)
+        elif isinstance(left_type, ExecType) and isinstance(right_type, InertType):
+            raise ConversionError(f"Cannot add Inert-types from executable types ({left_type.render()}-{right_type.render()})").with_loc(self.loc)
+        elif isinstance(left_type, InertType) and isinstance(right_type, ExecType):
+            raise ConversionError(f"Cannot add executable types from Inert-types ({left_type.render()}-{right_type.render()})").with_loc(self.loc)
         elif isinstance(left_type, InertType) and isinstance(right_type, InertType):
             match (left_type, right_type):
                 case   (InertType(InertCoreTypes.INT | InertCoreTypes.BOOL, nullable=False),
@@ -293,7 +297,7 @@ class CtxExprPlus(CtxExprNode):
                 case (InertType(InertCoreTypes.STR, const=True, nullable=False), InertType(InertCoreTypes.STR, const=True, nullable=False)):
                     return InertType(InertCoreTypes.STR, const=True, nullable=False)
                 case _:
-                    raise ConversionError(f"Invalid operation types: Cannot add `{self.left.get_type().render()}` and `{self.right.get_type().render()}`")
+                    raise ConversionError(f"Invalid operation types: Cannot add `{self.left.get_type().render()}` and `{self.right.get_type().render()}`").with_loc(self.loc)
         else:
             raise UnreachableError(f"Type types unexpectedly did not match any option {left_type.render()} vs {right_type.render()}")
 

@@ -120,6 +120,14 @@ def func(x: int, y: int, z: int = null) -> int{
     ([], """world-world.get_player().find()""", ["Cannot subtract", "world", "Player"], ComLoc(1, 0, 1, 31)),
     ([], """world.get_player().find()-world""", ["Cannot subtract", "world", "Player"], ComLoc(1, 0, 1, 31)),
     ([], """3-'pop'""", ["Cannot subtract", "int", "str"], ComLoc(1, 0, 1, 7)),
+    # Bad addition
+    ([], """3+world.colors.red""", ["Cannot add", "struct", "Color"], ComLoc(1, 2, 1, 18)),
+    ([], """world.colors.red+3""", ["Cannot add", "struct", "Color"], ComLoc(1, 0, 1, 16)),
+    ([], """3+world.get_player().find()""", ["Cannot add", "executable types"], ComLoc(1, 0, 1, 27)),
+    ([], """world.get_player().find()+3""", ["Cannot add", "executable types"], ComLoc(1, 0, 1, 27)),
+    ([], """world+world.get_player().find()""", ["Cannot add", "world", "Player"], ComLoc(1, 0, 1, 31)),
+    ([], """world.get_player().find()+world""", ["Cannot add", "world", "Player"], ComLoc(1, 0, 1, 31)),
+    ([], """3+'pop'""", ["Cannot add", "int", "str"], ComLoc(1, 0, 1, 7)),
 ])
 def test_conv_error_expected(test_code: str, expected_msgs: List[str], err_loc: ComLoc, setup_code: List[str]):
     # Fix line numbers
