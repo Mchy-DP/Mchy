@@ -156,12 +156,14 @@ class CtxExprMult(CtxExprNode):
     def _get_type(self) -> ComType:
         left_type = self.left.get_type()
         right_type = self.right.get_type()
-        if isinstance(left_type, StructType) or isinstance(right_type, StructType):
-            raise ConversionError(f"StructTypes are not valid in multiplication")
-        elif isinstance(left_type, ExecType) and isinstance(right_type, ExecType):
-            raise ConversionError("Cannot multiply Executable types")
-        elif (isinstance(left_type, ExecType) and isinstance(right_type, InertType)) or (isinstance(left_type, InertType) and isinstance(right_type, ExecType)):
-            raise ConversionError("Cannot multiply inert types and executable types")
+        if isinstance(left_type, StructType):
+            raise ConversionError(f"Cannot multiply struct-types {left_type.render()}").with_loc(self.left.loc)
+        elif isinstance(right_type, StructType):
+            raise ConversionError(f"Cannot multiply struct-types {right_type.render()}").with_loc(self.right.loc)
+        elif isinstance(left_type, ExecType):
+            raise ConversionError(f"Cannot multiply executable types {left_type.render()}").with_loc(self.left.loc)
+        elif isinstance(right_type, ExecType):
+            raise ConversionError(f"Cannot multiply executable types {right_type.render()}").with_loc(self.right.loc)
         elif isinstance(left_type, InertType) and isinstance(right_type, InertType):
             match (left_type, right_type):
                 case   (InertType(InertCoreTypes.INT | InertCoreTypes.BOOL, nullable=False),
@@ -173,7 +175,7 @@ class CtxExprMult(CtxExprNode):
                 case (InertType(InertCoreTypes.STR, const=True, nullable=False), InertType(InertCoreTypes.INT | InertCoreTypes.BOOL, const=True, nullable=False)):
                     return InertType(InertCoreTypes.STR, const=True, nullable=False)
                 case _:
-                    raise ConversionError(f"Invalid operation types: Cannot multiply `{self.left.get_type().render()}` and `{self.right.get_type().render()}`")
+                    raise ConversionError(f"Invalid operation types: Cannot multiply `{self.left.get_type().render()}` and `{self.right.get_type().render()}`").with_loc(self.loc)
         else:
             raise UnreachableError(f"Type types unexpectedly did not match any option {left_type.render()} vs {right_type.render()}")
 
