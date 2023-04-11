@@ -83,19 +83,19 @@ _TEST_CONFIG = Config()
     ("var foo: int? = null", Root(Scope(Stmnt(VariableDecl(False, TypeNode("int", nullable=True), ExprLitIdent("foo"), ExprLitNull(None)))))),
     ("var foo: null = null", Root(Scope(Stmnt(VariableDecl(False, TypeNode("null"), ExprLitIdent("foo"), ExprLitNull(None)))))),
     # function decl
-    ("def world func1(){}", Root(Scope(FunctionDecl("func1", TypeNode("world"), TypeNode("null"), Scope(CodeBlock()), [])))),
+    ("def world func1(){}", Root(Scope(FunctionDecl("func1", TypeNode("world"), TypeNode("null"), Scope(CodeBlock()), [], ComLoc())))),
     ("def world func1(p1: int){}", Root(Scope(
-        FunctionDecl("func1", TypeNode("world"), TypeNode("null"), Scope(CodeBlock()), [], ParamDecl(ExprLitIdent("p1"), TypeNode("int")))
+        FunctionDecl("func1", TypeNode("world"), TypeNode("null"), Scope(CodeBlock()), [], ComLoc(), ParamDecl(ExprLitIdent("p1"), TypeNode("int")))
     ))),
-    ("def Group[Entity] func1() -> int{}", Root(Scope(FunctionDecl("func1", TypeNode("Entity", group=True), TypeNode("int"), Scope(CodeBlock()), [])))),
-    ("def world func1(){42}", Root(Scope(FunctionDecl("func1", TypeNode("world"), TypeNode("null"), Scope(CodeBlock(Stmnt(ExprLitInt(42)))), [])))),
-    ("def func1(){}", Root(Scope(FunctionDecl("func1", TypeNode("world"), TypeNode("null"), Scope(CodeBlock()), [])))),
+    ("def Group[Entity] func1() -> int{}", Root(Scope(FunctionDecl("func1", TypeNode("Entity", group=True), TypeNode("int"), Scope(CodeBlock()), [], ComLoc())))),
+    ("def world func1(){42}", Root(Scope(FunctionDecl("func1", TypeNode("world"), TypeNode("null"), Scope(CodeBlock(Stmnt(ExprLitInt(42)))), [], ComLoc())))),
+    ("def func1(){}", Root(Scope(FunctionDecl("func1", TypeNode("world"), TypeNode("null"), Scope(CodeBlock()), [], ComLoc())))),
     ("11\ndef func1(){\n22\n}\n33", Root(Scope(
         Stmnt(ExprLitInt(11)),
-        FunctionDecl("func1", TypeNode("world"), TypeNode("null"), Scope(CodeBlock(Stmnt(ExprLitInt(22)))), []),
+        FunctionDecl("func1", TypeNode("world"), TypeNode("null"), Scope(CodeBlock(Stmnt(ExprLitInt(22)))), [], ComLoc()),
         Stmnt(ExprLitInt(33))
         ))),
-    ("@ticking\ndef main_tick(){}", Root(Scope(FunctionDecl("main_tick", TypeNode("world"), TypeNode("null"), Scope(CodeBlock()), [Decorator(ExprLitIdent("ticking"))])))),
+    ("@ticking\ndef mn_tick(){}", Root(Scope(FunctionDecl("mn_tick", TypeNode("world"), TypeNode("null"), Scope(CodeBlock()), [Decorator(ExprLitIdent("ticking"))], ComLoc())))),
     # If
     ("if True{42}", Root(Scope(Stmnt(IfStruct(ExprLitBool(True), CodeBlock(Stmnt(ExprLitInt(42)))))))),
     ("if (True){42}", Root(Scope(Stmnt(IfStruct(ExprLitBool(True), CodeBlock(Stmnt(ExprLitInt(42)))))))),

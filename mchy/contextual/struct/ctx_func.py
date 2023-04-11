@@ -83,4 +83,5 @@ class CtxMchyFunc(AbsCtxFunc):
         return self._return_type
 
     def get_signature_loc(self) -> ComLoc:
+        print("^^^^^ def @ ", self.def_loc.render())
         return ComLoc(line=self.def_loc.line, col_start=self.def_loc.col_start, line_end=self.return_loc.line_end, col_end=self.return_loc.col_end)

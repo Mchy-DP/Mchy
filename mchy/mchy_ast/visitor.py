@@ -31,7 +31,7 @@ class AstBuilderVisitor(MchyVisitor):
         else:
             exec_type = self.visit(ctx.exec_type)
         return FunctionDecl(
-            str(ctx.func_name.text), exec_type, return_type, self.visit(ctx.body), self.visit(ctx.decorators),
+            str(ctx.func_name.text), exec_type, return_type, self.visit(ctx.body), self.visit(ctx.decorators), loc_from_tok(ctx.def_kw),
             *(self.visit(ctx.params) if ctx.params is not None else [])
         ).with_loc(loc_from_ctx(ctx))
 

@@ -128,3 +128,19 @@ def test_loc_expected(code: str, path: List[Tuple[Type[Node], Optional[int]]], l
         f" >  [{', '.join([f'({nt.__name__}, {ci})' for nt,ci in path])}]\n" +
         f" >  Location Diff: " + loc_diff(active_node.loc, loc)
     )
+
+
+def test_func_def_loc1():
+    root_node: Root = mchy_parse("""@public\ndef foo(){}""", _TEST_CONFIG)
+    func_decl = root_node.children[0].children[0]
+    assert isinstance(func_decl, FunctionDecl), "Tree doesn't match:\n" + render_tree(root_node)
+    expected_loc = ComLoc(2, 0, 2, 3)
+    assert func_decl.def_loc == expected_loc, "Location Diff: " + loc_diff(func_decl.def_loc, expected_loc)
+
+
+def test_func_def_loc2():
+    root_node: Root = mchy_parse("""@public\ndef foo1(){}\n@public\ndef foo2(){}""", _TEST_CONFIG)
+    func_decl = root_node.children[0].children[1]
+    assert isinstance(func_decl, FunctionDecl), "Tree doesn't match:\n" + render_tree(root_node)
+    expected_loc = ComLoc(4, 0, 4, 3)
+    assert func_decl.def_loc == expected_loc, "Location Diff: " + loc_diff(func_decl.def_loc, expected_loc)

@@ -86,11 +86,11 @@ class TestE2HFuncDecl:
             Scope(
                 Stmnt(VariableDecl(True, TypeNode("int"), ExprLitIdent("global_foo"), ExprLitInt(42))),
                 FunctionDecl(
-                    "add2nums", TypeNode("world"), TypeNode("int"), Scope(CodeBlock(Stmnt(ReturnLn(ExprPlus(ExprLitIdent("a"), ExprLitIdent("b")))))), [],
+                    "add2nums", TypeNode("world"), TypeNode("int"), Scope(CodeBlock(Stmnt(ReturnLn(ExprPlus(ExprLitIdent("a"), ExprLitIdent("b")))))), [], ComLoc(),
                     ParamDecl(ExprLitIdent("a"), TypeNode("int")),
                     ParamDecl(ExprLitIdent("b"), TypeNode("int"), ExprLitInt(0)),
                 ),
-                FunctionDecl("get42", TypeNode("world"), TypeNode("int"), Scope(CodeBlock(Stmnt(ReturnLn(ExprLitIdent("global_foo"))))), [])
+                FunctionDecl("get42", TypeNode("world"), TypeNode("int"), Scope(CodeBlock(Stmnt(ReturnLn(ExprLitIdent("global_foo"))))), [], ComLoc())
             )
         )
 
@@ -153,7 +153,7 @@ class TestE2HFuncDecl:
 class TestFuncCall1:
 
     ast_root = Root(Scope(
-        FunctionDecl("get42", TypeNode("world"), TypeNode("int"), Scope(CodeBlock(Stmnt(ReturnLn(ExprLitInt(42))))), []),
+        FunctionDecl("get42", TypeNode("world"), TypeNode("int"), Scope(CodeBlock(Stmnt(ReturnLn(ExprLitInt(42))))), [], ComLoc()),
         Stmnt(VariableDecl(False, TypeNode("int"), ExprLitIdent("foo"), ExprFuncCall(ExprLitWorld(None), ExprLitIdent("get42")))),
     ))
 
@@ -177,8 +177,10 @@ class TestFuncCall1:
 
 def test_nested_calls():
     ast_root = Root(Scope(
-        FunctionDecl("get42", TypeNode("world"), TypeNode("int"), Scope(CodeBlock(Stmnt(ReturnLn(ExprLitInt(42))))), []),
-        FunctionDecl("get42from_get42", TypeNode("world"), TypeNode("int"), Scope(CodeBlock(Stmnt(ReturnLn(ExprFuncCall(ExprLitThis(None), ExprLitIdent("get42")))))), []),
+        FunctionDecl("get42", TypeNode("world"), TypeNode("int"), Scope(CodeBlock(Stmnt(ReturnLn(ExprLitInt(42))))), [], ComLoc()),
+        FunctionDecl(
+            "get42from_get42", TypeNode("world"), TypeNode("int"), Scope(CodeBlock(Stmnt(ReturnLn(ExprFuncCall(ExprLitThis(None), ExprLitIdent("get42")))))), [], ComLoc()
+        ),
         Stmnt(VariableDecl(False, TypeNode("int"), ExprLitIdent("foo"), ExprFuncCall(ExprLitWorld(None), ExprLitIdent("get42from_get42")))),
     ))
     module = convert(ast_root, Config())
@@ -194,7 +196,7 @@ def test_nested_calls():
 
 def test_ticking_func_registered():
     ast_root = Root(Scope(
-        FunctionDecl("main_tick", TypeNode("world"), TypeNode("null"), Scope(CodeBlock()), [Decorator(ExprLitIdent("ticking"))]),
+        FunctionDecl("main_tick", TypeNode("world"), TypeNode("null"), Scope(CodeBlock()), [Decorator(ExprLitIdent("ticking"))], ComLoc()),
     ))
 
     module = convert(ast_root, Config())
@@ -204,7 +206,7 @@ def test_ticking_func_registered():
 
 def test_public_func_registered():
     ast_root = Root(Scope(
-        FunctionDecl("give_apple", TypeNode("world"), TypeNode("null"), Scope(CodeBlock()), [Decorator(ExprLitIdent("public"))]),
+        FunctionDecl("give_apple", TypeNode("world"), TypeNode("null"), Scope(CodeBlock()), [Decorator(ExprLitIdent("public"))], ComLoc()),
     ))
 
     module = convert(ast_root, Config())

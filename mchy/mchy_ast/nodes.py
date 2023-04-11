@@ -69,7 +69,17 @@ class Scope(Node):
 
 class FunctionDecl(Node):
 
-    def __init__(self, func_name: str, exec_type: 'TypeNode', return_type: 'TypeNode', body: 'Node', decorators: List['Decorator'], *params: 'ParamDecl', **kwargs):
+    def __init__(
+                self,
+                func_name: str,
+                exec_type: 'TypeNode',
+                return_type: 'TypeNode',
+                body: 'Node',
+                decorators: List['Decorator'],
+                def_loc: ComLoc,
+                *params: 'ParamDecl',
+                **kwargs
+            ):
         super().__init__(exec_type, return_type, body, *decorators, *params, **kwargs)
         self.func_name: str = func_name
         self.exec_type: TypeNode = exec_type
@@ -77,6 +87,7 @@ class FunctionDecl(Node):
         self.body: Node = body
         self.decorators: List[Decorator] = decorators
         self.params: List[ParamDecl] = list(params)
+        self.def_loc: ComLoc = def_loc  # The loc associated with the def token -- used in downstream errors
 
     def clone(self: 'FunctionDecl') -> 'FunctionDecl':
         return type(self)(
@@ -84,7 +95,9 @@ class FunctionDecl(Node):
             self.exec_type.clone(),
             self.return_type.clone(),
             self.body.clone(),
-            [d.clone() for d in self.decorators], *[param.clone() for param in self.params]
+            [d.clone() for d in self.decorators],
+            self.def_loc,
+            *[param.clone() for param in self.params]
         )
 
     def __eq__(self, other: object) -> bool:

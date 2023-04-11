@@ -96,7 +96,7 @@ def convert_function_decl(ast_fdecl: FunctionDecl, executing_type: Optional[Exec
         params,
         convert_explicit_type(ast_fdecl.return_type, module),
         ast_fdecl.return_type.loc,
-        ComLoc(ast_fdecl.loc.line, ast_fdecl.loc.col_start, ast_fdecl.loc.line, (None if ast_fdecl.loc.col_start is None else ast_fdecl.loc.col_start + 3)),
+        ast_fdecl.def_loc,
         ast_fdecl.loc,
         fmarker
     )
