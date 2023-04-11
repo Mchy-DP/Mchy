@@ -1,4 +1,4 @@
-
+import difflib
 import re
 from typing import List, Optional, Set
 from antlr4 import ParserRuleContext, CommonTokenStream
@@ -13,13 +13,27 @@ from mchy.mchy_ast.antlr_typed_help import assert_is_token, get_expected_toks_st
 from mchy.mchy_ast.mchy_parser import MchyCustomParser
 
 
+def is_similar(str1: str, str2: str) -> bool:
+    # Convert both strings to lowercase for case-insensitive comparison
+    str1_lower = str1.lower()
+    str2_lower = str2.lower()
+
+    # Compute a similarity score between the two strings
+    similarity = difflib.SequenceMatcher(None, str1_lower, str2_lower).ratio()
+
+    # Return True if the similarity score is above a threshold
+    return similarity >= 0.8
+
+
 KEYWORD_TOKENS = [
     MchyCustomParser.VAR, MchyCustomParser.LET, MchyCustomParser.DEF, MchyCustomParser.GROUP, MchyCustomParser.RETURN, MchyCustomParser.WORLD,
     MchyCustomParser.IF, MchyCustomParser.ELIF, MchyCustomParser.ELSE, MchyCustomParser.WHILE, MchyCustomParser.NOT, MchyCustomParser.AND,
     MchyCustomParser.OR, MchyCustomParser.FOR, MchyCustomParser.IN
 ]
 
-_PREDICATE_PATTERN = re.compile(r"rule ([^ ]+) failed predicate: ")
+LINE_END_TOKENS = [
+    MchyCustomParser.EOF, MchyCustomParser.CBCLOSE, MchyCustomParser.NEWLINE  # CBCLOSE included due to recovery sometimes accepting CBCLOSE as a line ending
+]
 
 
 class MchyErrorListener(ErrorListener):
@@ -37,6 +51,7 @@ class MchyErrorListener(ErrorListener):
 
     def __syntaxError(self, recognizer: MchyCustomParser, offendingSymbol: CommonToken, line: int, column: int, msg: str, e: Optional[RecognitionException]):
         # Get error info
+        stream: CommonTokenStream = recognizer.getInputStream()
         ctx: ParserRuleContext = recognizer._ctx if recognizer._ctx is not None else None
         parent_ctx: ParserRuleContext = ctx.parentCtx if ctx is not None else None
         expected_toks: Set[int] = set(recognizer.getExpectedTokens())
@@ -63,18 +78,18 @@ class MchyErrorListener(ErrorListener):
                 if get_input(recognizer).LB(1).type == recognizer.COLON:
                     if isinstance(parent_ctx, recognizer.Variable_declContext):
                         raise MchySyntaxError(f"Missing type in type annotation of the variable declaration of {get_token_text(assert_is_token(parent_ctx.var_name))}")
-                    raise MchySyntaxError(f"Missing type in type annotation")
+                    raise MchySyntaxError(f"Missing type in type annotation")  # not sure exactly how this can be raised
                 raise MchySyntaxError(f"Incomplete type, expected {get_expected_toks_str(recognizer, list(expected_toks))}")
             if (offendingSymbol.type == recognizer.WORLD) and ({recognizer.IDENTIFIER} == expected_toks) and (get_input(recognizer).LB(2).type == recognizer.GROUP):
                 raise MchySyntaxError(f"Cannot have groups of world")
         if isinstance(ctx, recognizer.ExprContext):
             if (
                         isinstance(parent_ctx, (recognizer.Variable_declContext, recognizer.AssignmentContext)) and
-                        (offendingSymbol.type in (recognizer.EOF, recognizer.CBCLOSE, recognizer.NEWLINE))
+                        (offendingSymbol.type in LINE_END_TOKENS)
                     ):
                 raise MchySyntaxError(f"Cannot assign to nothing")
             if isinstance(parent_ctx, recognizer.Return_lnContext):
-                if offendingSymbol.type in {recognizer.NEWLINE, recognizer.CBCLOSE, recognizer.EOF}:
+                if offendingSymbol.type in LINE_END_TOKENS:
                     raise MchySyntaxError(f"Expected expression, got '{repr(get_token_text(offendingSymbol))[1:-1]}' - did you mean `return null`")
                 raise MchySyntaxError(f"Expected expression, got '{get_token_text(offendingSymbol)}'")
         if isinstance(ctx, recognizer.Code_blockContext):
@@ -86,6 +101,24 @@ class MchyErrorListener(ErrorListener):
         if isinstance(ctx, recognizer.Function_declContext):
             if (offendingSymbol.type == recognizer.COLON) and ({recognizer.CBOPEN, recognizer.ARROW} == expected_toks):
                 raise MchySyntaxError("Curly braces { and } should used for scoping, not indentation/colon")
+        if isinstance(ctx, recognizer.Stmnt_endingContext):
+            if isinstance(parent_ctx, recognizer.StmntContext):
+                statement_body = parent_ctx.getChild(0)
+                # Raise more specific error
+                if offendingSymbol.type == recognizer.EQUAL:
+                    raise MchySyntaxError(f"Cannot assign to non-variable `{stream.getText(parent_ctx.start.start, offendingSymbol.stop)}`")
+                if offendingSymbol.type == recognizer.SBOPEN:
+                    if isinstance(statement_body, recognizer.Variable_declContext):
+                        core_type = statement_body.var_type.core_type
+                        if core_type is not None:
+                            core_type_text = assert_is_token(core_type).text
+                            if is_similar(core_type_text, "Group"):
+                                raise MchySyntaxError(
+                                    f"Invalid type `{core_type_text}[...` found in declaration of variable " +
+                                    f"{assert_is_token(statement_body.var_name).text}, did you mean 'Group[...'?"
+                                )
+            else:
+                raise AbstractTreeError(f"Statement ending encountered outside statement while adding context to error: {msg}")
 
         # === Late/slightly less generic errors ===
         if (offendingSymbol.type in KEYWORD_TOKENS) and (recognizer.IDENTIFIER in expected_toks):
@@ -94,30 +127,8 @@ class MchyErrorListener(ErrorListener):
         if isinstance(ctx, recognizer.ExprContext) and (recognizer.DBQ_STRING in expected_toks):
             # DBQ_STRING is only in expecting_toks if the start of an expression is expected
             raise MchySyntaxError(f"Encountered '{get_token_text(offendingSymbol)}', expected expression")
-        if (match := _PREDICATE_PATTERN.match(msg)):
-            rule_name = match.group(1)
-            if rule_name == "stmnt_ending":
-                stream: CommonTokenStream = recognizer.getInputStream()
-                # Get the entire statement parsed so far
-                if isinstance(parent_ctx, recognizer.StmntContext):
-                    stmnt_matched_text: Optional[str] = stream.getText(parent_ctx.start.start, offendingSymbol.stop)
-                else:
-                    stmnt_matched_text = None
+        if offendingSymbol.type == recognizer.SBOPEN:
+            raise MchySyntaxError(f"Cannot use '[' in this context?  Are you attempting to index a list/array, arrays are not yet supported so this won't work")
 
-                # Raise more specific error
-                if offendingSymbol.type == recognizer.EQUAL:
-                    raise MchySyntaxError(f"Cannot assign to non-variable {f'`{stmnt_matched_text}` ' if stmnt_matched_text is not None else ''}")
-                if offendingSymbol.type == recognizer.SBOPEN:
-                    extra_err_info: str = ""
-                    if assert_is_token(stream.tokens[offendingSymbol.tokenIndex-1]).type == recognizer.IDENTIFIER:
-                        extra_err_info = "Note: This looks like an attempt to index a list/array, arrays are not yet supported so this won't work"
-                    raise MchySyntaxError(f"Cannot use '[' in this context? {extra_err_info}")
-
-                # raise slightly less generic error
-                raise MchySyntaxError(
-                    f"During line {offendingSymbol.line} " + (f"(`{stmnt_matched_text}...`) " if stmnt_matched_text is not None else "") +
-                    f"Found `{get_token_text(offendingSymbol)}`, this is invalid. (Note: this can indicate bad syntax immediately before this error as well as at it)"
-                )
-            raise MchySyntaxError(f"Confusing syntax encountered: intentions unclear.  Expected: {get_expected_toks_str(recognizer, list(expected_toks))} (rule: {rule_name})")
         # Super generic catch-all error
         raise MchySyntaxError(msg)
