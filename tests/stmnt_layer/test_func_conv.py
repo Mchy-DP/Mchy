@@ -22,7 +22,7 @@ class TestMchyFunc1:
     _FUNC_GET42 = CtxMchyFunc(ExecType(ExecCoreTypes.WORLD, False), ComLoc(), "get42", [], InertType(InertCoreTypes.INT), ComLoc(), ComLoc(), ComLoc(), _MARKER_GET42)
     _MARKER_GET42.with_func(_FUNC_GET42)
     _MODULE.add_function(_FUNC_GET42)
-    _INT_VAR_FOO = _MODULE.global_var_scope.register_new_var("foo", InertType(InertCoreTypes.INT), False, MarkerDeclVar().with_enclosing_function(None))
+    _INT_VAR_FOO = _MODULE.global_var_scope.register_new_var("foo", InertType(InertCoreTypes.INT), False, MarkerDeclVar().with_enclosing_function(None), ComLoc())
 
     _FUNC_GET42.exec_body = [
         CtxReturn(CtxExprLitInt(42, src_loc=ComLoc()))

@@ -18,7 +18,7 @@ _INT = InertType(InertCoreTypes.INT)
 
 def test_simple_smt_if_conv():
     module = CtxModule(Config())
-    _int_var_foo = module.global_var_scope.register_new_var("foo", _INT, False, MarkerDeclVar().with_enclosing_function(None))
+    _int_var_foo = module.global_var_scope.register_new_var("foo", _INT, False, MarkerDeclVar().with_enclosing_function(None), ComLoc())
     module.exec_body.append(CtxIfStmnt(
         CtxBranch(
             ctxs.CtxExprLitBool(True, src_loc=ComLoc()),

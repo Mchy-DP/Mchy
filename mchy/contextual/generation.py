@@ -314,7 +314,7 @@ def convert_variable_decl(
 
     # Create the new variable and marker
     marker = MarkerDeclVar().with_enclosing_function(enc_func)
-    new_var = var_scopes[-1].register_new_var(ast_var_decl.var_name, var_ctx_type, ast_var_decl.read_only_type, marker)
+    new_var = var_scopes[-1].register_new_var(ast_var_decl.var_name, var_ctx_type, ast_var_decl.read_only_type, marker, ast_var_decl.var_ident.loc)
 
     # Add default initialization to the marker
     if ast_var_decl.rhs is None:

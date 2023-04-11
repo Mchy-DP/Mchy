@@ -56,7 +56,7 @@ class CtxMchyFunc(AbsCtxFunc):
 
         for param in self._params:
             param.linking_decl_mark.with_enclosing_function(self)
-            param.linked_scope_var = self.func_scope.register_new_var(param.get_label(), param.get_param_type(), True, param.linking_decl_mark)
+            param.linked_scope_var = self.func_scope.register_new_var(param.get_label(), param.get_param_type(), True, param.linking_decl_mark, param.label_loc)
 
     def get_executor(self) -> ExecType:
         return self._executor

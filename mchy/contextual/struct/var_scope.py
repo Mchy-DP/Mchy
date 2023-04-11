@@ -1,6 +1,7 @@
 
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Dict, Optional
+from mchy.common.com_loc import ComLoc
 from mchy.common.com_types import ComType, InertType, StructType
 from mchy.errors import ConversionError
 
@@ -39,9 +40,9 @@ class VarScope:
             raise TypeError("Variable unexpectedly doesn't exist")
         return var
 
-    def register_new_var(self, name: str, type: ComType, read_only: bool, declaration_marker: 'MarkerDeclVar') -> CtxVar:
+    def register_new_var(self, name: str, type: ComType, read_only: bool, declaration_marker: 'MarkerDeclVar', var_loc: ComLoc) -> CtxVar:
         if self.var_defined(name):
-            raise ConversionError(f"A Variable of name `{name}` is already defined in this scope")
+            raise ConversionError(f"A Variable of name `{name}` is already defined in this scope").with_loc(var_loc)
         new_var = CtxVar(name, type, read_only, declaration_marker)
         self._vars[name] = new_var
         return new_var

@@ -19,10 +19,10 @@ _INT = InertType(InertCoreTypes.INT)
 
 _MODULE = CtxModule(Config())
 _MODULE.import_ns(Namespace.get_namespace("std"))
-_INT_VAR = _MODULE.global_var_scope.register_new_var("foo", InertType(InertCoreTypes.INT), False, MarkerDeclVar().with_enclosing_function(None))
-_INT_VAR2 = _MODULE.global_var_scope.register_new_var("bar", InertType(InertCoreTypes.INT), False, MarkerDeclVar().with_enclosing_function(None))
-_BOOL_VAR = _MODULE.global_var_scope.register_new_var("fooboo", InertType(InertCoreTypes.BOOL), False, MarkerDeclVar().with_enclosing_function(None))
-_GENT_VAR = _MODULE.global_var_scope.register_new_var("ents", ExecType(ExecCoreTypes.ENTITY, True), False, MarkerDeclVar().with_enclosing_function(None))
+_INT_VAR = _MODULE.global_var_scope.register_new_var("foo", InertType(InertCoreTypes.INT), False, MarkerDeclVar().with_enclosing_function(None), ComLoc())
+_INT_VAR2 = _MODULE.global_var_scope.register_new_var("bar", InertType(InertCoreTypes.INT), False, MarkerDeclVar().with_enclosing_function(None), ComLoc())
+_BOOL_VAR = _MODULE.global_var_scope.register_new_var("fooboo", InertType(InertCoreTypes.BOOL), False, MarkerDeclVar().with_enclosing_function(None), ComLoc())
+_GENT_VAR = _MODULE.global_var_scope.register_new_var("ents", ExecType(ExecCoreTypes.ENTITY, True), False, MarkerDeclVar().with_enclosing_function(None), ComLoc())
 
 
 def _ctx_chainlink_helper(ichainlink_type: Type[IChainLink], data: Dict[str, CtxExprNode]) -> CtxChainLink:

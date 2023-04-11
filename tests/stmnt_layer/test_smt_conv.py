@@ -12,9 +12,9 @@ import pytest
 _INT = InertType(InertCoreTypes.INT)
 
 _MODULE = CtxModule(Config())
-_INT_VAR = _MODULE.global_var_scope.register_new_var("foo", InertType(InertCoreTypes.INT), False, MarkerDeclVar().with_enclosing_function(None))
-_INT_VAR2 = _MODULE.global_var_scope.register_new_var("bar", InertType(InertCoreTypes.INT), False, MarkerDeclVar().with_enclosing_function(None))
-_BOOL_VAR = _MODULE.global_var_scope.register_new_var("fooboo", InertType(InertCoreTypes.BOOL), False, MarkerDeclVar().with_enclosing_function(None))
+_INT_VAR = _MODULE.global_var_scope.register_new_var("foo", InertType(InertCoreTypes.INT), False, MarkerDeclVar().with_enclosing_function(None), ComLoc())
+_INT_VAR2 = _MODULE.global_var_scope.register_new_var("bar", InertType(InertCoreTypes.INT), False, MarkerDeclVar().with_enclosing_function(None), ComLoc())
+_BOOL_VAR = _MODULE.global_var_scope.register_new_var("fooboo", InertType(InertCoreTypes.BOOL), False, MarkerDeclVar().with_enclosing_function(None), ComLoc())
 
 _LOC = ComLoc()
 

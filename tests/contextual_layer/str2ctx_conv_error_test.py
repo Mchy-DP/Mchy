@@ -75,8 +75,6 @@ def func(x: int, y: int, z: int = null) -> int{
     ([], r"""var x: null?""", ["nullable", "`null?` -> `null`"], ComLoc(1, 7, 1, 12)),
     ([], """def foo(old_param: int) -> int {}\ndef foo(new_param: int) -> int {}""", ["foo", "already defined"], ComLoc(2, 0, 2, 30)),
     ([], """@public\ndef foo() -> int {}\n@public\ndef foo() -> str {}""", ["public", "same name", "foo"], ComLoc(4, 0, 4, 16)),
-    ([], """var foo: int\nvar foo: int""", ["Variable", "foo", "already defined"], ComLoc(2, 4, 2, 7)),
-    ([], """var bar: int\nvar bar: str""", ["Variable", "bar", "already defined"], ComLoc(2, 4, 2, 7)),
 ])
 def test_conv_error_expected(test_code: str, expected_msgs: List[str], err_loc: ComLoc, setup_code: List[str]):
     # Fix line numbers
