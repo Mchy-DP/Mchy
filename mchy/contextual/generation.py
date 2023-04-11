@@ -89,7 +89,17 @@ def convert_function_decl(ast_fdecl: FunctionDecl, executing_type: Optional[Exec
             raise ConversionError(f"Duplicate argument `{lb}` in function declaration for function of name `{ast_fdecl.func_name}`").with_loc(ast_fdecl.loc)
 
     fmarker = MarkerDeclFunc(pmarkers)
-    func = CtxMchyFunc(exec_type, ast_fdecl.exec_type.loc, ast_fdecl.func_name, params, convert_explicit_type(ast_fdecl.return_type, module), ast_fdecl.return_type.loc, fmarker)
+    func = CtxMchyFunc(
+        exec_type,
+        ast_fdecl.exec_type.loc,
+        ast_fdecl.func_name,
+        params,
+        convert_explicit_type(ast_fdecl.return_type, module),
+        ast_fdecl.return_type.loc,
+        ComLoc(ast_fdecl.loc.line, ast_fdecl.loc.col_start, ast_fdecl.loc.line, (None if ast_fdecl.loc.col_start is None else ast_fdecl.loc.col_start + 3)),
+        ast_fdecl.loc,
+        fmarker
+    )
     fmarker.with_func(func)
     return func, fmarker
 

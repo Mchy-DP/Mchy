@@ -73,6 +73,7 @@ def func(x: int, y: int, z: int = null) -> int{
     ([], r"""var x: Player?""", ["Executable types", "nullable", "Player? -> Player"], ComLoc(1, 7, 1, 14)),
     ([], r"""var x: Group[int]""", ["group", "inert", "Group[int] -> int"], ComLoc(1, 7, 1, 17)),
     ([], r"""var x: null?""", ["nullable", "`null?` -> `null`"], ComLoc(1, 7, 1, 12)),
+    ([FD], r"""def func(new_param: int) -> int {}""", ["func", "already defined"], ComLoc(1, 0, 1, 31)),
 ])
 def test_conv_error_expected(test_code: str, expected_msgs: List[str], err_loc: ComLoc, setup_code: List[str]):
     # Fix line numbers

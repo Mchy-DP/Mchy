@@ -93,7 +93,9 @@ class CtxModule:
         for func in self._functions:
             if ((func.get_name() == new_func.get_name()) and
                     (matches_type(func.get_executor(), new_func.get_executor()) or matches_type(new_func.get_executor(), func.get_executor()))):
-                raise ConversionError(f"Function of name `{new_func.get_name()}` is already defined as `{func.render()}` cannot define it as `{new_func.render()}`")
+                raise ConversionError(
+                    f"Function of name `{new_func.get_name()}` is already defined as `{func.render()}` cannot define it as `{new_func.render()}`"
+                ).with_loc(new_func.get_signature_loc())
         self._functions.append(new_func)
 
     def register_as_ticking(self, func: CtxMchyFunc) -> None:

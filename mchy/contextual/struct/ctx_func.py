@@ -38,6 +38,8 @@ class CtxMchyFunc(AbsCtxFunc):
                 params: List[CtxMchyParam],
                 return_type: ComType,
                 return_loc: ComLoc,
+                def_loc: ComLoc,
+                func_loc: ComLoc,
                 decl_marker: MarkerDeclFunc
             ) -> None:
         self._executor: ExecType = executor
@@ -49,6 +51,8 @@ class CtxMchyFunc(AbsCtxFunc):
         self.exec_body: List[CtxStmnt] = []
         self.executor_loc: ComLoc = executor_loc
         self.return_loc: ComLoc = return_loc
+        self.def_loc: ComLoc = def_loc
+        self.func_lock: ComLoc = func_loc
 
         for param in self._params:
             param.linking_decl_mark.with_enclosing_function(self)
@@ -77,3 +81,6 @@ class CtxMchyFunc(AbsCtxFunc):
 
     def get_return_type(self) -> ComType:
         return self._return_type
+
+    def get_signature_loc(self) -> ComLoc:
+        return ComLoc(line=self.def_loc.line, col_start=self.def_loc.col_start, line_end=self.return_loc.line_end, col_end=self.return_loc.col_end)
