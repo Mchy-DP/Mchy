@@ -20,18 +20,23 @@ def func(x: int, y: int, z: int = null) -> int{
 
 
 @pytest.mark.parametrize("setup_code, test_code, expected_msgs, err_loc", [
+    # func-structures Outside function
     ([], r"""return 5""", ["Return", "outside", "function"], ComLoc(1, 0, 1, 8)),
+    ([], r"""this""", ["this", "cannot be used outside", "function"], ComLoc(1, 0, 1, 4)),
+    # Func-decl valid
     ([], r"""def int func(){}""", ["executor type", "cannot be inert", "int"], ComLoc(1, 4, 1, 7)),
     ([], r"""def func_name(param_a: int, param_a: str){}""", ["Duplicate argument", "param_a", "func_name"], ComLoc(1, 0, 1, 43)),
     ([], r"""def echo_text(msg: str!){}""", ["msg", "echo_text", "has compile-constant type", "str!", "Consider using a global OR making runtime type"], ComLoc(1, 14, 1, 23)),
+    # If typing
     ([], r"""if 42 {}""", ["If", "int", "bool"], ComLoc(1, 3, 1, 5)),
     ([], r"""if True {} elif 42 {}""", ["Elif", "int", "bool"], ComLoc(1, 16, 1, 18)),
-    ([], r"""this""", ["this", "cannot be used outside", "function"], ComLoc(1, 0, 1, 4)),
+    # Func-call errors
     ([FD], r"""func(x=5, 10)""", ["Positional argument's cannot follow keyword arguments"], ComLoc(1, 10, 1, 12)),
     ([FD], r"""func(1, 2, 3, 4)""", ["only takes 3 arguments, 4 given"], ComLoc(1, 5, 1, 15)),
     ([FD], r"""func(1, 2, fake=3)""", ["fake", "not an parameter"], ComLoc(1, 11, 1, 17)),
     ([FD], r"""func(1, 2, 3, z=3)""", ["z", "already has a value"], ComLoc(1, 14, 1, 17)),
     ([FD], r"""func(1, z=3)""", ["y", "has no value"], ComLoc(1, 0, 1, 12)),
+    # Bad chains
     ([], r"""world.colors.made_up_color()""", ["colors", "cannot be continued", "made_up_color"], ComLoc(1, 13, 1, 26)),
     ([], r"""world.colors.made_up_color""", ["colors", "cannot be continued", "made_up_color"], ComLoc(1, 13, 1, 26)),
     ([], r"""world.colors.red()""", ["red", "cannot invoke it as a function"], ComLoc(1, 13, 1, 16)),
@@ -41,17 +46,21 @@ def func(x: int, y: int, z: int = null) -> int{
     ([], r"""4.colors.red""", ["only be accessed", "executable type", "int"], ComLoc(1, 0, 1, 1)),
     ([], r"""4.colors.hex()""", ["only be accessed", "executable type", "int"], ComLoc(1, 0, 1, 1)),
     ([], r"""4.made_up_property""", ["only be accessed", "executable type", "int"], ComLoc(1, 0, 1, 1)),
+    # STD-call Mis-typing
     ([], r"""world.say(42)""", ["Param", "msg", "int", "str"], ComLoc(1, 10, 1, 12)),
     ([], r"""world.colors.hex(42)""", ["Param", "color_code", "int", "str"], ComLoc(1, 17, 1, 19)),
     ([], r"""print(world.pos.constant(0, 1, 2))""", ["Extra argument", "print", "Pos"], ComLoc(1, 6, 1, 33)),
+    # Non existent accesses
     ([], r"""world.made_up_function()""", ["made_up_function", "is not defined"], ComLoc(1, 6, 1, 22)),
     ([], r"""world.made_up_function""", ["made_up_function", "is not defined"], ComLoc(1, 6, 1, 22)),
     ([], r"""made_up_var""", ["made_up_var", "is not defined"], ComLoc(1, 0, 1, 11)),
+    # Decorator validity
     ([], """@ticking\ndef Player foo(){}""", ["Ticking function", "world", "Player", "Consider deleting executor type"], ComLoc(2, 4, 2, 10)),
     ([], """@ticking\ndef foo(nope: int){}""", ["Ticking functions cannot have any parameters", "Consider deleting params"], ComLoc(2, 8, 2, 12)),
     ([], """@public\ndef foo(nope: int){}""", ["Published functions cannot have any parameters", "Consider deleting params"], ComLoc(2, 8, 2, 12)),
     ([], """@ticking\ndef foo() -> int {}""", ["Ticking functions cannot return anything", "Consider deleting return type"], ComLoc(2, 13, 2, 16)),
     ([], """@made_up_decorator\ndef foo(){}""", ["Unknown decorator", "made_up_decorator", "ticking"], ComLoc(1, 1, 1, 18)),
+    # Var assignment & definition
     ([], """var x: int\nvar x: int""", ["x", "already defined in current scope", "var x: int"], ComLoc(2, 4, 2, 5)),
     ([], """var x: int = 1\nvar x: int = 2""", ["x", "already defined in current scope", "var x: int", "did you mean `x = 2`"], ComLoc(2, 4, 2, 5)),
     ([], """var x: int\nvar x: int = 1""", ["x", "already defined in current scope", "var x: int"], ComLoc(2, 4, 2, 5)),
@@ -61,9 +70,11 @@ def func(x: int, y: int, z: int = null) -> int{
     ([], r"""var x: int = 'foo'""", ["Cannot assign expression", "str!", "int"], ComLoc(1, 13, 1, 18)),
     ([FD], r"""var x: str! = func(1, 2, 3)""", ["Cannot assign expression", "int", "str!"], ComLoc(1, 14, 1, 27)),
     ([FD], r"""var x: int! = func(1, 2, 3)""", ["Compile-constants", "constant type", "int"], ComLoc(1, 14, 1, 27)),
+    # Readonly enforcement
     ([], """var x: int! = 5\nx = 10""", ["compile-constant", "cannot be assigned to", "int"], ComLoc(2, 0, 2, 6)),
     ([], """let x: int = 5\nx = 10""", ["read-only", "cannot be assigned to", "int"], ComLoc(2, 0, 2, 6)),
     ([], """var x: Color = world.colors.red\nx = world.colors.blue""", ["struct variables", "read-only", "cannot be assigned to", "Color"], ComLoc(2, 0, 2, 21)),
+    # Bad typing
     ([], r"""var x: pop""", ["type", "pop", "not known"], ComLoc(1, 7, 1, 10)),
     ([], r"""var x: Int""", ["type", "Int", "not known", "did you mean", "int"], ComLoc(1, 7, 1, 10)),
     ([], r"""var x: Pos!""", ["Struct", "compile-constant", "`Pos!` -> `Pos`"], ComLoc(1, 7, 1, 11)),
@@ -73,8 +84,10 @@ def func(x: int, y: int, z: int = null) -> int{
     ([], r"""var x: Player?""", ["Executable types", "nullable", "Player? -> Player"], ComLoc(1, 7, 1, 14)),
     ([], r"""var x: Group[int]""", ["group", "inert", "Group[int] -> int"], ComLoc(1, 7, 1, 17)),
     ([], r"""var x: null?""", ["nullable", "`null?` -> `null`"], ComLoc(1, 7, 1, 12)),
+    # Func redefinition
     ([], """def foo(old_param: int) -> int {}\ndef foo(new_param: int) -> int {}""", ["foo", "already defined"], ComLoc(2, 0, 2, 30)),
     ([], """@public\ndef foo() -> int {}\n@public\ndef foo() -> str {}""", ["public", "same name", "foo"], ComLoc(4, 0, 4, 16)),
+    # Bad exponents
     ([], """3^world.colors.red""", ["Struct", "Color", "not valid", "exponent"], ComLoc(1, 2, 1, 18)),
     ([], """world.colors.red^3""", ["Struct", "Color", "not valid", "base"], ComLoc(1, 0, 1, 16)),
     ([], """3^world.get_player().find()""", ["executable types"], ComLoc(1, 2, 1, 27)),
