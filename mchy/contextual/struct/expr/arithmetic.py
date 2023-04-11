@@ -34,7 +34,9 @@ class CtxExprExponent(CtxExprNode):
                         InertType(InertCoreTypes.FLOAT | InertCoreTypes.INT | InertCoreTypes.BOOL, const=True, nullable=False)):
                     return InertType(InertCoreTypes.FLOAT, const=True, nullable=False)
                 case _:
-                    raise ConversionError(f"Invalid operation types: Cannot raise `{self.base.get_type().render()}` to the power of `{self.exponent.get_type().render()}`")
+                    raise ConversionError(
+                        f"Invalid operation types: Cannot raise `{self.base.get_type().render()}` to the power of `{self.exponent.get_type().render()}`"
+                    ).with_loc(self.loc)
         else:
             raise UnreachableError(f"Type types unexpectedly did not match any option {base_type.render()} vs {exponent_type.render()}")
 
