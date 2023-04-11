@@ -4,9 +4,9 @@ from antlr4.CommonTokenStream import CommonTokenStream
 from antlr4.Token import CommonToken
 from antlr4 import ParserRuleContext
 
-from mchy.built.MchyParser import MchyParser
 from mchy.common.com_loc import ComLoc
 from mchy.errors import AbstractTreeError
+from mchy.mchy_ast.mchy_parser import MchyCustomParser
 
 
 def get_token_text(tok: CommonToken) -> str:
@@ -23,11 +23,11 @@ def assert_is_token(token: Any) -> CommonToken:
         raise AbstractTreeError(f"Token was `{repr(token)}` not token?")
 
 
-def get_input(recognizer: MchyParser) -> CommonTokenStream:
+def get_input(recognizer: MchyCustomParser) -> CommonTokenStream:
     return recognizer.getInputStream()
 
 
-def get_expected_toks_str(recognizer: MchyParser, expected: Sequence[int]) -> str:
+def get_expected_toks_str(recognizer: MchyCustomParser, expected: Sequence[int]) -> str:
     expected_toks = []
     for tok in expected:
         if tok == recognizer.EOF:

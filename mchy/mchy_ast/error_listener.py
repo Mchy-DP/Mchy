@@ -5,18 +5,18 @@ from antlr4 import ParserRuleContext, CommonTokenStream
 from antlr4.error.ErrorListener import ErrorListener
 from antlr4.Token import CommonToken
 from antlr4.error.Errors import RecognitionException, InputMismatchException, NoViableAltException, FailedPredicateException, LexerNoViableAltException
-from mchy.built.MchyParser import MchyParser
 from mchy.common.com_loc import ComLoc
 from mchy.common.config import Config
 
 from mchy.errors import AbstractTreeError, MchySyntaxError
 from mchy.mchy_ast.antlr_typed_help import assert_is_token, get_expected_toks_str, get_input, get_token_text, loc_end_from_tok
+from mchy.mchy_ast.mchy_parser import MchyCustomParser
 
 
 KEYWORD_TOKENS = [
-    MchyParser.VAR, MchyParser.LET, MchyParser.DEF, MchyParser.GROUP, MchyParser.RETURN, MchyParser.WORLD,
-    MchyParser.IF, MchyParser.ELIF, MchyParser.ELSE, MchyParser.WHILE, MchyParser.NOT, MchyParser.AND,
-    MchyParser.OR, MchyParser.FOR, MchyParser.IN
+    MchyCustomParser.VAR, MchyCustomParser.LET, MchyCustomParser.DEF, MchyCustomParser.GROUP, MchyCustomParser.RETURN, MchyCustomParser.WORLD,
+    MchyCustomParser.IF, MchyCustomParser.ELIF, MchyCustomParser.ELSE, MchyCustomParser.WHILE, MchyCustomParser.NOT, MchyCustomParser.AND,
+    MchyCustomParser.OR, MchyCustomParser.FOR, MchyCustomParser.IN
 ]
 
 _PREDICATE_PATTERN = re.compile(r"rule ([^ ]+) failed predicate: ")
@@ -28,14 +28,14 @@ class MchyErrorListener(ErrorListener):
         super().__init__()
         self.config = config
 
-    def syntaxError(self, recognizer: MchyParser, offendingSymbol: CommonToken, line: int, column: int, msg: str, e: Optional[RecognitionException]):
+    def syntaxError(self, recognizer: MchyCustomParser, offendingSymbol: CommonToken, line: int, column: int, msg: str, e: Optional[RecognitionException]):
         try:
             return self.__syntaxError(recognizer, offendingSymbol, line, column, msg, e)
         except MchySyntaxError as mchy_err:
             line_end, column_end = loc_end_from_tok(offendingSymbol)
             raise mchy_err.with_loc(ComLoc(line, column, line_end, column_end))
 
-    def __syntaxError(self, recognizer: MchyParser, offendingSymbol: CommonToken, line: int, column: int, msg: str, e: Optional[RecognitionException]):
+    def __syntaxError(self, recognizer: MchyCustomParser, offendingSymbol: CommonToken, line: int, column: int, msg: str, e: Optional[RecognitionException]):
         # Get error info
         ctx: ParserRuleContext = recognizer._ctx if recognizer._ctx is not None else None
         parent_ctx: ParserRuleContext = ctx.parentCtx if ctx is not None else None
@@ -120,4 +120,4 @@ class MchyErrorListener(ErrorListener):
                 )
             raise MchySyntaxError(f"Confusing syntax encountered: intentions unclear.  Expected: {get_expected_toks_str(recognizer, list(expected_toks))} (rule: {rule_name})")
         # Super generic catch-all error
-        raise MchySyntaxError(msg)
+        raise ValueError(msg)

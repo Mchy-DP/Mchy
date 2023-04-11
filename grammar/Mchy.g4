@@ -12,7 +12,7 @@ decorator_list: (decorator NEWLINE)*;
 
 decorator: ATSIGN decorator_name=IDENTIFIER;
 
-stmnt_ending: (NEWLINE | { self._input.LA(1) in (self.EOF, self.CBCLOSE) }?) NEWLINE*;  // Branches merged due to ~10% performance improvement
+stmnt_ending: (NEWLINE | EOF) NEWLINE*;
 
 raw_cmd: mc_cmd=RAW_CMD;
 

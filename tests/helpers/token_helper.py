@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from itertools import zip_longest
 from typing import Optional, Tuple
+from mchy.mchy_ast.mchy_parser import MchyCustomParser
 
-from mchy.built.MchyParser import MchyParser
 from tests.helpers.util import EscapeColors
 
 
@@ -13,7 +13,7 @@ class TokRep:
 
     @property
     def type_str(self) -> str:
-        return MchyParser.symbolicNames[self.type_int]
+        return MchyCustomParser.symbolicNames[self.type_int]
 
     def __str__(self) -> str:
         return f"{self.type_str}" + (f"(`{repr(self.token_text)[1:-1]}`)" if self.token_text is not None else "")
