@@ -104,7 +104,9 @@ class CtxModule:
     def register_as_public(self, new_pfunc: CtxMchyFunc) -> None:
         for pfunc in self._public_funcs:
             if new_pfunc.get_name() == pfunc.get_name():
-                raise ConversionError(f"Got Multiple functions marked as public with the same name (`{pfunc.render()}` and `{new_pfunc.render()}`)")
+                raise ConversionError(
+                    f"Got Multiple functions marked as public with the same name (`{pfunc.render()}` and `{new_pfunc.render()}`)"
+                ).with_loc(new_pfunc.get_signature_loc())
         self._public_funcs.append(new_pfunc)
 
     def get_ticking_funcs(self) -> List[CtxMchyFunc]:
