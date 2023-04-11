@@ -106,12 +106,20 @@ def func(x: int, y: int, z: int = null) -> int{
     ([], """3%world.get_player().find()""", ["Cannot modulo", "executable types"], ComLoc(1, 2, 1, 27)),
     ([], """world.get_player().find()%3""", ["Cannot modulo", "executable types"], ComLoc(1, 0, 1, 25)),
     ([], """3%'pop'""", ["Cannot modulo", "int", "str"], ComLoc(1, 0, 1, 7)),
-    # Bad Multiplication division
+    # Bad Multiplication
     ([], """3*world.colors.red""", ["Cannot multiply", "struct", "Color"], ComLoc(1, 2, 1, 18)),
     ([], """world.colors.red*3""", ["Cannot multiply", "struct", "Color"], ComLoc(1, 0, 1, 16)),
     ([], """3*world.get_player().find()""", ["Cannot multiply", "executable types"], ComLoc(1, 2, 1, 27)),
     ([], """world.get_player().find()*3""", ["Cannot multiply", "executable types"], ComLoc(1, 0, 1, 25)),
     ([], """3*'pop'""", ["Cannot multiply", "int", "str"], ComLoc(1, 0, 1, 7)),
+    # Bad Subtraction
+    ([], """3-world.colors.red""", ["Cannot subtract", "struct", "Color"], ComLoc(1, 2, 1, 18)),
+    ([], """world.colors.red-3""", ["Cannot subtract", "struct", "Color"], ComLoc(1, 0, 1, 16)),
+    ([], """3-world.get_player().find()""", ["Cannot subtract", "executable types"], ComLoc(1, 0, 1, 27)),
+    ([], """world.get_player().find()-3""", ["Cannot subtract", "executable types"], ComLoc(1, 0, 1, 27)),
+    ([], """world-world.get_player().find()""", ["Cannot subtract", "world", "Player"], ComLoc(1, 0, 1, 31)),
+    ([], """world.get_player().find()-world""", ["Cannot subtract", "world", "Player"], ComLoc(1, 0, 1, 31)),
+    ([], """3-'pop'""", ["Cannot subtract", "int", "str"], ComLoc(1, 0, 1, 7)),
 ])
 def test_conv_error_expected(test_code: str, expected_msgs: List[str], err_loc: ComLoc, setup_code: List[str]):
     # Fix line numbers
