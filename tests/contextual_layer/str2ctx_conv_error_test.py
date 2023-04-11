@@ -100,6 +100,12 @@ def func(x: int, y: int, z: int = null) -> int{
     ([], """3/world.get_player().find()""", ["Cannot divide", "executable types"], ComLoc(1, 2, 1, 27)),
     ([], """world.get_player().find()/3""", ["Cannot divide", "executable types"], ComLoc(1, 0, 1, 25)),
     ([], """3/'pop'""", ["Cannot divide", "int", "str"], ComLoc(1, 0, 1, 7)),
+    # Bad Modulo division
+    ([], """3%world.colors.red""", ["Cannot modulo", "struct", "Color"], ComLoc(1, 2, 1, 18)),
+    ([], """world.colors.red%3""", ["Cannot modulo", "struct", "Color"], ComLoc(1, 0, 1, 16)),
+    ([], """3%world.get_player().find()""", ["Cannot modulo", "executable types"], ComLoc(1, 2, 1, 27)),
+    ([], """world.get_player().find()%3""", ["Cannot modulo", "executable types"], ComLoc(1, 0, 1, 25)),
+    ([], """3%'pop'""", ["Cannot modulo", "int", "str"], ComLoc(1, 0, 1, 7)),
 ])
 def test_conv_error_expected(test_code: str, expected_msgs: List[str], err_loc: ComLoc, setup_code: List[str]):
     # Fix line numbers

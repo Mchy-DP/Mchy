@@ -113,18 +113,20 @@ class CtxExprMod(CtxExprNode):
     def _get_type(self) -> ComType:
         left_type = self.left.get_type()
         divisor_type = self.divisor.get_type()
-        if isinstance(left_type, StructType) or isinstance(divisor_type, StructType):
-            raise ConversionError(f"StructTypes are not valid in Modulo division")
-        elif isinstance(left_type, ExecType) and isinstance(divisor_type, ExecType):
-            raise ConversionError("Cannot modulo Executable types")
-        elif (isinstance(left_type, ExecType) and isinstance(divisor_type, InertType)) or (isinstance(left_type, InertType) and isinstance(divisor_type, ExecType)):
-            raise ConversionError("Cannot modulo inert types and executable types")
+        if isinstance(left_type, StructType):
+            raise ConversionError(f"Cannot modulo struct-types {left_type.render()}").with_loc(self.left.loc)
+        elif isinstance(divisor_type, StructType):
+            raise ConversionError(f"Cannot modulo struct-types {divisor_type.render()}").with_loc(self.divisor.loc)
+        elif isinstance(left_type, ExecType):
+            raise ConversionError(f"Cannot modulo executable types {left_type.render()}").with_loc(self.left.loc)
+        elif isinstance(divisor_type, ExecType):
+            raise ConversionError(f"Cannot modulo executable types {divisor_type.render()}").with_loc(self.divisor.loc)
         elif isinstance(left_type, InertType) and isinstance(divisor_type, InertType):
             match (left_type, divisor_type):
                 case (InertType(InertCoreTypes.INT, nullable=False), InertType(InertCoreTypes.INT, nullable=False)):
                     return InertType(InertCoreTypes.INT, (left_type.const and divisor_type.const))
                 case _:
-                    raise ConversionError(f"Invalid operation types: Cannot modulo `{self.left.get_type().render()}` and `{self.divisor.get_type().render()}`")
+                    raise ConversionError(f"Invalid operation types: Cannot modulo `{self.left.get_type().render()}` and `{self.divisor.get_type().render()}`").with_loc(self.loc)
         else:
             raise UnreachableError(f"Type types unexpectedly did not match any option {left_type.render()} vs {divisor_type.render()}")
 
