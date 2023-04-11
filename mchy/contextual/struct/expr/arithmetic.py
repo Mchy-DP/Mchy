@@ -81,7 +81,9 @@ class CtxExprDiv(CtxExprNode):
                 case (InertType(InertCoreTypes.INT, nullable=False), InertType(InertCoreTypes.INT, nullable=False)):
                     return InertType(InertCoreTypes.INT, (numerator_type.const and denom_type.const))
                 case _:
-                    raise ConversionError(f"Invalid operation types: Cannot divide `{self.numerator.get_type().render()}` by `{self.denominator.get_type().render()}`").with_loc(self.loc)
+                    raise ConversionError(
+                        f"Invalid operation types: Cannot divide `{self.numerator.get_type().render()}` by `{self.denominator.get_type().render()}`"
+                    ).with_loc(self.loc)
         else:
             raise UnreachableError(f"Type types unexpectedly did not match any option {numerator_type.render()} vs {denom_type.render()}")
 
