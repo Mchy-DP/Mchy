@@ -120,4 +120,4 @@ class MchyErrorListener(ErrorListener):
                 )
             raise MchySyntaxError(f"Confusing syntax encountered: intentions unclear.  Expected: {get_expected_toks_str(recognizer, list(expected_toks))} (rule: {rule_name})")
         # Super generic catch-all error
-        raise ValueError(msg)
+        raise MchySyntaxError(msg)
