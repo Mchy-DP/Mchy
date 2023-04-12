@@ -162,6 +162,22 @@ def func(x: int, y: int, z: int = null) -> int{
     ([], """3< world.get_player().find()""", ["Cannot test <", "executable types"], ComLoc(1, 3, 1, 28)),
     ([], """world.get_player().find()< 3""", ["Cannot test <", "executable types"], ComLoc(1, 0, 1, 25)),
     ([FD], """func(1,2)< 'pop'""", ["Cannot test <", "int", "str"], ComLoc(1, 0, 1, 16)),
+    # Logical Not
+    ([], """not world.colors.red""", ["Cannot 'not'", "struct", "Color"], ComLoc(1, 4, 1, 20)),
+    ([], """not world.get_player().find()""", ["Cannot 'not'", "executable types"], ComLoc(1, 4, 1, 29)),
+    ([], """not 'pop'""", ["Cannot", "'not'", "str"], ComLoc(1, 4, 1, 9)),
+    # Logical And
+    ([], """3 and world.colors.red""", ["Cannot 'and'", "struct", "Color"], ComLoc(1, 6, 1, 22)),
+    ([], """world.colors.red and 3""", ["Cannot 'and'", "struct", "Color"], ComLoc(1, 0, 1, 16)),
+    ([], """3 and world.get_player().find()""", ["Cannot 'and'", "executable types"], ComLoc(1, 6, 1, 31)),
+    ([], """world.get_player().find() and 3""", ["Cannot 'and'", "executable types"], ComLoc(1, 0, 1, 25)),
+    ([FD], """func(1,2) and 'pop'""", ["Cannot", "'and'", "int", "str"], ComLoc(1, 0, 1, 19)),
+    # Logical Or
+    ([], """3 or world.colors.red""", ["Cannot 'or'", "struct", "Color"], ComLoc(1, 5, 1, 21)),
+    ([], """world.colors.red or 3""", ["Cannot 'or'", "struct", "Color"], ComLoc(1, 0, 1, 16)),
+    ([], """3 or world.get_player().find()""", ["Cannot 'or'", "executable types"], ComLoc(1, 5, 1, 30)),
+    ([], """world.get_player().find() or 3""", ["Cannot 'or'", "executable types"], ComLoc(1, 0, 1, 25)),
+    ([FD], """func(1,2) or 'pop'""", ["Cannot", "'or'", "int", "str"], ComLoc(1, 0, 1, 18)),
 ])
 def test_conv_error_expected(test_code: str, expected_msgs: List[str], err_loc: ComLoc, setup_code: List[str]):
     # Fix line numbers
