@@ -458,4 +458,4 @@ def convert_int_exponent_expr(ctx_expr: CtxExprExponent, module: 'SmtModule', fu
             cmds.append(SmtMultCmd(register1, base_holder))
         return base_cmds + cmds, register1
     else:
-        raise ConversionError("Non-compile constant exponents are not supported")
+        raise ConversionError("Non compile-constant exponents are not supported").with_loc(ctx_expr.exponent.loc)
