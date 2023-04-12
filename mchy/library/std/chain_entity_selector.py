@@ -198,7 +198,8 @@ class ChainLinkGetEntities(ChainLinkPartialEntitiesSelector):
     def get_docs(self) -> DocsData:
         return DocsData(
             short_summary="Begin a partial selector targeting all entities that match the filters",
-            return_info="Partial Selector for Entity Groups"
+            return_info="Partial Selector for Entity Groups",
+            full_description="Note: You will always need to call `.find()` after all filters to get usable entities"
         )
 
     def get_namespace(self) -> 'Namespace':
@@ -223,7 +224,8 @@ class ChainLinkGetEntity(ChainLinkPartialEntitySelector):
         return DocsData(
             short_summary="Begin a partial selector targeting one entity that matches the filters",
             param_info={"sort": "How to handle multiple valid entities.  Options include: nearest, furthest, random, arbitrary"},
-            return_info="Partial Selector for Entities"
+            return_info="Partial Selector for Entities",
+            full_description="Note: You will always need to call `.find()` after all filters to get usable entities"
         )
 
     def get_namespace(self) -> 'Namespace':
@@ -249,7 +251,8 @@ class ChainLinkGetPlayers(ChainLinkPartialPlayersSelector):
     def get_docs(self) -> DocsData:
         return DocsData(
             short_summary="Begin a partial selector targeting all players that match the filters",
-            return_info="Partial Selector for Player Groups"
+            return_info="Partial Selector for Player Groups",
+            full_description="Note: You will always need to call `.find()` after all filters to get usable entities"
         )
 
     def get_namespace(self) -> 'Namespace':
@@ -274,7 +277,8 @@ class ChainLinkGetPlayer(ChainLinkPartialPlayerSelector):
         return DocsData(
             short_summary="Begin a partial selector targeting one player that matches the filters",
             param_info={"sort": "How to handle multiple valid players.  Options include: nearest, furthest, random, arbitrary"},
-            return_info="Partial Selector for a Player"
+            return_info="Partial Selector for a Player",
+            full_description="Note: You will always need to call `.find()` after all filters to get usable entities"
         )
 
     def get_namespace(self) -> 'Namespace':
