@@ -239,6 +239,8 @@ version -> int
   > 
   > Returns:
   >   - Partial Selector for Entity Groups
+  > 
+  > Note: You will always need to call `.find()` after all filters to get usable entities
   * ### failing_predicate
     ```
     (?).get_entities().failing_predicate(predicate: str!)
@@ -456,6 +458,8 @@ version -> int
   > 
   > Returns:
   >   - Partial Selector for Entities
+  > 
+  > Note: You will always need to call `.find()` after all filters to get usable entities
   * ### failing_predicate
     ```
     (?).get_entity(sort: str! = nearest).failing_predicate(predicate: str!)
@@ -673,6 +677,8 @@ version -> int
   > 
   > Returns:
   >   - Partial Selector for a Player
+  > 
+  > Note: You will always need to call `.find()` after all filters to get usable entities
   * ### advancement_matches
     ```
     (?).get_player(sort: str! = nearest).advancement_matches(advancement: str!)
@@ -916,6 +922,8 @@ version -> int
   > 
   > Returns:
   >   - Partial Selector for Player Groups
+  > 
+  > Note: You will always need to call `.find()` after all filters to get usable entities
   * ### advancement_matches
     ```
     (?).get_players().advancement_matches(advancement: str!)
