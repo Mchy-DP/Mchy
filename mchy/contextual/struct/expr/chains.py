@@ -235,7 +235,7 @@ class CtxExprPartialChain(CtxExprGenericChain):
             if not matches_type(new_link.chain.get_refined_executor(), self._executor.get_type()):
                 raise ConversionError(
                     f"Chain `{new_link.chain.render()}` cannot execute on type {self._executor.get_type().render()}, expected: {new_link.chain.get_refined_executor().render()}"
-                )
+                ).with_loc(self._executor.loc)
             return CtxExprFinalChain(self._executor, self._chaining, new_link, src_loc=(link_loc.union(self.loc)))
         else:
             return CtxExprPartialChain(self._executor, self._chaining + [new_link], src_loc=(link_loc.union(self.loc)))
