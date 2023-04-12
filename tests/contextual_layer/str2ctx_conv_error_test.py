@@ -27,6 +27,9 @@ def func(x: int, y: int, z: int = null) -> int{
     ([], r"""def int func(){}""", ["executor type", "cannot be inert", "int"], ComLoc(1, 4, 1, 7)),
     ([], r"""def func_name(param_a: int, param_a: str){}""", ["Duplicate argument", "param_a", "func_name"], ComLoc(1, 0, 1, 43)),
     ([], r"""def echo_text(msg: str!){}""", ["msg", "echo_text", "has compile-constant type", "str!", "Consider using a global OR making runtime type"], ComLoc(1, 14, 1, 23)),
+    ([], r"""def foo(x: int) -> int!{}""", ["foo", "compile-constant return type", "runtime type"], ComLoc(1, 19, 1, 23)),
+    ([], r"""def foo(locus: Pos) -> int{}""", ["foo", "locus", "Struct-type", "Pos"], ComLoc(1, 8, 1, 18)),
+    ([], r"""def foo(locus: int) -> Pos{}""", ["foo", "Struct return type", "Pos"], ComLoc(1, 23, 1, 26)),
     # If typing
     ([], r"""if 42 {}""", ["If", "int", "bool"], ComLoc(1, 3, 1, 5)),
     ([], r"""if True {} elif 42 {}""", ["Elif", "int", "bool"], ComLoc(1, 16, 1, 18)),

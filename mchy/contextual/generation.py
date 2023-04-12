@@ -71,9 +71,13 @@ def convert_function_decl(ast_fdecl: FunctionDecl, executing_type: Optional[Exec
         ptype = convert_explicit_type(param.param_type, module)
         if isinstance(ptype, InertType) and ptype.const:
             raise ConversionError(
-                f"Parameter `{param.param_name.value}` of function `{ast_fdecl.func_name}` has compile-constant type `{ptype.render()}`, this is forbidden. " +
+                f"Parameter `{param.param_name.value}` of function `{ast_fdecl.func_name}` has compile-constant type `{ptype.render()}`, this is invalid. " +
                 f"Consider using a global OR making runtime type " +
                 f"(`{param.param_name.value}: {ptype.render()}` ---> `{param.param_name.value}: {InertType(ptype.target, False, ptype.nullable).render()}`)"
+            ).with_loc(param.loc)
+        if isinstance(ptype, StructType):
+            raise ConversionError(
+                f"Parameter `{param.param_name.value}` of function `{ast_fdecl.func_name}` is Struct-type `{ptype.render()}`, this is invalid"
             ).with_loc(param.loc)
         pmarker = (
             MarkerParamDefault(param.param_name.value, None) if param.default_value is None else
@@ -88,13 +92,26 @@ def convert_function_decl(ast_fdecl: FunctionDecl, executing_type: Optional[Exec
         if _params_labels.count(lb) > 1:
             raise ConversionError(f"Duplicate argument `{lb}` in function declaration for function of name `{ast_fdecl.func_name}`").with_loc(ast_fdecl.loc)
 
+    # return validation
+    return_type = convert_explicit_type(ast_fdecl.return_type, module)
+    if isinstance(return_type, InertType):
+        if return_type.const:
+            raise ConversionError(
+                f"The function `{ast_fdecl.func_name}` has compile-constant return type `{return_type.render()}`, this is invalid. " +
+                f"Consider making runtime type (`{return_type.render()}` ---> `{InertType(return_type.target, False, return_type.nullable).render()}`)"
+            ).with_loc(ast_fdecl.return_type.loc)
+    if isinstance(return_type, StructType):
+        raise ConversionError(
+            f"The function `{ast_fdecl.func_name}` has Struct return type `{return_type.render()}`, this is invalid"
+        ).with_loc(ast_fdecl.return_type.loc)
+
     fmarker = MarkerDeclFunc(pmarkers)
     func = CtxMchyFunc(
         exec_type,
         ast_fdecl.exec_type.loc,
         ast_fdecl.func_name,
         params,
-        convert_explicit_type(ast_fdecl.return_type, module),
+        return_type,
         ast_fdecl.return_type.loc,
         ast_fdecl.def_loc,
         ast_fdecl.loc,
