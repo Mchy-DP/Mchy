@@ -27,10 +27,8 @@ class IChainLink(ABC):
     __singleton_lookup: Dict[Type['IChainLink'], 'IChainLink'] = {}
 
     @classmethod
-    def get_instance(cls) -> 'IChainLink':
-        if cls not in IChainLink.__singleton_lookup.keys():
-            IChainLink.__singleton_lookup[cls] = cls()
-        return IChainLink.__singleton_lookup[cls]
+    def get_instance(cls) -> Optional['IChainLink']:
+        return IChainLink.__singleton_lookup.get(cls, None)
 
     def get_docs(self) -> DocsData:
         return DocsData()
@@ -71,7 +69,8 @@ class IChainLink(ABC):
     def __init_subclass__(cls, abstract: bool = False) -> None:
         if abstract:
             return  # Do not add Abstract chains to the namespace
-        new_chain_link = cls.get_instance()
+        new_chain_link = cls()
+        IChainLink.__singleton_lookup[cls] = new_chain_link
         new_chain_link.get_namespace().register_new_chain_link(new_chain_link)
 
     def render(self):  # TODO: improve render to render chains accepting args better
@@ -80,15 +79,18 @@ class IChainLink(ABC):
         pred = self.get_predecessor_type()
         if not isinstance(pred, ExecType):
             pred_inst = pred.get_instance()
-            # only render the predecessors predecessor if it is terminal
-            pred_pred = pred_inst.get_predecessor_type()
-            if isinstance(pred_pred, ExecType):
-                out += _exec_type_chain_render(self)
-            # now render the predecessor
-            out += pred_inst.get_name()
-            if pred_inst.get_params() is not None:
-                out += "()"
-            out += "."
+            if pred_inst is None:
+                out += "(...)."
+            else:
+                # only render the predecessors predecessor if it is terminal
+                pred_pred = pred_inst.get_predecessor_type()
+                if isinstance(pred_pred, ExecType):
+                    out += _exec_type_chain_render(self)
+                # now render the predecessor
+                out += pred_inst.get_name()
+                if pred_inst.get_params() is not None:
+                    out += "()"
+                out += "."
         else:
             out += _exec_type_chain_render(self)
         # render this:
