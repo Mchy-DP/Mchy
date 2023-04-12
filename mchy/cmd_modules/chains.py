@@ -73,7 +73,7 @@ class IChainLink(ABC):
         IChainLink.__singleton_lookup[cls] = new_chain_link
         new_chain_link.get_namespace().register_new_chain_link(new_chain_link)
 
-    def render(self):  # TODO: improve render to render chains accepting args better
+    def render(self):
         out = ""
         # Render predecessors
         pred = self.get_predecessor_type()
