@@ -178,6 +178,12 @@ def func(x: int, y: int, z: int = null) -> int{
     ([], """3 or world.get_player().find()""", ["Cannot 'or'", "executable types"], ComLoc(1, 5, 1, 30)),
     ([], """world.get_player().find() or 3""", ["Cannot 'or'", "executable types"], ComLoc(1, 0, 1, 25)),
     ([FD], """func(1,2) or 'pop'""", ["Cannot", "'or'", "int", "str"], ComLoc(1, 0, 1, 18)),
+    # Null coalescing
+    ([], """3??world.colors.red""", ["Cannot null coalesce", "struct", "Color"], ComLoc(1, 3, 1, 19)),
+    ([], """world.colors.red??3""", ["Cannot null coalesce", "struct", "Color"], ComLoc(1, 0, 1, 16)),
+    ([], """3??world.get_player().find()""", ["Cannot null coalesce", "executable types"], ComLoc(1, 3, 1, 28)),
+    ([], """world.get_player().find()??3""", ["Cannot null coalesce", "executable types"], ComLoc(1, 0, 1, 25)),
+    ([FD], """func(1,2)??'pop'""", ["Cannot", "null coalescing", "int", "str"], ComLoc(1, 0, 1, 16)),
 ])
 def test_conv_error_expected(test_code: str, expected_msgs: List[str], err_loc: ComLoc, setup_code: List[str]):
     # Fix line numbers
