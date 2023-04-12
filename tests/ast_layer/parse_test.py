@@ -1,6 +1,6 @@
 
 from mchy.common.config import Config
-from mchy.mchy_ast.mchy_parse import mchy_parse
+from mchy.mchy_ast.convert_parse import mchy_parse
 
 from mchy.mchy_ast.nodes import *
 
@@ -72,30 +72,30 @@ _TEST_CONFIG = Config()
     ("\n/say hi", Root(Scope(Stmnt(ExprFuncCall(ExprLitWorld(None), ExprLitIdent("cmd"), ExprFragParam(label=ExprLitIdent("mc_cmd"), value=ExprLitStr("/say hi"))))))),
     ("\n  /say hi", Root(Scope(Stmnt(ExprFuncCall(ExprLitWorld(None), ExprLitIdent("cmd"), ExprFragParam(label=ExprLitIdent("mc_cmd"), value=ExprLitStr("/say hi"))))))),
     # variable declaration
-    ("var foo: int", Root(Scope(Stmnt(VariableDecl(False, TypeNode("int"), "foo"))))),
-    ("var foo: int = 5", Root(Scope(Stmnt(VariableDecl(False, TypeNode("int"), "foo", ExprLitInt(5)))))),
-    ("let foo: int = 42", Root(Scope(Stmnt(VariableDecl(True, TypeNode("int"), "foo", ExprLitInt(42)))))),
-    ("var foo: int!", Root(Scope(Stmnt(VariableDecl(False, TypeNode("int", compile_const=True), "foo"))))),
-    ("var foo: int?", Root(Scope(Stmnt(VariableDecl(False, TypeNode("int", nullable=True), "foo"))))),
-    ("var foo: Group[Entity]", Root(Scope(Stmnt(VariableDecl(False, TypeNode("Entity", group=True), "foo"))))),
-    ("var foo: world", Root(Scope(Stmnt(VariableDecl(False, TypeNode("world", group=False), "foo"))))),
-    ("var foo: int? = 5", Root(Scope(Stmnt(VariableDecl(False, TypeNode("int", nullable=True), "foo", ExprLitInt(5)))))),
-    ("var foo: int? = null", Root(Scope(Stmnt(VariableDecl(False, TypeNode("int", nullable=True), "foo", ExprLitNull(None)))))),
-    ("var foo: null = null", Root(Scope(Stmnt(VariableDecl(False, TypeNode("null"), "foo", ExprLitNull(None)))))),
+    ("var foo: int", Root(Scope(Stmnt(VariableDecl(False, TypeNode("int"), ExprLitIdent("foo")))))),
+    ("var foo: int = 5", Root(Scope(Stmnt(VariableDecl(False, TypeNode("int"), ExprLitIdent("foo"), ExprLitInt(5)))))),
+    ("let foo: int = 42", Root(Scope(Stmnt(VariableDecl(True, TypeNode("int"), ExprLitIdent("foo"), ExprLitInt(42)))))),
+    ("var foo: int!", Root(Scope(Stmnt(VariableDecl(False, TypeNode("int", compile_const=True), ExprLitIdent("foo")))))),
+    ("var foo: int?", Root(Scope(Stmnt(VariableDecl(False, TypeNode("int", nullable=True), ExprLitIdent("foo")))))),
+    ("var foo: Group[Entity]", Root(Scope(Stmnt(VariableDecl(False, TypeNode("Entity", group=True), ExprLitIdent("foo")))))),
+    ("var foo: world", Root(Scope(Stmnt(VariableDecl(False, TypeNode("world", group=False), ExprLitIdent("foo")))))),
+    ("var foo: int? = 5", Root(Scope(Stmnt(VariableDecl(False, TypeNode("int", nullable=True), ExprLitIdent("foo"), ExprLitInt(5)))))),
+    ("var foo: int? = null", Root(Scope(Stmnt(VariableDecl(False, TypeNode("int", nullable=True), ExprLitIdent("foo"), ExprLitNull(None)))))),
+    ("var foo: null = null", Root(Scope(Stmnt(VariableDecl(False, TypeNode("null"), ExprLitIdent("foo"), ExprLitNull(None)))))),
     # function decl
-    ("def world func1(){}", Root(Scope(FunctionDecl("func1", TypeNode("world"), TypeNode("null"), Scope(CodeBlock()), [])))),
+    ("def world func1(){}", Root(Scope(FunctionDecl("func1", TypeNode("world"), TypeNode("null"), Scope(CodeBlock()), [], ComLoc())))),
     ("def world func1(p1: int){}", Root(Scope(
-        FunctionDecl("func1", TypeNode("world"), TypeNode("null"), Scope(CodeBlock()), [], ParamDecl(ExprLitIdent("p1"), TypeNode("int")))
+        FunctionDecl("func1", TypeNode("world"), TypeNode("null"), Scope(CodeBlock()), [], ComLoc(), ParamDecl(ExprLitIdent("p1"), TypeNode("int")))
     ))),
-    ("def Group[Entity] func1() -> int{}", Root(Scope(FunctionDecl("func1", TypeNode("Entity", group=True), TypeNode("int"), Scope(CodeBlock()), [])))),
-    ("def world func1(){42}", Root(Scope(FunctionDecl("func1", TypeNode("world"), TypeNode("null"), Scope(CodeBlock(Stmnt(ExprLitInt(42)))), [])))),
-    ("def func1(){}", Root(Scope(FunctionDecl("func1", TypeNode("world"), TypeNode("null"), Scope(CodeBlock()), [])))),
+    ("def Group[Entity] func1() -> int{}", Root(Scope(FunctionDecl("func1", TypeNode("Entity", group=True), TypeNode("int"), Scope(CodeBlock()), [], ComLoc())))),
+    ("def world func1(){42}", Root(Scope(FunctionDecl("func1", TypeNode("world"), TypeNode("null"), Scope(CodeBlock(Stmnt(ExprLitInt(42)))), [], ComLoc())))),
+    ("def func1(){}", Root(Scope(FunctionDecl("func1", TypeNode("world"), TypeNode("null"), Scope(CodeBlock()), [], ComLoc())))),
     ("11\ndef func1(){\n22\n}\n33", Root(Scope(
         Stmnt(ExprLitInt(11)),
-        FunctionDecl("func1", TypeNode("world"), TypeNode("null"), Scope(CodeBlock(Stmnt(ExprLitInt(22)))), []),
+        FunctionDecl("func1", TypeNode("world"), TypeNode("null"), Scope(CodeBlock(Stmnt(ExprLitInt(22)))), [], ComLoc()),
         Stmnt(ExprLitInt(33))
         ))),
-    ("@ticking\ndef main_tick(){}", Root(Scope(FunctionDecl("main_tick", TypeNode("world"), TypeNode("null"), Scope(CodeBlock()), [Decorator(ExprLitIdent("ticking"))])))),
+    ("@ticking\ndef mn_tick(){}", Root(Scope(FunctionDecl("mn_tick", TypeNode("world"), TypeNode("null"), Scope(CodeBlock()), [Decorator(ExprLitIdent("ticking"))], ComLoc())))),
     # If
     ("if True{42}", Root(Scope(Stmnt(IfStruct(ExprLitBool(True), CodeBlock(Stmnt(ExprLitInt(42)))))))),
     ("if (True){42}", Root(Scope(Stmnt(IfStruct(ExprLitBool(True), CodeBlock(Stmnt(ExprLitInt(42)))))))),

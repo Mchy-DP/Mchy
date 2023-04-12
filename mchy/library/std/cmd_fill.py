@@ -9,7 +9,7 @@ from mchy.common.com_loc import ComLoc
 from mchy.common.com_types import ComType, ExecCoreTypes, ExecType, InertCoreTypes, InertType, TypeUnion, matches_type
 from mchy.common.config import Config
 from mchy.contextual.struct.expr.literals import CtxExprLitBool, CtxExprLitNull
-from mchy.errors import ConversionError, StatementRepError, UnreachableError, VirtualRepError
+from mchy.errors import ConversionError, LibConversionError, StatementRepError, UnreachableError, VirtualRepError
 from mchy.library.std.cmd_setblock import SetblockFlag
 from mchy.library.std.ns import STD_NAMESPACE
 from mchy.library.std.struct_color import StructColor
@@ -33,7 +33,7 @@ class SmtFillCmd(SmtCmd):
         self.block: str = block
         self.existing_block_behavior: SetblockFlag
         if destroy_flag and keep_flag:
-            raise ConversionError(f"Cannot both keep and destroy existing blocks in fill ({self.block}@{repr(self.pos1)}-{repr(self.pos2)})")
+            raise LibConversionError(f"Cannot both keep and destroy existing blocks in fill ({self.block}@{repr(self.pos1)}-{repr(self.pos2)})")
         elif destroy_flag and (not keep_flag):
             self.existing_block_behavior = SetblockFlag.DESTROY
         elif (not destroy_flag) and keep_flag:
@@ -63,7 +63,7 @@ class SmtFillCmd(SmtCmd):
             if exec1_vdat.get_selector(stack_level) == exec2_vdat.get_selector(stack_level):
                 executor = executor1
             else:
-                raise ConversionError("If 'pos1' and 'pos2' are both positioned relative to an entity it must be the same entity (Blame minecraft)")
+                raise LibConversionError("If 'pos1' and 'pos2' are both positioned relative to an entity it must be the same entity (Blame minecraft)")
         # build fill command
         cmd = f"fill {pos1_str} {pos2_str} {self.block} {self.existing_block_behavior.value}"
         # return command
@@ -108,7 +108,7 @@ class SmtFillReplaceCmd(SmtCmd):
             if exec1_vdat.get_selector(stack_level) == exec2_vdat.get_selector(stack_level):
                 executor = executor1
             else:
-                raise ConversionError("If 'pos1' and 'pos2' are both positioned relative to an entity it must be the same entity (Blame minecraft)")
+                raise LibConversionError("If 'pos1' and 'pos2' are both positioned relative to an entity it must be the same entity (Blame minecraft)")
         # build fill command
         cmd = f"fill {pos1_str} {pos2_str} {self.new_block} replace {self.old_block}"
         # return command

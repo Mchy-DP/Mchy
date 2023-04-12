@@ -50,7 +50,12 @@ def convert_intable_expr(ctx_expr: CtxExprNode, module: 'SmtModule', function: S
         return convert_func_call_expr(ctx_expr, module, function, config=config)
     elif isinstance(ctx_expr, CtxExprPropertyAccess):
         source_cmds, source_holder = convert_expr(ctx_expr.source, module, function, config=config)
-        prop_cmds, prop_holder = ctx_expr.prop.stmnt_conv(source_holder, module, function, config=config)
+        try:
+            prop_cmds, prop_holder = ctx_expr.prop.stmnt_conv(source_holder, module, function, config=config)
+        except ConversionError as err:
+            if (wrapped_data := err.intercept(ConversionError.InterceptFlags.LIBRARY_LOCLESS)):
+                err.with_loc(ctx_expr.loc)
+            raise err
         return source_cmds + prop_cmds, prop_holder
     elif isinstance(ctx_expr, CtxExprPartialChain):
         raise StatementRepError(f"Cannot convert partial chains (chain={ctx_expr.render()})")
@@ -202,7 +207,12 @@ def convert_gen_inert_expr(ctx_expr: CtxExprNode, module: 'SmtModule', function:
         return convert_func_call_expr(ctx_expr, module, function, config=config)
     elif isinstance(ctx_expr, CtxExprPropertyAccess):
         source_cmds, source_holder = convert_expr(ctx_expr.source, module, function, config=config)
-        prop_cmds, prop_holder = ctx_expr.prop.stmnt_conv(source_holder, module, function, config=config)
+        try:
+            prop_cmds, prop_holder = ctx_expr.prop.stmnt_conv(source_holder, module, function, config=config)
+        except ConversionError as err:
+            if (wrapped_data := err.intercept(ConversionError.InterceptFlags.LIBRARY_LOCLESS)):
+                err.with_loc(ctx_expr.loc)
+            raise err
         return source_cmds + prop_cmds, prop_holder
     elif isinstance(ctx_expr, CtxExprPartialChain):
         raise StatementRepError(f"Cannot convert partial chains (chain={ctx_expr.render()})")
@@ -239,7 +249,12 @@ def convert_exec_expr(ctx_expr: CtxExprNode, module: 'SmtModule', function: SmtF
         return convert_func_call_expr(ctx_expr, module, function, config=config)
     elif isinstance(ctx_expr, CtxExprPropertyAccess):
         source_cmds, source_holder = convert_expr(ctx_expr.source, module, function, config=config)
-        prop_cmds, prop_holder = ctx_expr.prop.stmnt_conv(source_holder, module, function, config=config)
+        try:
+            prop_cmds, prop_holder = ctx_expr.prop.stmnt_conv(source_holder, module, function, config=config)
+        except ConversionError as err:
+            if (wrapped_data := err.intercept(ConversionError.InterceptFlags.LIBRARY_LOCLESS)):
+                err.with_loc(ctx_expr.loc)
+            raise err
         return source_cmds + prop_cmds, prop_holder
     elif isinstance(ctx_expr, CtxExprPartialChain):
         raise StatementRepError(f"Cannot convert partial chains (chain={ctx_expr.render()})")
@@ -369,7 +384,12 @@ def convert_func_call_expr(ctx_expr: CtxExprFuncCall, module: 'SmtModule', funct
                 mchy_param_binding[param] = pdefault
             else:
                 mchy_param_binding[param] = atom
-        func_cmds, func_return_holder = ctx_expr.function.stmnt_conv(executor_holder, mchy_param_binding, extra_atom_binding, module, function, config=config)
+        try:
+            func_cmds, func_return_holder = ctx_expr.function.stmnt_conv(executor_holder, mchy_param_binding, extra_atom_binding, module, function, config=config)
+        except ConversionError as err:
+            if (wrapped_data := err.intercept(ConversionError.InterceptFlags.LIBRARY_LOCLESS)):
+                err.with_loc(ctx_expr.loc)
+            raise err
         cmds.extend(func_cmds)
         return cmds, func_return_holder
     else:
@@ -399,7 +419,12 @@ def convert_chain_expr(ctx_chain: CtxExprFinalChain, module: 'SmtModule', functi
             cmds.extend(param_cmds)
             link_param_atom_binding[link][1].append(param_atom)
     # Handle Call
-    chain_cmds, chain_return_holder = ctx_chain.stmnt_conv(executor_holder, link_param_atom_binding, module, function, config=config)
+    try:
+        chain_cmds, chain_return_holder = ctx_chain.stmnt_conv(executor_holder, link_param_atom_binding, module, function, config=config)
+    except ConversionError as err:
+        if (wrapped_data := err.intercept(ConversionError.InterceptFlags.LIBRARY_LOCLESS)):
+            err.with_loc(ctx_chain.loc)
+        raise err
     cmds.extend(chain_cmds)
     return cmds, chain_return_holder
 
@@ -433,4 +458,4 @@ def convert_int_exponent_expr(ctx_expr: CtxExprExponent, module: 'SmtModule', fu
             cmds.append(SmtMultCmd(register1, base_holder))
         return base_cmds + cmds, register1
     else:
-        raise ConversionError("Non-compile constant exponents are not supported")
+        raise ConversionError("Non compile-constant exponents are not supported").with_loc(ctx_expr.exponent.loc)

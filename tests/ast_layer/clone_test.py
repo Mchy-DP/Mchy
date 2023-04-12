@@ -15,7 +15,7 @@ def test_deeper_clone():
 
 @pytest.mark.parametrize("original", [
     Root(),
-    VariableDecl(False, TypeNode("int"), "foo"),
+    VariableDecl(False, TypeNode("int"), ExprLitIdent("foo")),
     TypeNode("int"),
     TypeNode("int", group=True),
     TypeNode("int", compile_const=True),

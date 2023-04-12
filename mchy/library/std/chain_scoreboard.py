@@ -10,7 +10,7 @@ from mchy.common.com_types import ComType, ExecCoreTypes, ExecType, InertCoreTyp
 from mchy.common.config import Config
 from mchy.contextual.struct.expr import CtxExprLitStr, CtxExprLits, CtxExprNode, CtxChainLink
 from mchy.contextual.struct.expr.literals import CtxExprLitNull
-from mchy.errors import ConversionError, StatementRepError, VirtualRepError
+from mchy.errors import ConversionError, LibConversionError, StatementRepError, VirtualRepError
 from mchy.library.std.ns import STD_NAMESPACE
 from mchy.library.std.struct_color import StructColor
 from mchy.stmnt.struct import SmtAtom, SmtCmd, SmtFunc, SmtModule
@@ -687,7 +687,7 @@ class ChainLinkScoreboardObjGet(IChain):
                 module: 'SmtModule', function: 'SmtFunc', config: Config
             ) -> Tuple[List['SmtCmd'], 'SmtAtom']:
         if not matches_type(ExecType(ExecCoreTypes.ENTITY, False), executor.get_type()):
-            raise ConversionError(f"Player-Scoreboard get can only operate on single entities not groups (or world)")
+            raise LibConversionError(f"Player-Scoreboard get can only operate on single entities not groups (or world)")
         _, add_binding, _ = get_link_of_type(clink_param_binding, ChainLinkScoreboardObj)
         obj_name: str = get_key_with_type(add_binding, "obj_name", SmtConstStr).value
         output_register = function.new_pseudo_var(InertType(InertCoreTypes.INT))
@@ -721,7 +721,7 @@ class ChainLinkScoreboardObjSet(IChain):
                 module: 'SmtModule', function: 'SmtFunc', config: Config
             ) -> Tuple[List['SmtCmd'], 'SmtAtom']:
         if not matches_type(ExecType(ExecCoreTypes.ENTITY, True), executor.get_type()):
-            raise ConversionError(f"Player-Scoreboard set can only operate on entities not world")
+            raise LibConversionError(f"Player-Scoreboard set can only operate on entities not world")
         _, name_binding, _ = get_link_of_type(clink_param_binding, ChainLinkScoreboardObj)
         obj_name: str = get_key_with_type(name_binding, "obj_name", SmtConstStr).value
         _, set_binding, _ = get_link_of_type(clink_param_binding, ChainLinkScoreboardObjSet)
@@ -756,7 +756,7 @@ class ChainLinkScoreboardObjAdd(IChain):
                 module: 'SmtModule', function: 'SmtFunc', config: Config
             ) -> Tuple[List['SmtCmd'], 'SmtAtom']:
         if not matches_type(ExecType(ExecCoreTypes.ENTITY, True), executor.get_type()):
-            raise ConversionError(f"Player-Scoreboard set can only operate on entities not world")
+            raise LibConversionError(f"Player-Scoreboard set can only operate on entities not world")
         _, name_binding, _ = get_link_of_type(clink_param_binding, ChainLinkScoreboardObj)
         obj_name: str = get_key_with_type(name_binding, "obj_name", SmtConstStr).value
         _, set_binding, _ = get_link_of_type(clink_param_binding, ChainLinkScoreboardObjAdd)
@@ -791,7 +791,7 @@ class ChainLinkScoreboardObjSub(IChain):
                 module: 'SmtModule', function: 'SmtFunc', config: Config
             ) -> Tuple[List['SmtCmd'], 'SmtAtom']:
         if not matches_type(ExecType(ExecCoreTypes.ENTITY, True), executor.get_type()):
-            raise ConversionError(f"Player-Scoreboard set can only operate on entities not world")
+            raise LibConversionError(f"Player-Scoreboard set can only operate on entities not world")
         _, name_binding, _ = get_link_of_type(clink_param_binding, ChainLinkScoreboardObj)
         obj_name: str = get_key_with_type(name_binding, "obj_name", SmtConstStr).value
         _, set_binding, _ = get_link_of_type(clink_param_binding, ChainLinkScoreboardObjSub)
@@ -824,7 +824,7 @@ class ChainLinkScoreboardObjEnable(IChain):
                 module: 'SmtModule', function: 'SmtFunc', config: Config
             ) -> Tuple[List['SmtCmd'], 'SmtAtom']:
         if not matches_type(ExecType(ExecCoreTypes.ENTITY, True), executor.get_type()):
-            raise ConversionError(f"Player-Scoreboard set can only operate on entities not world")
+            raise LibConversionError(f"Player-Scoreboard set can only operate on entities not world")
         _, name_binding, _ = get_link_of_type(clink_param_binding, ChainLinkScoreboardObj)
         obj_name: str = get_key_with_type(name_binding, "obj_name", SmtConstStr).value
         return [SmtSbObjEnableExecCmd(executor, obj_name)], module.get_null_const()
@@ -855,7 +855,7 @@ class ChainLinkScoreboardObjReset(IChain):
                 module: 'SmtModule', function: 'SmtFunc', config: Config
             ) -> Tuple[List['SmtCmd'], 'SmtAtom']:
         if not matches_type(ExecType(ExecCoreTypes.ENTITY, True), executor.get_type()):
-            raise ConversionError(f"Player-Scoreboard set can only operate on entities not world")
+            raise LibConversionError(f"Player-Scoreboard set can only operate on entities not world")
         _, name_binding, _ = get_link_of_type(clink_param_binding, ChainLinkScoreboardObj)
         obj_name: str = get_key_with_type(name_binding, "obj_name", SmtConstStr).value
         return [SmtSbObjResetExecCmd(executor, obj_name)], module.get_null_const()
@@ -886,7 +886,7 @@ class ChainLinkScoreboardReset(IChain):
                 module: 'SmtModule', function: 'SmtFunc', config: Config
             ) -> Tuple[List['SmtCmd'], 'SmtAtom']:
         if not matches_type(ExecType(ExecCoreTypes.ENTITY, True), executor.get_type()):
-            raise ConversionError(f"Player-Scoreboard set can only operate on entities not world")
+            raise LibConversionError(f"Player-Scoreboard set can only operate on entities not world")
         return [SmtSbObjFullResetExecCmd(executor)], module.get_null_const()
 
 

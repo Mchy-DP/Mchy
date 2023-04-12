@@ -17,10 +17,14 @@ class CtxExprNullCoal(CtxExprNode):
     def _get_type(self) -> ComType:
         opt_type = self.opt_expr.get_type()
         default_type = self.default_expr.get_type()
-        if isinstance(opt_type, ExecType) or isinstance(default_type, ExecType):
-            raise ConversionError("Null coalescing of executable types is invalid")
-        elif isinstance(opt_type, StructType) or isinstance(default_type, StructType):
-            raise ConversionError("Null coalescing of struct types is invalid")
+        if isinstance(opt_type, StructType):
+            raise ConversionError(f"Cannot null coalesce struct-types {opt_type.render()}").with_loc(self.opt_expr.loc)
+        elif isinstance(default_type, StructType):
+            raise ConversionError(f"Cannot null coalesce struct-types {default_type.render()}").with_loc(self.default_expr.loc)
+        elif isinstance(opt_type, ExecType):
+            raise ConversionError(f"Cannot null coalesce executable types {opt_type.render()}").with_loc(self.opt_expr.loc)
+        elif isinstance(default_type, ExecType):
+            raise ConversionError(f"Cannot null coalesce executable types {default_type.render()}").with_loc(self.default_expr.loc)
         elif isinstance(opt_type, InertType) and isinstance(default_type, InertType):
             if default_type.nullable or (default_type.target == InertCoreTypes.NULL):
                 raise ConversionError(
@@ -46,9 +50,9 @@ class CtxExprNullCoal(CtxExprNode):
                     return InertType(InertCoreTypes.BOOL, (opt_type.const and default_type.const), False)
                 case _:
                     raise ConversionError(
-                        f"Invalid operation types: Cannot perform Null coalescing with types: " +
+                        f"Invalid operation types: Cannot perform null coalescing with types: " +
                         f"`{opt_type.render()}` ?? `{default_type.render()}` ({opt_type.target.value} !~ {default_type.target.value})"
-                    )
+                    ).with_loc(self.loc)
         else:
             raise UnreachableError(f"Type types unexpectedly did not match any option {opt_type.render()} vs {default_type.render()}")
 

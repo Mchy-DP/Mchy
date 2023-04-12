@@ -19,15 +19,15 @@ _INT = InertType(InertCoreTypes.INT)
 
 _MODULE = CtxModule(Config())
 _MODULE.import_ns(Namespace.get_namespace("std"))
-_INT_VAR = _MODULE.global_var_scope.register_new_var("foo", InertType(InertCoreTypes.INT), False, MarkerDeclVar().with_enclosing_function(None))
-_INT_VAR2 = _MODULE.global_var_scope.register_new_var("bar", InertType(InertCoreTypes.INT), False, MarkerDeclVar().with_enclosing_function(None))
-_BOOL_VAR = _MODULE.global_var_scope.register_new_var("fooboo", InertType(InertCoreTypes.BOOL), False, MarkerDeclVar().with_enclosing_function(None))
-_GENT_VAR = _MODULE.global_var_scope.register_new_var("ents", ExecType(ExecCoreTypes.ENTITY, True), False, MarkerDeclVar().with_enclosing_function(None))
+_INT_VAR = _MODULE.global_var_scope.register_new_var("foo", InertType(InertCoreTypes.INT), False, MarkerDeclVar().with_enclosing_function(None), ComLoc())
+_INT_VAR2 = _MODULE.global_var_scope.register_new_var("bar", InertType(InertCoreTypes.INT), False, MarkerDeclVar().with_enclosing_function(None), ComLoc())
+_BOOL_VAR = _MODULE.global_var_scope.register_new_var("fooboo", InertType(InertCoreTypes.BOOL), False, MarkerDeclVar().with_enclosing_function(None), ComLoc())
+_GENT_VAR = _MODULE.global_var_scope.register_new_var("ents", ExecType(ExecCoreTypes.ENTITY, True), False, MarkerDeclVar().with_enclosing_function(None), ComLoc())
 
 
 def _ctx_chainlink_helper(ichainlink_type: Type[IChainLink], data: Dict[str, CtxExprNode]) -> CtxChainLink:
     ichainlink = [link for link in _MODULE._chain_links if isinstance(link, ichainlink_type)][0]
-    link = CtxChainLink(ichainlink)
+    link = CtxChainLink(ichainlink, ComLoc())
     arg_binding: Dict[AbsCtxParam, Optional['CtxExprNode']] = {}
     for ctx_param in ichainlink.get_ctx_params():
         arg_binding[ctx_param] = data.get(ctx_param.get_label(), None)
@@ -37,7 +37,7 @@ def _ctx_chainlink_helper(ichainlink_type: Type[IChainLink], data: Dict[str, Ctx
 
 def _ctx_chain_helper(ichain_type: Type[IChain], data: Dict[str, CtxExprNode]) -> CtxChain:
     ichain = [link for link in _MODULE._chain_links if isinstance(link, ichain_type)][0]
-    link = CtxChain(ichain, _MODULE)
+    link = CtxChain(ichain, ComLoc(), _MODULE)
     arg_binding: Dict[AbsCtxParam, Optional['CtxExprNode']] = {}
     for ctx_param in ichain.get_ctx_params():
         arg_binding[ctx_param] = data.get(ctx_param.get_label(), None)

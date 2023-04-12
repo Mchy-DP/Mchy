@@ -160,7 +160,7 @@ class CtxAssignment(CtxStmnt):
             raise ConversionError(
                 f"Cannot assign expression of type `{self.rhs.get_type().render()}` to variable of type " +
                 f"`{self.var.var_type.render()}`. ({self.var.render()} = ...)"
-            )
+            ).with_loc(rhs.loc)
 
     def __repr__(self) -> str:
         return type(self).__name__ + f"({self.var.render()} = {repr(self.rhs)})"

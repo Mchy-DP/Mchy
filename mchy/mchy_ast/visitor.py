@@ -3,6 +3,7 @@ from mchy.built.MchyParser import MchyParser
 from mchy.built.MchyVisitor import MchyVisitor
 from mchy.errors import UnreachableError
 from mchy.mchy_ast.antlr_typed_help import loc_from_ctx, loc_from_tok
+from mchy.mchy_ast.mchy_parser import MchyCustomParser
 from mchy.mchy_ast.nodes import *
 
 
@@ -30,7 +31,7 @@ class AstBuilderVisitor(MchyVisitor):
         else:
             exec_type = self.visit(ctx.exec_type)
         return FunctionDecl(
-            str(ctx.func_name.text), exec_type, return_type, self.visit(ctx.body), self.visit(ctx.decorators),
+            str(ctx.func_name.text), exec_type, return_type, self.visit(ctx.body), self.visit(ctx.decorators), loc_from_tok(ctx.def_kw),
             *(self.visit(ctx.params) if ctx.params is not None else [])
         ).with_loc(loc_from_ctx(ctx))
 
@@ -64,9 +65,9 @@ class AstBuilderVisitor(MchyVisitor):
     def visitFor_range_bound(self, ctx: MchyParser.For_range_boundContext):
         if len(ctx.children) == 1:
             bound = ctx.children[0].symbol
-            if bound.type == MchyParser.IDENTIFIER:
+            if bound.type == MchyCustomParser.IDENTIFIER:
                 return ExprLitIdent(str(bound.text)).with_loc(loc_from_tok(bound))
-            elif bound.type == MchyParser.INT:
+            elif bound.type == MchyCustomParser.INT:
                 return ExprLitInt(int(bound.text)).with_loc(loc_from_tok(bound))
             else:
                 raise TypeError(f"Non-bracketed expression in for loop bound is not int or variable, found `{bound.type}`")
@@ -95,7 +96,7 @@ class AstBuilderVisitor(MchyVisitor):
         filtered_stmnts = []
         for stmnt in ctx.children[1:]:
             if isinstance(stmnt, antlr4.TerminalNode):
-                if stmnt.symbol.type in (MchyParser.CBCLOSE, MchyParser.CBOPEN, MchyParser.NEWLINE):
+                if stmnt.symbol.type in (MchyCustomParser.CBCLOSE, MchyCustomParser.CBOPEN, MchyCustomParser.NEWLINE):
                     continue
             else:
                 filtered_stmnts.append(stmnt)
@@ -103,14 +104,17 @@ class AstBuilderVisitor(MchyVisitor):
 
     def visitVariable_decl(self, ctx: MchyParser.Variable_declContext):
         read_only: bool
-        if ctx.varkw.type == MchyParser.VAR:
+        if ctx.varkw.type == MchyCustomParser.VAR:
             read_only = False
-        elif ctx.varkw.type == MchyParser.LET:
+        elif ctx.varkw.type == MchyCustomParser.LET:
             read_only = True
         else:
-            raise TypeError(f"variable declaration keyword is neither `var` nor `const`? (found: {MchyParser.symbolicNames[ctx.varkw.type]})")
+            raise TypeError(f"variable declaration keyword is neither `var` nor `const`? (found: {MchyCustomParser.symbolicNames[ctx.varkw.type]})")
         return VariableDecl(
-            read_only, self.visit(ctx.var_type), str(ctx.var_name.text), (self.visit(ctx.assignment_target) if ctx.assignment_target is not None else None)
+            read_only,
+            self.visit(ctx.var_type),
+            ExprLitIdent(ctx.var_name.text).with_loc(loc_from_tok(ctx.var_name)),
+            (self.visit(ctx.assignment_target) if ctx.assignment_target is not None else None)
         ).with_loc(loc_from_ctx(ctx))
 
     def visitAssignment(self, ctx: MchyParser.AssignmentContext):
@@ -210,17 +214,17 @@ class AstBuilderVisitor(MchyVisitor):
     def visitExprRelation(self, ctx: MchyParser.ExprRelationContext):
         if not isinstance(ctx.comparison, antlr4.Token):
             raise TypeError(f"Expression relation's comparison is not a token, got: {str(ctx.comparison)} ({repr(ctx.comparison)})")
-        if ctx.comparison.type == MchyParser.EQUALITY:
+        if ctx.comparison.type == MchyCustomParser.EQUALITY:
             return ExprEquality(self.visit(ctx.left), self.visit(ctx.right)).with_loc(loc_from_ctx(ctx))
-        elif ctx.comparison.type == MchyParser.INEQUALITY:
+        elif ctx.comparison.type == MchyCustomParser.INEQUALITY:
             return ExprInequality(self.visit(ctx.left), self.visit(ctx.right)).with_loc(loc_from_ctx(ctx))
-        elif ctx.comparison.type == MchyParser.COMP_GTE:
+        elif ctx.comparison.type == MchyCustomParser.COMP_GTE:
             return ExprCompGTE(self.visit(ctx.left), self.visit(ctx.right)).with_loc(loc_from_ctx(ctx))
-        elif ctx.comparison.type == MchyParser.COMP_GT:
+        elif ctx.comparison.type == MchyCustomParser.COMP_GT:
             return ExprCompGT(self.visit(ctx.left), self.visit(ctx.right)).with_loc(loc_from_ctx(ctx))
-        elif ctx.comparison.type == MchyParser.COMP_LTE:
+        elif ctx.comparison.type == MchyCustomParser.COMP_LTE:
             return ExprCompLTE(self.visit(ctx.left), self.visit(ctx.right)).with_loc(loc_from_ctx(ctx))
-        elif ctx.comparison.type == MchyParser.COMP_LT:
+        elif ctx.comparison.type == MchyCustomParser.COMP_LT:
             return ExprCompLT(self.visit(ctx.left), self.visit(ctx.right)).with_loc(loc_from_ctx(ctx))
         else:
             raise TypeError(f"Unknown Relation comparison, {ctx.comparison} ({repr(ctx.comparison)})")

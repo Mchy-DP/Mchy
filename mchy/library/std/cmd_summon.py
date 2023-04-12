@@ -8,7 +8,7 @@ from mchy.common.com_loc import ComLoc
 from mchy.common.com_types import ComType, ExecCoreTypes, ExecType, InertCoreTypes, InertType, matches_type
 from mchy.common.config import Config
 from mchy.contextual.struct.expr.literals import CtxExprLitNull, CtxExprLitStr
-from mchy.errors import ConversionError, StatementRepError, VirtualRepError
+from mchy.errors import ConversionError, LibConversionError, StatementRepError, VirtualRepError
 from mchy.library.std.ns import STD_NAMESPACE
 from mchy.library.std.struct_pos import StructPos
 from mchy.stmnt.struct import SmtAtom, SmtCmd, SmtFunc, SmtModule
@@ -77,15 +77,15 @@ class SmtSummonCmd(SmtCmd):
                 # close brace
                 elif char == ")":
                     if not (len(braces) >= 1 and braces[-1] == "("):
-                        raise ConversionError(f"Summon nbt invalid: Unbalanced brackets, unexpected ')', parsing failed {SmtSummonCmd._err_build(cix, nbt_data)}")
+                        raise LibConversionError(f"Summon nbt invalid: Unbalanced brackets, unexpected ')', parsing failed {SmtSummonCmd._err_build(cix, nbt_data)}")
                     braces.pop()
                 elif char == "]":
                     if not (len(braces) >= 1 and braces[-1] == "["):
-                        raise ConversionError(f"Summon nbt invalid: Unbalanced brackets, unexpected ']', parsing failed {SmtSummonCmd._err_build(cix, nbt_data)}")
+                        raise LibConversionError(f"Summon nbt invalid: Unbalanced brackets, unexpected ']', parsing failed {SmtSummonCmd._err_build(cix, nbt_data)}")
                     braces.pop()
                 elif char == "}":
                     if not (len(braces) >= 1 and braces[-1] == "{"):
-                        raise ConversionError("Summon nbt invalid: Unbalanced brackets, unexpected '}', parsing failed "+SmtSummonCmd._err_build(cix, nbt_data))
+                        raise LibConversionError("Summon nbt invalid: Unbalanced brackets, unexpected '}', parsing failed "+SmtSummonCmd._err_build(cix, nbt_data))
                     braces.pop()
             else:
                 # Should string stop?
@@ -102,7 +102,7 @@ class SmtSummonCmd(SmtCmd):
                 if char == ":" and key_stage:
                     # Reached the end of a key
                     if len(not_outer_comma_buffer) == 0:
-                        raise ConversionError(f"Summon nbt invalid: buffer empty {SmtSummonCmd._err_build(cix, nbt_data)} - possibly double comma?")
+                        raise LibConversionError(f"Summon nbt invalid: buffer empty {SmtSummonCmd._err_build(cix, nbt_data)} - possibly double comma?")
                     if not_outer_comma_buffer.strip(" ") == "Tags":
                         in_tags_key = True
                     summon_data += not_outer_comma_buffer + ":"
@@ -112,12 +112,12 @@ class SmtSummonCmd(SmtCmd):
                 if char == "," and (not key_stage):
                     # reached the end of a value
                     if len(not_outer_comma_buffer) == 0:
-                        raise ConversionError(f"Summon nbt invalid: Completely empty kv-value found {SmtSummonCmd._err_build(cix, nbt_data)}")
+                        raise LibConversionError(f"Summon nbt invalid: Completely empty kv-value found {SmtSummonCmd._err_build(cix, nbt_data)}")
                     if in_tags_key:  # If the key this value is associated with is 'Tags'
                         if not_outer_comma_buffer[0] != "[":
-                            ConversionError(f"Summon nbt invalid: Tags does not start with `[` {SmtSummonCmd._err_build(cix, nbt_data)}")
+                            LibConversionError(f"Summon nbt invalid: Tags does not start with `[` {SmtSummonCmd._err_build(cix, nbt_data)}")
                         elif not_outer_comma_buffer[-1] != "]":
-                            ConversionError(f"Summon nbt invalid: Tags does not start with `]` {SmtSummonCmd._err_build(cix, nbt_data)}")
+                            LibConversionError(f"Summon nbt invalid: Tags does not start with `]` {SmtSummonCmd._err_build(cix, nbt_data)}")
                         _tags = not_outer_comma_buffer[1:-1].split(",")
                         _tags = [_tg for _tg in _tags if _tg.strip() != ""]
                         _tags.append("\""+tag_insert+"\"")
@@ -130,7 +130,7 @@ class SmtSummonCmd(SmtCmd):
                     continue
             not_outer_comma_buffer += char
         if not key_stage:
-            raise ConversionError(f"Summon nbt invalid: Ended without closing value {SmtSummonCmd._err_build(cix, nbt_data)}")
+            raise LibConversionError(f"Summon nbt invalid: Ended without closing value {SmtSummonCmd._err_build(cix, nbt_data)}")
         if not_outer_comma_buffer != "" and not_outer_comma_buffer != ",":  # Unparsed trailing comma's are fine -> we added them anyway
             raise VirtualRepError(f"Hanging chars in buffer: `{not_outer_comma_buffer}` not processed")
         if not found_tags_key:

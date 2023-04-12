@@ -16,14 +16,16 @@ class CtxExprExponent(CtxExprNode):
     def _get_type(self) -> ComType:
         base_type = self.base.get_type()
         exponent_type = self.exponent.get_type()
-        if isinstance(base_type, StructType) or isinstance(exponent_type, StructType):
-            raise ConversionError(f"StructTypes are not valid in Exponents")
+        if isinstance(base_type, StructType):
+            raise ConversionError(f"StructTypes (`{base_type.render()}`) are not valid exponent bases").with_loc(self.base.loc)
+        elif isinstance(exponent_type, StructType):
+            raise ConversionError(f"StructTypes (`{exponent_type.render()}`) are not valid in exponents").with_loc(self.exponent.loc)
         elif isinstance(base_type, ExecType) and isinstance(exponent_type, ExecType):
-            raise ConversionError("Cannot raise Executable types to the power of Executable types")
+            raise ConversionError("Cannot raise executable types to the power of executable types").with_loc(self.loc)
         elif isinstance(base_type, ExecType) and isinstance(exponent_type, InertType):
-            raise ConversionError("Cannot raise executable types to the power of inert types")
+            raise ConversionError("Cannot raise executable types to the power of inert types").with_loc(self.base.loc)
         elif isinstance(base_type, InertType) and isinstance(exponent_type, ExecType):
-            raise ConversionError("Cannot raise inert types to the power of executable types")
+            raise ConversionError("Cannot raise inert types to the power of executable types").with_loc(self.exponent.loc)
         elif isinstance(base_type, InertType) and isinstance(exponent_type, InertType):
             match (base_type, exponent_type):
                 case (InertType(InertCoreTypes.INT | InertCoreTypes.BOOL, nullable=False), InertType(InertCoreTypes.INT | InertCoreTypes.BOOL, nullable=False)):
@@ -32,7 +34,9 @@ class CtxExprExponent(CtxExprNode):
                         InertType(InertCoreTypes.FLOAT | InertCoreTypes.INT | InertCoreTypes.BOOL, const=True, nullable=False)):
                     return InertType(InertCoreTypes.FLOAT, const=True, nullable=False)
                 case _:
-                    raise ConversionError(f"Invalid operation types: Cannot raise `{self.base.get_type().render()}` to the power of `{self.exponent.get_type().render()}`")
+                    raise ConversionError(
+                        f"Invalid operation types: Cannot raise `{self.base.get_type().render()}` to the power of `{self.exponent.get_type().render()}`"
+                    ).with_loc(self.loc)
         else:
             raise UnreachableError(f"Type types unexpectedly did not match any option {base_type.render()} vs {exponent_type.render()}")
 
@@ -64,18 +68,22 @@ class CtxExprDiv(CtxExprNode):
     def _get_type(self) -> ComType:
         numerator_type = self.numerator.get_type()
         denom_type = self.denominator.get_type()
-        if isinstance(numerator_type, StructType) or isinstance(denom_type, StructType):
-            raise ConversionError(f"StructTypes are not valid in Integer Division")
-        elif isinstance(numerator_type, ExecType) and isinstance(denom_type, ExecType):
-            raise ConversionError("Cannot divide Executable types")
-        elif (isinstance(numerator_type, ExecType) and isinstance(denom_type, InertType)) or (isinstance(numerator_type, InertType) and isinstance(denom_type, ExecType)):
-            raise ConversionError("Cannot divide inert types and executable types")
+        if isinstance(numerator_type, StructType):
+            raise ConversionError(f"Cannot divide struct-types {numerator_type.render()}").with_loc(self.numerator.loc)
+        elif isinstance(denom_type, StructType):
+            raise ConversionError(f"Cannot divide struct-types {denom_type.render()}").with_loc(self.denominator.loc)
+        elif isinstance(numerator_type, ExecType):
+            raise ConversionError(f"Cannot divide executable types {numerator_type.render()}").with_loc(self.numerator.loc)
+        elif isinstance(denom_type, ExecType):
+            raise ConversionError(f"Cannot divide executable types {denom_type.render()}").with_loc(self.denominator.loc)
         elif isinstance(numerator_type, InertType) and isinstance(denom_type, InertType):
             match (numerator_type, denom_type):
                 case (InertType(InertCoreTypes.INT, nullable=False), InertType(InertCoreTypes.INT, nullable=False)):
                     return InertType(InertCoreTypes.INT, (numerator_type.const and denom_type.const))
                 case _:
-                    raise ConversionError(f"Invalid operation types: Cannot divide `{self.numerator.get_type().render()}` by `{self.denominator.get_type().render()}`")
+                    raise ConversionError(
+                        f"Invalid operation types: Cannot divide `{self.numerator.get_type().render()}` by `{self.denominator.get_type().render()}`"
+                    ).with_loc(self.loc)
         else:
             raise UnreachableError(f"Type types unexpectedly did not match any option {numerator_type.render()} vs {denom_type.render()}")
 
@@ -105,18 +113,20 @@ class CtxExprMod(CtxExprNode):
     def _get_type(self) -> ComType:
         left_type = self.left.get_type()
         divisor_type = self.divisor.get_type()
-        if isinstance(left_type, StructType) or isinstance(divisor_type, StructType):
-            raise ConversionError(f"StructTypes are not valid in Modulo division")
-        elif isinstance(left_type, ExecType) and isinstance(divisor_type, ExecType):
-            raise ConversionError("Cannot modulo Executable types")
-        elif (isinstance(left_type, ExecType) and isinstance(divisor_type, InertType)) or (isinstance(left_type, InertType) and isinstance(divisor_type, ExecType)):
-            raise ConversionError("Cannot modulo inert types and executable types")
+        if isinstance(left_type, StructType):
+            raise ConversionError(f"Cannot modulo struct-types {left_type.render()}").with_loc(self.left.loc)
+        elif isinstance(divisor_type, StructType):
+            raise ConversionError(f"Cannot modulo struct-types {divisor_type.render()}").with_loc(self.divisor.loc)
+        elif isinstance(left_type, ExecType):
+            raise ConversionError(f"Cannot modulo executable types {left_type.render()}").with_loc(self.left.loc)
+        elif isinstance(divisor_type, ExecType):
+            raise ConversionError(f"Cannot modulo executable types {divisor_type.render()}").with_loc(self.divisor.loc)
         elif isinstance(left_type, InertType) and isinstance(divisor_type, InertType):
             match (left_type, divisor_type):
                 case (InertType(InertCoreTypes.INT, nullable=False), InertType(InertCoreTypes.INT, nullable=False)):
                     return InertType(InertCoreTypes.INT, (left_type.const and divisor_type.const))
                 case _:
-                    raise ConversionError(f"Invalid operation types: Cannot modulo `{self.left.get_type().render()}` and `{self.divisor.get_type().render()}`")
+                    raise ConversionError(f"Invalid operation types: Cannot modulo `{self.left.get_type().render()}` and `{self.divisor.get_type().render()}`").with_loc(self.loc)
         else:
             raise UnreachableError(f"Type types unexpectedly did not match any option {left_type.render()} vs {divisor_type.render()}")
 
@@ -146,12 +156,14 @@ class CtxExprMult(CtxExprNode):
     def _get_type(self) -> ComType:
         left_type = self.left.get_type()
         right_type = self.right.get_type()
-        if isinstance(left_type, StructType) or isinstance(right_type, StructType):
-            raise ConversionError(f"StructTypes are not valid in multiplication")
-        elif isinstance(left_type, ExecType) and isinstance(right_type, ExecType):
-            raise ConversionError("Cannot multiply Executable types")
-        elif (isinstance(left_type, ExecType) and isinstance(right_type, InertType)) or (isinstance(left_type, InertType) and isinstance(right_type, ExecType)):
-            raise ConversionError("Cannot multiply inert types and executable types")
+        if isinstance(left_type, StructType):
+            raise ConversionError(f"Cannot multiply struct-types {left_type.render()}").with_loc(self.left.loc)
+        elif isinstance(right_type, StructType):
+            raise ConversionError(f"Cannot multiply struct-types {right_type.render()}").with_loc(self.right.loc)
+        elif isinstance(left_type, ExecType):
+            raise ConversionError(f"Cannot multiply executable types {left_type.render()}").with_loc(self.left.loc)
+        elif isinstance(right_type, ExecType):
+            raise ConversionError(f"Cannot multiply executable types {right_type.render()}").with_loc(self.right.loc)
         elif isinstance(left_type, InertType) and isinstance(right_type, InertType):
             match (left_type, right_type):
                 case   (InertType(InertCoreTypes.INT | InertCoreTypes.BOOL, nullable=False),
@@ -163,7 +175,7 @@ class CtxExprMult(CtxExprNode):
                 case (InertType(InertCoreTypes.STR, const=True, nullable=False), InertType(InertCoreTypes.INT | InertCoreTypes.BOOL, const=True, nullable=False)):
                     return InertType(InertCoreTypes.STR, const=True, nullable=False)
                 case _:
-                    raise ConversionError(f"Invalid operation types: Cannot multiply `{self.left.get_type().render()}` and `{self.right.get_type().render()}`")
+                    raise ConversionError(f"Invalid operation types: Cannot multiply `{self.left.get_type().render()}` and `{self.right.get_type().render()}`").with_loc(self.loc)
         else:
             raise UnreachableError(f"Type types unexpectedly did not match any option {left_type.render()} vs {right_type.render()}")
 
@@ -197,8 +209,10 @@ class CtxExprMinus(CtxExprNode):
     def _get_type(self) -> ComType:
         left_type = self.left.get_type()
         right_type = self.right.get_type()
-        if isinstance(left_type, StructType) or isinstance(right_type, StructType):
-            raise ConversionError(f"StructTypes are not valid in Subtraction")
+        if isinstance(left_type, StructType):
+            raise ConversionError(f"Cannot subtract struct-types {left_type.render()}").with_loc(self.left.loc)
+        elif isinstance(right_type, StructType):
+            raise ConversionError(f"Cannot subtract struct-types {right_type.render()}").with_loc(self.right.loc)
         elif isinstance(left_type, ExecType) and isinstance(right_type, ExecType):
             match (left_type, right_type):
                 case (ExecType(ExecCoreTypes.PLAYER), ExecType(ExecCoreTypes.PLAYER | ExecCoreTypes.ENTITY)):
@@ -206,9 +220,13 @@ class CtxExprMinus(CtxExprNode):
                 case (ExecType(ExecCoreTypes.ENTITY), ExecType(ExecCoreTypes.PLAYER | ExecCoreTypes.ENTITY)):
                     return ExecType(ExecCoreTypes.ENTITY, left_type.group)
                 case _:
-                    raise ConversionError(f"Invalid operation types: Cannot subtract from `{self.left.get_type().render()}` the type `{self.right.get_type().render()}`")
-        elif (isinstance(left_type, ExecType) and isinstance(right_type, InertType)) or (isinstance(left_type, InertType) and isinstance(right_type, ExecType)):
-            raise ConversionError("Cannot subtract inert types and executable types")
+                    raise ConversionError(
+                        f"Invalid operation types: Cannot subtract from `{self.left.get_type().render()}` the type `{self.right.get_type().render()}`"
+                    ).with_loc(self.loc)
+        elif isinstance(left_type, ExecType) and isinstance(right_type, InertType):
+            raise ConversionError(f"Cannot subtract Inert-types from executable types ({left_type.render()}-{right_type.render()})").with_loc(self.loc)
+        elif isinstance(left_type, InertType) and isinstance(right_type, ExecType):
+            raise ConversionError(f"Cannot subtract executable types from Inert-types ({left_type.render()}-{right_type.render()})").with_loc(self.loc)
         elif isinstance(left_type, InertType) and isinstance(right_type, InertType):
             match (left_type, right_type):
                 case   (InertType(InertCoreTypes.INT | InertCoreTypes.BOOL, nullable=False),
@@ -218,7 +236,9 @@ class CtxExprMinus(CtxExprNode):
                         InertType(InertCoreTypes.FLOAT | InertCoreTypes.INT | InertCoreTypes.BOOL, const=True, nullable=False)):
                     return InertType(InertCoreTypes.FLOAT, const=True, nullable=False)
                 case _:
-                    raise ConversionError(f"Invalid operation types: Cannot subtract from `{self.left.get_type().render()}` the type `{self.right.get_type().render()}`")
+                    raise ConversionError(
+                        f"Invalid operation types: Cannot subtract from `{self.left.get_type().render()}` the type `{self.right.get_type().render()}`"
+                    ).with_loc(self.loc)
         else:
             raise UnreachableError(f"Type types unexpectedly did not match any option {left_type.render()} vs {right_type.render()}")
 
@@ -250,8 +270,10 @@ class CtxExprPlus(CtxExprNode):
     def _get_type(self) -> ComType:
         left_type = self.left.get_type()
         right_type = self.right.get_type()
-        if isinstance(left_type, StructType) or isinstance(right_type, StructType):
-            raise ConversionError(f"StructTypes are not valid in Addition")
+        if isinstance(left_type, StructType):
+            raise ConversionError(f"Cannot add struct-types {left_type.render()}").with_loc(self.left.loc)
+        elif isinstance(right_type, StructType):
+            raise ConversionError(f"Cannot add struct-types {right_type.render()}").with_loc(self.right.loc)
         elif isinstance(left_type, ExecType) and isinstance(right_type, ExecType):
             match (left_type, right_type):
                 case (ExecType(ExecCoreTypes.PLAYER), ExecType(ExecCoreTypes.PLAYER)):
@@ -259,9 +281,11 @@ class CtxExprPlus(CtxExprNode):
                 case (ExecType(ExecCoreTypes.PLAYER | ExecCoreTypes.ENTITY), ExecType(ExecCoreTypes.PLAYER | ExecCoreTypes.ENTITY)):
                     return ExecType(ExecCoreTypes.ENTITY, True)
                 case _:
-                    raise ConversionError(f"Invalid operation types: Cannot add `{self.left.get_type().render()}` and `{self.right.get_type().render()}`")
-        elif (isinstance(left_type, ExecType) and isinstance(right_type, InertType)) or (isinstance(left_type, InertType) and isinstance(right_type, ExecType)):
-            raise ConversionError("Cannot add inert types and executable types")
+                    raise ConversionError(f"Invalid operation types: Cannot add `{self.left.get_type().render()}` and `{self.right.get_type().render()}`").with_loc(self.loc)
+        elif isinstance(left_type, ExecType) and isinstance(right_type, InertType):
+            raise ConversionError(f"Cannot add Inert-types from executable types ({left_type.render()}-{right_type.render()})").with_loc(self.loc)
+        elif isinstance(left_type, InertType) and isinstance(right_type, ExecType):
+            raise ConversionError(f"Cannot add executable types from Inert-types ({left_type.render()}-{right_type.render()})").with_loc(self.loc)
         elif isinstance(left_type, InertType) and isinstance(right_type, InertType):
             match (left_type, right_type):
                 case   (InertType(InertCoreTypes.INT | InertCoreTypes.BOOL, nullable=False),
@@ -273,7 +297,7 @@ class CtxExprPlus(CtxExprNode):
                 case (InertType(InertCoreTypes.STR, const=True, nullable=False), InertType(InertCoreTypes.STR, const=True, nullable=False)):
                     return InertType(InertCoreTypes.STR, const=True, nullable=False)
                 case _:
-                    raise ConversionError(f"Invalid operation types: Cannot add `{self.left.get_type().render()}` and `{self.right.get_type().render()}`")
+                    raise ConversionError(f"Invalid operation types: Cannot add `{self.left.get_type().render()}` and `{self.right.get_type().render()}`").with_loc(self.loc)
         else:
             raise UnreachableError(f"Type types unexpectedly did not match any option {left_type.render()} vs {right_type.render()}")
 

@@ -4,7 +4,7 @@ from mchy.common.com_logger import ComLogger
 from mchy.common.config import Config
 from mchy.errors import MchySyntaxError
 
-from mchy.mchy_ast.mchy_parse import mchy_parse
+from mchy.mchy_ast.convert_parse import mchy_parse
 
 
 _TEST_CONFIG = Config(verbosity=Config.Verbosity.VV, logger=ComLogger(std_out_level=ComLogger.Level.VeryVerbose, unique_name=f"PYTEST-{__name__}"))
@@ -27,6 +27,7 @@ _TEST_CONFIG = Config(verbosity=Config.Verbosity.VV, logger=ComLogger(std_out_le
     ('if x > 5:\n    print("hello!")\n', ["{", "not indentation"]),
     ('if x > 5{}elif x < 2:\n    print("hello!")\n', ["{", "not indentation"]),
     ('if x > 5{}elif x < 2{}else:\n    print("hello!")\n', ["{", "not indentation"]),
+    ('def f(bar){}', ["Missing type annotation", "param", "bar"]),
     ('def foo():\n    print("hi")\n', ["{", "not indentation"]),
     ('def foo(){\n    return\n}', ["Expected expression", "got '\\n'", "return null"]),
     ('def foo(){\n    return}', ["Expected expression", "got '}'", "return null"]),
@@ -36,6 +37,10 @@ _TEST_CONFIG = Config(verbosity=Config.Verbosity.VV, logger=ComLogger(std_out_le
     ('var x: int = for 3', ["keyword", "for"]),
     ('var x: int = -> while', ["expected expression"]),
     ('var x: int = -> 3', ["expected expression"]),
+    ('x.y = 4', ["Cannot assign to non-variable"]),
+    ('(x)[2] = 1', ["Cannot use '[' in this context"]),
+    ('x[2] = 1', ["Cannot use '[' in this context"]),
+    ('var foo: grup[Player]', ["Invalid type", "grup[", "foo", "Group["]),
 ])
 def test_parse_raises(code: str, error_message_match: Union[str, List[str]]):
     if isinstance(error_message_match, str):

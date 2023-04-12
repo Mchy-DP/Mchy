@@ -9,7 +9,7 @@ from mchy.common.com_loc import ComLoc
 from mchy.common.com_types import ComType, ExecCoreTypes, ExecType, InertCoreTypes, InertType, TypeUnion, matches_type
 from mchy.common.config import Config
 from mchy.contextual.struct.expr.literals import CtxExprLitBool, CtxExprLitNull
-from mchy.errors import ConversionError, StatementRepError, UnreachableError, VirtualRepError
+from mchy.errors import ConversionError, LibConversionError, StatementRepError, UnreachableError, VirtualRepError
 from mchy.library.std.ns import STD_NAMESPACE
 from mchy.library.std.struct_color import StructColor
 from mchy.stmnt.struct import SmtAtom, SmtCmd, SmtFunc, SmtModule
@@ -98,9 +98,9 @@ class CmdEffectAdd(IFunc):
         particles = (get_key_with_type(param_binding, "particles", SmtConstInt).value >= 1)
         # validation
         if seconds <= 0:
-            raise ConversionError(f"Effect amplitude must be greater than 0 (found: {amp})")
+            raise LibConversionError(f"Effect amplitude must be greater than 0 (found: {amp})")
         if amp < 0:
-            raise ConversionError(f"Effect amplitude cannot be negative (found: {amp})")
+            raise LibConversionError(f"Effect amplitude cannot be negative (found: {amp})")
         # build and return statements
         return [SmtEffectCmd(executor, effect, seconds, amp, particles)], module.get_null_const()
 

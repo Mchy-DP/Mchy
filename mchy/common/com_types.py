@@ -184,3 +184,23 @@ def cast_bool_to_int(cast_type: ComType):
         if cast_type.target == InertCoreTypes.BOOL:
             return InertType(InertCoreTypes.INT, cast_type.const, cast_type.nullable)
     return cast_type
+
+
+def executor_prefix(exec_type: ExecType, postfix: str, explicit_world: bool = False) -> str:
+    if exec_type.target == ExecCoreTypes.WORLD:
+        if explicit_world:
+            return "world" + postfix
+        else:
+            return ""
+    elif exec_type.target == ExecCoreTypes.ENTITY:
+        if exec_type.group:
+            return "Entities" + postfix
+        else:
+            return "Entity" + postfix
+    elif exec_type.target == ExecCoreTypes.PLAYER:
+        if exec_type.group:
+            return "Players" + postfix
+        else:
+            return "Player" + postfix
+    else:
+        raise UnreachableError("Unhandled enum case")

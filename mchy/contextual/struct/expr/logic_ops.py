@@ -16,15 +16,15 @@ class CtxExprNot(CtxExprNode):
     def _get_type(self) -> ComType:
         target_type = self.target.get_type()
         if isinstance(target_type, StructType):
-            raise ConversionError(f"StructTypes are not valid in boolean NOT operations")
+            raise ConversionError(f"Cannot 'not' struct-types {target_type.render()}").with_loc(self.target.loc)
         elif isinstance(target_type, ExecType):
-            raise ConversionError("Boolean 'Not' of Executable types is not supported")
+            raise ConversionError(f"Cannot 'not' executable types {target_type.render()}").with_loc(self.target.loc)
         elif isinstance(target_type, InertType):
             match (target_type):
                 case   (InertType(InertCoreTypes.BOOL, nullable=False)):
                     return InertType(InertCoreTypes.BOOL, target_type.const)
                 case _:
-                    raise ConversionError(f"Invalid operation types: Cannot perform boolean 'Not' `{self.target.get_type().render()}`")
+                    raise ConversionError(f"Invalid operation types: Cannot perform boolean 'not' `{self.target.get_type().render()}`").with_loc(self.target.loc)
         else:
             raise UnreachableError(f"Type unexpectedly did not match any option {target_type.render()}")
 
@@ -52,19 +52,23 @@ class CtxExprAnd(CtxExprNode):
     def _get_type(self) -> ComType:
         left_type = self.left.get_type()
         right_type = self.right.get_type()
-        if isinstance(left_type, StructType) or isinstance(right_type, StructType):
-            raise ConversionError(f"StructTypes are not valid in boolean AND operations")
-        elif isinstance(left_type, ExecType) and isinstance(right_type, ExecType):
-            raise ConversionError("Boolean 'And' of Executable types is not supported")
-        elif (isinstance(left_type, ExecType) and isinstance(right_type, InertType)) or (isinstance(left_type, InertType) and isinstance(right_type, ExecType)):
-            raise ConversionError("Cannot perform boolean 'And' inert types and executable types")
+        if isinstance(left_type, StructType):
+            raise ConversionError(f"Cannot 'and' struct-types {left_type.render()}").with_loc(self.left.loc)
+        elif isinstance(right_type, StructType):
+            raise ConversionError(f"Cannot 'and' struct-types {right_type.render()}").with_loc(self.right.loc)
+        elif isinstance(left_type, ExecType):
+            raise ConversionError(f"Cannot 'and' executable types {left_type.render()}").with_loc(self.left.loc)
+        elif isinstance(right_type, ExecType):
+            raise ConversionError(f"Cannot 'and' executable types {right_type.render()}").with_loc(self.right.loc)
         elif isinstance(left_type, InertType) and isinstance(right_type, InertType):
             match (left_type, right_type):
                 case   (InertType(InertCoreTypes.BOOL, nullable=False),
                         InertType(InertCoreTypes.BOOL, nullable=False)):
                     return InertType(InertCoreTypes.BOOL, (left_type.const and right_type.const))
                 case _:
-                    raise ConversionError(f"Invalid operation types: Cannot perform boolean 'And' `{self.left.get_type().render()}` and `{self.right.get_type().render()}`")
+                    raise ConversionError(
+                        f"Invalid operation types: Cannot perform boolean 'and' `{self.left.get_type().render()}` and `{self.right.get_type().render()}`"
+                    ).with_loc(self.loc)
         else:
             raise UnreachableError(f"Type types unexpectedly did not match any option {left_type.render()} vs {right_type.render()}")
 
@@ -94,19 +98,23 @@ class CtxExprOr(CtxExprNode):
     def _get_type(self) -> ComType:
         left_type = self.left.get_type()
         right_type = self.right.get_type()
-        if isinstance(left_type, StructType) or isinstance(right_type, StructType):
-            raise ConversionError(f"StructTypes are not valid in boolean OR operations")
-        elif isinstance(left_type, ExecType) and isinstance(right_type, ExecType):
-            raise ConversionError("Boolean 'Or' of Executable types is not supported")
-        elif (isinstance(left_type, ExecType) and isinstance(right_type, InertType)) or (isinstance(left_type, InertType) and isinstance(right_type, ExecType)):
-            raise ConversionError("Cannot perform boolean 'Or' inert types and executable types")
+        if isinstance(left_type, StructType):
+            raise ConversionError(f"Cannot 'or' struct-types {left_type.render()}").with_loc(self.left.loc)
+        elif isinstance(right_type, StructType):
+            raise ConversionError(f"Cannot 'or' struct-types {right_type.render()}").with_loc(self.right.loc)
+        elif isinstance(left_type, ExecType):
+            raise ConversionError(f"Cannot 'or' executable types {left_type.render()}").with_loc(self.left.loc)
+        elif isinstance(right_type, ExecType):
+            raise ConversionError(f"Cannot 'or' executable types {right_type.render()}").with_loc(self.right.loc)
         elif isinstance(left_type, InertType) and isinstance(right_type, InertType):
             match (left_type, right_type):
                 case   (InertType(InertCoreTypes.BOOL, nullable=False),
                         InertType(InertCoreTypes.BOOL, nullable=False)):
                     return InertType(InertCoreTypes.BOOL, (left_type.const and right_type.const))
                 case _:
-                    raise ConversionError(f"Invalid operation types: Cannot perform boolean 'Or' `{self.left.get_type().render()}` or `{self.right.get_type().render()}`")
+                    raise ConversionError(
+                        f"Invalid operation types: Cannot perform boolean 'or' `{self.left.get_type().render()}` or `{self.right.get_type().render()}`"
+                    ).with_loc(self.loc)
         else:
             raise UnreachableError(f"Type types unexpectedly did not match any option {left_type.render()} vs {right_type.render()}")
 

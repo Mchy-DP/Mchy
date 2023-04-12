@@ -23,10 +23,11 @@ T = TypeVar("T", bound=CtxExprNode)
 
 class CtxChainLink:
 
-    def __init__(self, chain_link: IChainLink) -> None:
+    def __init__(self, chain_link: IChainLink, chain_loc: ComLoc) -> None:
         self._chain_link: IChainLink = chain_link
         self._chain_data: Optional[Dict[CtxIParam, Optional[CtxExprNode]]] = None  # None means unset
         self._extra_args: Optional[List[CtxExprNode]] = None  # None means unset
+        self.chain_loc: ComLoc = chain_loc
 
     @property
     def expects_args(self) -> bool:
@@ -59,21 +60,21 @@ class CtxChainLink:
         if set(chain_data.keys()) != set(self.get_ctx_params()):
             raise ContextualisationError(f"Not all parameters have a value supplied: {set(self.get_ctx_params()).difference(set(chain_data.keys()))}")
         validated_chain_data: Dict[CtxIParam, Optional[CtxExprNode]] = {}
-        for param, value in chain_data.items():
-            if value is None:
+        for param, binding in chain_data.items():
+            if binding is None:
                 if not param.is_defaulted():
-                    raise ConversionError(f"Non-optional argument `{self.render()}` has no value")
+                    raise ConversionError(f"Non-optional argument `{param.render()}` has no value").with_loc(self.chain_loc)  # This should be caught earlier ideally
             else:
                 ptype = param.get_param_type()
-                if isinstance(ptype, InertType) and ptype.const and (not isinstance(value, CtxExprLits)):
+                if isinstance(ptype, InertType) and ptype.const and (not isinstance(binding, CtxExprLits)):
                     raise ContextualisationError(f"Type Error: parameter ({self.render()}) with constant type is not assigned to literal node")
-                if not matches_type(ptype, value.get_type()):
+                if not matches_type(ptype, binding.get_type()):
                     raise ConversionError(
-                        f"Parameter `{param.get_label()}` from chain `{self.render()}` is of type `{value.get_type().render()}`, `{ptype.render()}` expected"
-                    )
+                        f"Parameter `{param.get_label()}` from chain `{self.render()}` is of type `{binding.get_type().render()}`, `{ptype.render()}` expected"
+                    ).with_loc(binding.loc)
             if not isinstance(param, CtxIParam):
                 raise ContextualisationError(f"Non-CtxIParam `{type(param).__name__}({param.render()})` encountered setting chain-link data of `{self.render()}`")
-            validated_chain_data[param] = value
+            validated_chain_data[param] = binding
         # Set data
         self._chain_data = validated_chain_data
         # extra args validate & set
@@ -148,8 +149,8 @@ Self = TypeVar("Self", bound='CtxChain')
 
 class CtxChain(CtxChainLink):
 
-    def __init__(self, chain: IChain, module: 'CtxModule') -> None:
-        super().__init__(chain)
+    def __init__(self, chain: IChain, chain_loc: ComLoc, module: 'CtxModule') -> None:
+        super().__init__(chain, chain_loc)
         self.chain: IChain = chain
         self._struct: Optional[CtxPyStruct] = None  # Stores the struct if this chain is associated with one
         chain_type = self.get_chain_type()
@@ -193,7 +194,9 @@ class CtxExprPartialChain(CtxExprGenericChain):
         self._chaining: List[CtxChainLink] = chaining
 
     def _get_type(self) -> ComType:
-        raise ConversionError(f"Type cannot be found for a partial chain `{self.render()}`")
+        raise ConversionError(
+            f"Type cannot be found for a partial chain `{self.render()}`"
+        ).with_loc(self.loc).with_intercept(ConversionError.InterceptFlags.PARTIAL_CHAIN_OPTIONS, self._chaining[-1].ichainlink)
 
     def flatten(self) -> 'CtxExprNode':
         return self._flatten_children()  # The type of CtxExprPartialChain cannot be queried
@@ -212,7 +215,14 @@ class CtxExprPartialChain(CtxExprGenericChain):
 
     def render(self) -> str:
         if len(self._chaining) >= 1:
-            return self._chaining[0].opt_get_executor_render() + "." + ".".join(str(link.get_link_name()) for link in self._chaining)
+            return (
+                self._chaining[0].opt_get_executor_render() + "." +
+                ".".join(
+                    (
+                        f"{link.get_link_name()}" + ("()" if link.expects_args else "")
+                    ) for link in self._chaining
+                )
+            )
         return repr(self) + ".render()"
 
     @property
@@ -225,7 +235,7 @@ class CtxExprPartialChain(CtxExprGenericChain):
             if not matches_type(new_link.chain.get_refined_executor(), self._executor.get_type()):
                 raise ConversionError(
                     f"Chain `{new_link.chain.render()}` cannot execute on type {self._executor.get_type().render()}, expected: {new_link.chain.get_refined_executor().render()}"
-                )
+                ).with_loc(self._executor.loc)
             return CtxExprFinalChain(self._executor, self._chaining, new_link, src_loc=(link_loc.union(self.loc)))
         else:
             return CtxExprPartialChain(self._executor, self._chaining + [new_link], src_loc=(link_loc.union(self.loc)))
@@ -247,12 +257,22 @@ class CtxExprFinalChain(CtxExprGenericChain):
 
     def _flatten_children(self) -> 'CtxExprNode':
         if isinstance(self.get_type(), StructType):
-            return self._chain.yield_struct_instance(self.executor, self.get_chain_links()).with_loc(self.loc)
+            try:
+                return self._chain.yield_struct_instance(self.executor, self.get_chain_links()).with_loc(self.loc)
+            except ConversionError as err:
+                if (wrapped_data := err.intercept(ConversionError.InterceptFlags.LIBRARY_LOCLESS)):
+                    err.with_loc(self.loc)
+                raise err
         else:
             return CtxExprFinalChain(self.executor, self._links, self._chain, src_loc=self.loc)
 
     def _flatten_body(self) -> 'CtxExprLits':
-        return self._chain.yield_const_value(self.executor, self.get_chain_links())
+        try:
+            return self._chain.yield_const_value(self.executor, self.get_chain_links())
+        except ConversionError as err:
+            if (wrapped_data := err.intercept(ConversionError.InterceptFlags.LIBRARY_LOCLESS)):
+                err.with_loc(self.loc)
+            raise err
 
     def __eq__(self, other: object) -> bool:
         return super().__eq__(other) and isinstance(other, CtxExprFinalChain) and self._links == other._links and self._chain == other._chain

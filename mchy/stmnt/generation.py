@@ -7,7 +7,7 @@ from mchy.contextual.struct.expr.function import CtxExprExtraParamVal, CtxExprFu
 from mchy.contextual.struct.expr.literals import CtxExprLitStr, CtxExprLitWorld
 from mchy.contextual.struct.expr.structs import CtxExprPyStruct
 from mchy.contextual.struct.stmnt import CtxStmnt
-from mchy.errors import StatementRepError
+from mchy.errors import ConversionError, StatementRepError
 from mchy.library.std.cmd_cmd import SmtRawCmd
 from mchy.stmnt.gen_expr import convert_func_call_expr
 from mchy.stmnt.gen_stmnt import convert_stmnts

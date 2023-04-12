@@ -1,6 +1,7 @@
 
 from abc import ABC, abstractmethod
 from typing import List, Optional, Sequence, Union
+from mchy.common.com_loc import ComLoc
 
 from mchy.common.com_types import ComType, ExecCoreTypes, ExecType, TypeUnion, matches_type
 
@@ -52,6 +53,10 @@ class AbsCtxFunc(ABC):
 
     @abstractmethod
     def get_return_type(self) -> ComType:
+        ...
+
+    @abstractmethod
+    def get_signature_loc(self) -> ComLoc:
         ...
 
     def render(self) -> str:

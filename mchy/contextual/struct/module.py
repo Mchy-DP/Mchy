@@ -1,11 +1,12 @@
 
 
-from typing import List, Optional, Sequence, Tuple, Union
+from typing import List, Optional, Sequence, Tuple, TypeGuard, Union
 from mchy.cmd_modules.chains import IChain, IChainLink
 from mchy.cmd_modules.function import CtxIFunc
 from mchy.cmd_modules.name_spaces import Namespace
 from mchy.cmd_modules.properties import IProp
 from mchy.common.abs_ctx import AbsCtxFunc
+from mchy.common.com_loc import ComLoc
 from mchy.common.com_types import ComType, ExecCoreTypes, ExecType, InertType, StructType, matches_type
 from mchy.common.config import Config
 from mchy.contextual.struct.ctx_func import CtxMchyFunc
@@ -93,7 +94,9 @@ class CtxModule:
         for func in self._functions:
             if ((func.get_name() == new_func.get_name()) and
                     (matches_type(func.get_executor(), new_func.get_executor()) or matches_type(new_func.get_executor(), func.get_executor()))):
-                raise ConversionError(f"Function of name `{new_func.get_name()}` is already defined as `{func.render()}` cannot define it as `{new_func.render()}`")
+                raise ConversionError(
+                    f"Function of name `{new_func.get_name()}` is already defined as `{func.render()}` cannot define it as `{new_func.render()}`"
+                ).with_loc(new_func.get_signature_loc())
         self._functions.append(new_func)
 
     def register_as_ticking(self, func: CtxMchyFunc) -> None:
@@ -102,7 +105,9 @@ class CtxModule:
     def register_as_public(self, new_pfunc: CtxMchyFunc) -> None:
         for pfunc in self._public_funcs:
             if new_pfunc.get_name() == pfunc.get_name():
-                raise ConversionError(f"Got Multiple functions marked as public with the same name (`{pfunc.render()}` and `{new_pfunc.render()}`)")
+                raise ConversionError(
+                    f"Got Multiple functions marked as public with the same name (`{pfunc.render()}` and `{new_pfunc.render()}`)"
+                ).with_loc(new_pfunc.get_signature_loc())
         self._public_funcs.append(new_pfunc)
 
     def get_ticking_funcs(self) -> List[CtxMchyFunc]:
@@ -137,7 +142,7 @@ class CtxModule:
                 return prop
         return None
 
-    def get_chain_link(self, predecessor: Union[CtxChainLink, ExecType], name: str) -> Optional[CtxChainLink]:
+    def get_chain_link(self, predecessor: Union[CtxChainLink, ExecType], name: str, chain_loc: ComLoc) -> Optional[CtxChainLink]:
         for chain_link in self._chain_links:
             pred_type = chain_link.get_predecessor_type()
             if name == chain_link.get_name():
@@ -146,9 +151,9 @@ class CtxModule:
                             (isinstance(predecessor, CtxChainLink) and isinstance(pred_type, type)) and (predecessor.is_iclick_of_type(pred_type))
                         ):
                     if isinstance(chain_link, IChain):
-                        return CtxChain(chain_link, self)
+                        return CtxChain(chain_link, chain_loc, self)
                     else:
-                        return CtxChainLink(chain_link)
+                        return CtxChainLink(chain_link, chain_loc)
         return None
 
     def get_property_oerr(self, executor: ExecType, name: str) -> IProp:
@@ -216,3 +221,14 @@ class CtxModule:
             self.add_chain_link(chain)
         for struct in ns.istructs:
             self.add_struct(CtxPyStruct(struct))
+
+    def get_cont_of_clink(self, chain_link: IChainLink) -> List[IChainLink]:
+        return [
+            clink for clink in self._chain_links if (  # Return every chain link where
+                (not isinstance((pred_type := clink.get_predecessor_type()), ExecType)) and  # predecessor type is IChainLink
+                isinstance(chain_link, pred_type)  # & The IChainLink Matches
+            )
+        ]
+
+    def get_terminal_cont_of_clink(self, chain_link: IChainLink) -> List[IChain]:
+        return [click for click in self.get_cont_of_clink(chain_link) if isinstance(click, IChain)]

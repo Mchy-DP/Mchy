@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Collection, Dict, List, Optional, Sequence, Tu
 from mchy.cmd_modules.docs_data import DocsData
 from mchy.cmd_modules.param import CtxIParam, IParam
 from mchy.common.abs_ctx import AbsCtxFunc, AbsCtxParam
+from mchy.common.com_loc import ComLoc
 from mchy.common.com_types import ComType, ExecType, TypeUnion
 from mchy.common.config import Config
 from mchy.errors import ContextualisationError
@@ -47,6 +48,9 @@ class CtxIFunc(AbsCtxFunc):
 
     def get_return_type(self) -> ComType:
         return self._ifunc.get_return_type()
+
+    def get_signature_loc(self) -> ComLoc:
+        return ComLoc()
 
     def stmnt_conv(
                 self,

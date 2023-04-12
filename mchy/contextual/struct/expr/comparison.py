@@ -19,8 +19,14 @@ class CtxExprCompEquality(CtxExprNode):
         left_type = self.left.get_type()
         right_type = self.right.get_type()
         # Equality is only valid on floats and strings at compile time
-        if isinstance(left_type, StructType) or isinstance(right_type, StructType):
-            raise ConversionError(f"StructTypes are not valid in Equality")
+        if isinstance(left_type, StructType):
+            raise ConversionError(f"Cannot test equality on struct-types {left_type.render()}").with_loc(self.left.loc)
+        elif isinstance(right_type, StructType):
+            raise ConversionError(f"Cannot test equality on struct-types {right_type.render()}").with_loc(self.right.loc)
+        elif isinstance(left_type, ExecType):
+            raise ConversionError(f"Cannot test equality on executable types {left_type.render()}").with_loc(self.left.loc)
+        elif isinstance(right_type, ExecType):
+            raise ConversionError(f"Cannot test equality on executable types {right_type.render()}").with_loc(self.right.loc)
         elif isinstance(left_type, InertType) and isinstance(right_type, InertType):
             if left_type.const and right_type.const:
                 return InertType(InertCoreTypes.BOOL, True)  # Constant calculations can always happen
@@ -29,9 +35,11 @@ class CtxExprCompEquality(CtxExprNode):
                         InertType(InertCoreTypes.INT | InertCoreTypes.BOOL | InertCoreTypes.NULL)):
                     return InertType(InertCoreTypes.BOOL, (left_type.const and right_type.const))  # Run-time bool & int calculations can happen
                 case _:
-                    raise ConversionError(f"Invalid operation types: Cannot test equality between `{self.left.get_type().render()}` and `{self.right.get_type().render()}`")
+                    raise ConversionError(
+                        f"Invalid operation types: Cannot test equality between `{self.left.get_type().render()}` and `{self.right.get_type().render()}`"
+                    ).with_loc(self.loc)
         else:
-            raise ConversionError("Equality comparison is not supported for executable types")
+            raise UnreachableError(f"Type types unexpectedly did not match any option {left_type.render()} vs {right_type.render()}")
 
     def _flatten_children(self) -> 'CtxExprNode':
         return CtxExprCompEquality(self.left.flatten(), self.right.flatten())
@@ -70,10 +78,14 @@ class CtxExprCompGTE(CtxExprNode):
     def _get_type(self) -> ComType:
         left_type = self.left.get_type()
         right_type = self.right.get_type()
-        if isinstance(left_type, StructType) or isinstance(right_type, StructType):
-            raise ConversionError(f"StructTypes are not valid in >= comparisons")
-        elif isinstance(left_type, ExecType) or isinstance(right_type, ExecType):
-            raise ConversionError("Greater-Than-Or-Equal of Executable types is not supported")
+        if isinstance(left_type, StructType):
+            raise ConversionError(f"Cannot test >= on struct-types {left_type.render()}").with_loc(self.left.loc)
+        elif isinstance(right_type, StructType):
+            raise ConversionError(f"Cannot test >= on struct-types {right_type.render()}").with_loc(self.right.loc)
+        elif isinstance(left_type, ExecType):
+            raise ConversionError(f"Cannot test >= on executable types {left_type.render()}").with_loc(self.left.loc)
+        elif isinstance(right_type, ExecType):
+            raise ConversionError(f"Cannot test >= on executable types {right_type.render()}").with_loc(self.right.loc)
         elif isinstance(left_type, InertType) and isinstance(right_type, InertType):
             match (left_type, right_type):
                 case   (InertType(InertCoreTypes.INT | InertCoreTypes.BOOL, nullable=False),
@@ -84,8 +96,8 @@ class CtxExprCompGTE(CtxExprNode):
                     return InertType(InertCoreTypes.BOOL, const=True, nullable=False)
                 case _:
                     raise ConversionError(
-                        f"Invalid operation types: Cannot Compare Greater-Than-Or-Equal of `{self.left.get_type().render()}` and `{self.right.get_type().render()}`"
-                    )
+                        f"Invalid operation types: Cannot test >= of `{self.left.get_type().render()}` and `{self.right.get_type().render()}`"
+                    ).with_loc(self.loc)
         else:
             raise UnreachableError(f"Type types unexpectedly did not match any option {left_type.render()} vs {right_type.render()}")
 
@@ -117,10 +129,14 @@ class CtxExprCompGT(CtxExprNode):
     def _get_type(self) -> ComType:
         left_type = self.left.get_type()
         right_type = self.right.get_type()
-        if isinstance(left_type, StructType) or isinstance(right_type, StructType):
-            raise ConversionError(f"StructTypes are not valid in > comparisons")
-        elif isinstance(left_type, ExecType) or isinstance(right_type, ExecType):
-            raise ConversionError("Greater-Than of Executable types is not supported")
+        if isinstance(left_type, StructType):
+            raise ConversionError(f"Cannot test > on struct-types {left_type.render()}").with_loc(self.left.loc)
+        elif isinstance(right_type, StructType):
+            raise ConversionError(f"Cannot test > on struct-types {right_type.render()}").with_loc(self.right.loc)
+        elif isinstance(left_type, ExecType):
+            raise ConversionError(f"Cannot test > on executable types {left_type.render()}").with_loc(self.left.loc)
+        elif isinstance(right_type, ExecType):
+            raise ConversionError(f"Cannot test > on executable types {right_type.render()}").with_loc(self.right.loc)
         elif isinstance(left_type, InertType) and isinstance(right_type, InertType):
             match (left_type, right_type):
                 case   (InertType(InertCoreTypes.INT | InertCoreTypes.BOOL, nullable=False),
@@ -131,8 +147,8 @@ class CtxExprCompGT(CtxExprNode):
                     return InertType(InertCoreTypes.BOOL, const=True, nullable=False)
                 case _:
                     raise ConversionError(
-                        f"Invalid operation types: Cannot Compare Greater-Than of `{self.left.get_type().render()}` and `{self.right.get_type().render()}`"
-                    )
+                        f"Invalid operation types: Cannot test > of `{self.left.get_type().render()}` and `{self.right.get_type().render()}`"
+                    ).with_loc(self.loc)
         else:
             raise UnreachableError(f"Type types unexpectedly did not match any option {left_type.render()} vs {right_type.render()}")
 
@@ -164,10 +180,14 @@ class CtxExprCompLTE(CtxExprNode):
     def _get_type(self) -> ComType:
         left_type = self.left.get_type()
         right_type = self.right.get_type()
-        if isinstance(left_type, StructType) or isinstance(right_type, StructType):
-            raise ConversionError(f"StructTypes are not valid in <= comparisons")
-        elif isinstance(left_type, ExecType) or isinstance(right_type, ExecType):
-            raise ConversionError("Less-Than-Or-Equal of Executable types is not supported")
+        if isinstance(left_type, StructType):
+            raise ConversionError(f"Cannot test <= on struct-types {left_type.render()}").with_loc(self.left.loc)
+        elif isinstance(right_type, StructType):
+            raise ConversionError(f"Cannot test <= on struct-types {right_type.render()}").with_loc(self.right.loc)
+        elif isinstance(left_type, ExecType):
+            raise ConversionError(f"Cannot test <= on executable types {left_type.render()}").with_loc(self.left.loc)
+        elif isinstance(right_type, ExecType):
+            raise ConversionError(f"Cannot test <= on executable types {right_type.render()}").with_loc(self.right.loc)
         elif isinstance(left_type, InertType) and isinstance(right_type, InertType):
             match (left_type, right_type):
                 case   (InertType(InertCoreTypes.INT | InertCoreTypes.BOOL, nullable=False),
@@ -178,8 +198,8 @@ class CtxExprCompLTE(CtxExprNode):
                     return InertType(InertCoreTypes.BOOL, const=True, nullable=False)
                 case _:
                     raise ConversionError(
-                        f"Invalid operation types: Cannot Compare Less-Than-Or-Equal of `{self.left.get_type().render()}` and `{self.right.get_type().render()}`"
-                    )
+                        f"Invalid operation types: Cannot test <= of `{self.left.get_type().render()}` and `{self.right.get_type().render()}`"
+                    ).with_loc(self.loc)
         else:
             raise UnreachableError(f"Type types unexpectedly did not match any option {left_type.render()} vs {right_type.render()}")
 
@@ -211,10 +231,14 @@ class CtxExprCompLT(CtxExprNode):
     def _get_type(self) -> ComType:
         left_type = self.left.get_type()
         right_type = self.right.get_type()
-        if isinstance(left_type, StructType) or isinstance(right_type, StructType):
-            raise ConversionError(f"StructTypes are not valid in < comparisons")
-        elif isinstance(left_type, ExecType) or isinstance(right_type, ExecType):
-            raise ConversionError("Less-Than of Executable types is not supported")
+        if isinstance(left_type, StructType):
+            raise ConversionError(f"Cannot test < on struct-types {left_type.render()}").with_loc(self.left.loc)
+        elif isinstance(right_type, StructType):
+            raise ConversionError(f"Cannot test < on struct-types {right_type.render()}").with_loc(self.right.loc)
+        elif isinstance(left_type, ExecType):
+            raise ConversionError(f"Cannot test < on executable types {left_type.render()}").with_loc(self.left.loc)
+        elif isinstance(right_type, ExecType):
+            raise ConversionError(f"Cannot test < on executable types {right_type.render()}").with_loc(self.right.loc)
         elif isinstance(left_type, InertType) and isinstance(right_type, InertType):
             match (left_type, right_type):
                 case   (InertType(InertCoreTypes.INT | InertCoreTypes.BOOL, nullable=False),
@@ -225,8 +249,8 @@ class CtxExprCompLT(CtxExprNode):
                     return InertType(InertCoreTypes.BOOL, const=True, nullable=False)
                 case _:
                     raise ConversionError(
-                        f"Invalid operation types: Cannot Compare Less-Than of `{self.left.get_type().render()}` and `{self.right.get_type().render()}`"
-                    )
+                        f"Invalid operation types: Cannot test < of `{self.left.get_type().render()}` and `{self.right.get_type().render()}`"
+                    ).with_loc(self.loc)
         else:
             raise UnreachableError(f"Type types unexpectedly did not match any option {left_type.render()} vs {right_type.render()}")
 

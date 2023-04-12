@@ -68,12 +68,23 @@ def convert_function_decl(ast_fdecl: FunctionDecl, executing_type: Optional[Exec
     params: List[CtxMchyParam] = []
     pmarkers: List[MarkerParamDefault] = []
     for param in ast_fdecl.params:
+        ptype = convert_explicit_type(param.param_type, module)
+        if isinstance(ptype, InertType) and ptype.const:
+            raise ConversionError(
+                f"Parameter `{param.param_name.value}` of function `{ast_fdecl.func_name}` has compile-constant type `{ptype.render()}`, this is invalid. " +
+                f"Consider using a global OR making runtime type " +
+                f"(`{param.param_name.value}: {ptype.render()}` ---> `{param.param_name.value}: {InertType(ptype.target, False, ptype.nullable).render()}`)"
+            ).with_loc(param.loc)
+        if isinstance(ptype, StructType):
+            raise ConversionError(
+                f"Parameter `{param.param_name.value}` of function `{ast_fdecl.func_name}` is Struct-type `{ptype.render()}`, this is invalid"
+            ).with_loc(param.loc)
         pmarker = (
             MarkerParamDefault(param.param_name.value, None) if param.default_value is None else
             MarkerParamDefault(param.param_name.value, convert_expr(param.default_value, executing_type, module, var_scopes))
         )
         pmarkers.append(pmarker)
-        params.append(CtxMchyParam(param.param_name.value, convert_explicit_type(param.param_type, module), pmarker))
+        params.append(CtxMchyParam(param.param_name.value, param.param_name.loc, ptype, pmarker))
 
     # Check for duplicate param labels
     _params_labels = [para.get_label() for para in params]
@@ -81,8 +92,31 @@ def convert_function_decl(ast_fdecl: FunctionDecl, executing_type: Optional[Exec
         if _params_labels.count(lb) > 1:
             raise ConversionError(f"Duplicate argument `{lb}` in function declaration for function of name `{ast_fdecl.func_name}`").with_loc(ast_fdecl.loc)
 
+    # return validation
+    return_type = convert_explicit_type(ast_fdecl.return_type, module)
+    if isinstance(return_type, InertType):
+        if return_type.const:
+            raise ConversionError(
+                f"The function `{ast_fdecl.func_name}` has compile-constant return type `{return_type.render()}`, this is invalid. " +
+                f"Consider making runtime type (`{return_type.render()}` ---> `{InertType(return_type.target, False, return_type.nullable).render()}`)"
+            ).with_loc(ast_fdecl.return_type.loc)
+    if isinstance(return_type, StructType):
+        raise ConversionError(
+            f"The function `{ast_fdecl.func_name}` has Struct return type `{return_type.render()}`, this is invalid"
+        ).with_loc(ast_fdecl.return_type.loc)
+
     fmarker = MarkerDeclFunc(pmarkers)
-    func = CtxMchyFunc(exec_type, ast_fdecl.func_name, params, convert_explicit_type(ast_fdecl.return_type, module), fmarker)
+    func = CtxMchyFunc(
+        exec_type,
+        ast_fdecl.exec_type.loc,
+        ast_fdecl.func_name,
+        params,
+        return_type,
+        ast_fdecl.return_type.loc,
+        ast_fdecl.def_loc,
+        ast_fdecl.loc,
+        fmarker
+    )
     fmarker.with_func(func)
     return func, fmarker
 
@@ -93,7 +127,7 @@ def _assert_no_params(func: CtxMchyFunc, func_type: str) -> None:
         raise ConversionError(
             f"{func_type} functions cannot have any parameters.  Consider deleting params: " +
             f"`def {func.get_name()}({func_params[0].render()}{(', ...' if len(func_params) > 1 else '')})` ---> `def {func.get_name()}()`"
-        )
+        ).with_loc(func_params[0].label_loc)
 
 
 def apply_decorators(func: CtxMchyFunc, marker: MarkerDeclFunc, decorators: List[Decorator], module: CtxModule, var_scopes: List[VarScope]) -> Tuple[CtxMchyFunc, MarkerDeclFunc]:
@@ -103,19 +137,21 @@ def apply_decorators(func: CtxMchyFunc, marker: MarkerDeclFunc, decorators: List
                 raise ConversionError(
                     f"Ticking functions can only execute as world, not `{func.get_executor().render()}`.  Consider deleting executor type " +
                     f"(`def {func.get_executor().render()} {func.get_name()}...` ---> `def {func.get_name()}...`)"
-                )
+                ).with_loc(func.executor_loc)
             _assert_no_params(func, "Ticking")
             if not matches_type(InertType(InertCoreTypes.NULL), func.get_return_type()):
                 raise ConversionError(
                     f"Ticking functions cannot return anything.  Consider deleting return type: " +
                     f"`def {func.get_name()}() -> {func.get_return_type().render()}{'{'}...{'}'}` ---> `def {func.get_name()}(){'{'}...{'}'}`"
-                )
+                ).with_loc(func.return_loc)
             module.register_as_ticking(func)
         elif dec.dec_name == "public":
             _assert_no_params(func, "Published")
             module.register_as_public(func)
         else:
-            raise ConversionError("Unknown decorator, did you mean `ticking`?")  # TODO: when decorators are generalized make did you mean more useful
+            raise ConversionError(
+                f"Unknown decorator `{dec.dec_name}`, did you mean 'ticking'?"  # TODO: when decorators are generalized make did you mean more useful
+            ).with_loc(dec.decorator_name_ident.loc)
     return func, marker
 
 
@@ -170,7 +206,7 @@ def convert_for_loop(
             enc_func: Optional[CtxMchyFunc],
             config: Config
         ) -> List[CtxStmnt]:
-    var_decl_marker = convert_variable_decl(VariableDecl(False, TypeNode("int"), ast_for.index_var_ident.value, ast_for.lower_bound), executing_type, module, var_scopes, enc_func)
+    var_decl_marker = convert_variable_decl(VariableDecl(False, TypeNode("int"), ast_for.index_var_ident, ast_for.lower_bound), executing_type, module, var_scopes, enc_func)
     new_var = convert_lit_ident(ast_for.index_var_ident, module, var_scopes).var
     loop = CtxForLoop(
         new_var,
@@ -261,7 +297,11 @@ def convert_variable_decl(
         ) -> MarkerDeclVar:
     # Is variable already defined as a variable anywhere?
     if var_scopes[-1].var_defined(ast_var_decl.var_name):
-        raise ConversionError(f"Variable of name {ast_var_decl.var_name} is already defined in current scope as {var_scopes[-1].get_var_oerr(ast_var_decl.var_name).render()}")
+        _existing_def = var_scopes[-1].get_var_oerr(ast_var_decl.var_name)
+        raise ConversionError(
+            f"Variable of name {ast_var_decl.var_name} is already defined in current scope as {_existing_def.render()}" +
+            (f", did you mean `{ast_var_decl.var_name} = {ast_var_decl.rhs.get_src()}`?" if (ast_var_decl.rhs is not None) else "")
+        ).with_loc(ast_var_decl.var_ident.loc)
 
     # Get var type
     var_ctx_type: ComType = convert_explicit_type(ast_var_decl.var_type, module)
@@ -291,19 +331,26 @@ def convert_variable_decl(
 
     # Create the new variable and marker
     marker = MarkerDeclVar().with_enclosing_function(enc_func)
-    new_var = var_scopes[-1].register_new_var(ast_var_decl.var_name, var_ctx_type, ast_var_decl.read_only_type, marker)
+    new_var = var_scopes[-1].register_new_var(ast_var_decl.var_name, var_ctx_type, ast_var_decl.read_only_type, marker, ast_var_decl.var_ident.loc)
 
     # Add default initialization to the marker
     if ast_var_decl.rhs is None:
         marker.with_default_assignment(None)
     else:
-        assign = CtxAssignment(new_var, convert_expr(ast_var_decl.rhs, executing_type, module, var_scopes))
+        rhs_ctx = convert_expr(ast_var_decl.rhs, executing_type, module, var_scopes)
+        _rhs_type = rhs_ctx.get_type()
+        if (
+                    (isinstance(_rhs_type, InertType) and isinstance(var_ctx_type, InertType)) and  # both types inert
+                    _rhs_type.target == var_ctx_type.target and  # Targets match
+                    _rhs_type.nullable == var_ctx_type.nullable and  # Nullability matches
+                    (var_ctx_type.const and (not _rhs_type.const))  # Var is constant and rhs isn't
+                ):
+            # give a more useful message if the only thing wrong with they type is compile-time vs run-time issues
+            raise ConversionError(f"Compile-constants must be assigned to constant types, not `{_rhs_type.render()}`").with_loc(ast_var_decl.rhs.loc)
+        assign = CtxAssignment(new_var, rhs_ctx)
         marker.with_default_assignment(assign)
-        _rhs_type = assign.rhs.get_type()
-        if ast_var_decl.var_type.compile_const and (not (isinstance(_rhs_type, InertType) and _rhs_type.const)):
-            raise ConversionError(f"Compile time constants must be assigned to constant types, not `{_rhs_type.render()}`")
         if ast_var_decl.var_type.compile_const and (not isinstance(assign.rhs, CtxExprLits)):
-            raise ContextualisationError(f"Compile time constants must be assigned to literal values - flatten failed to literalize")
+            raise ContextualisationError(f"Compile-constants must be assigned to literal values - flatten failed to literalize")
     return marker
 
 
@@ -312,14 +359,21 @@ def convert_assignment(ast_assign: Assignment, executing_type: Optional[ExecType
     rhs_expr = convert_expr(ast_assign.rhs, executing_type, module, var_scopes)
     if isinstance(lhs_expr, CtxExprVar):
         if isinstance(lhs_expr.var.var_type, InertType) and lhs_expr.var.var_type.const:
-            raise ConversionError(f"The compile-constant variable `{lhs_expr.var.render()}` cannot be assigned to.  (Attempted: `{lhs_expr.var.name} = {repr(rhs_expr)}`)")
+            raise ConversionError(
+                f"The compile-constant variable `{lhs_expr.var.render()}` cannot be assigned to.  (Attempted: `{ast_assign.lhs.get_src()} = {ast_assign.rhs.get_src()}`)"
+            ).with_loc(ast_assign.loc)
         elif lhs_expr.var.read_only:
-            raise ConversionError(f"The read-only variable `{lhs_expr.var.render()}` cannot be assigned to.  (Attempted: `{lhs_expr.var.name} = {repr(rhs_expr)}`)")
+            raise ConversionError(
+                f"The read-only variable `{lhs_expr.var.render()}` cannot be assigned to.  (Attempted: `{ast_assign.lhs.get_src()} = {ast_assign.rhs.get_src()}`)"
+            ).with_loc(ast_assign.loc)
         elif isinstance(lhs_expr.var.var_type, StructType):
-            raise ConversionError(f"The struct variable `{lhs_expr.var.render()}` cannot be assigned to.  (Attempted: `{lhs_expr.var.name} = {repr(rhs_expr)}`)")
+            raise ConversionError(
+                f"The struct variables are always implicitly read-only, thus `{lhs_expr.var.render()}` cannot be assigned to.  " +
+                f"Consider declaring a new variable.  (Attempted: `{ast_assign.lhs.get_src()} = {ast_assign.rhs.get_src()}`)"
+            ).with_loc(ast_assign.loc)
         else:
             return CtxAssignment(lhs_expr.var, rhs_expr)
-    raise ConversionError(f"Assignment lhs is not a variable? {repr(lhs_expr)}")  # TODO: render CtxExprNode nicer
+    raise ContextualisationError(f"Assignment lhs is not a variable? (Encountered: {ast_assign.lhs.get_src()})")
 
 
 def convert_explicit_type(ast_type: TypeNode, module: CtxModule) -> ComType:
@@ -341,21 +395,19 @@ def convert_explicit_type(ast_type: TypeNode, module: CtxModule) -> ComType:
         # If it's not a built-in maybe it's a library type
         struct = module.get_struct(ast_type.core_type)
         if struct is None:
-            raise e
+            raise e.with_loc(ast_type.loc)
         if ast_type.compile_const:
             fixed_render = ast_type.clone()
             fixed_render.compile_const = False
-            raise ConversionError(f"Structs cannot be compile constant.  {ast_type.get_typestr()} -> {fixed_render.get_typestr()}")
-        if ast_type.compile_const:
-            fixed_render = ast_type.clone()
-            fixed_render.compile_const = False
-            raise ConversionError(f"Structs cannot be compile constant.  {ast_type.get_typestr()} -> {fixed_render.get_typestr()}")
+            raise ConversionError(f"Structs cannot be compile-constant.  `{ast_type.get_typestr()}` -> `{fixed_render.get_typestr()}`").with_loc(ast_type.loc)
         if ast_type.nullable:
             fixed_render = ast_type.clone()
             fixed_render.nullable = False
-            raise ConversionError(f"Structs cannot be nullable.  {ast_type.get_typestr()} -> {fixed_render.get_typestr()}")
+            raise ConversionError(f"Structs cannot be nullable.  `{ast_type.get_typestr()}` -> `{fixed_render.get_typestr()}`").with_loc(ast_type.loc)
         if ast_type.group:
-            raise ConversionError(f"Structs cannot be grouped")
+            fixed_render = ast_type.clone()
+            fixed_render.group = False
+            raise ConversionError(f"Structs cannot be grouped.  `{ast_type.get_typestr()}` -> `{fixed_render.get_typestr()}`").with_loc(ast_type.loc)
         # There is a struct of that name!
         return struct.get_type()
 
@@ -363,19 +415,25 @@ def convert_explicit_type(ast_type: TypeNode, module: CtxModule) -> ComType:
         if ast_type.compile_const:
             fixed_render = ast_type.clone()
             fixed_render.compile_const = False
-            raise ConversionError(f"Executable types (world, player, etc) cannot be compile-constant.  {ast_type.get_typestr()} -> {fixed_render.get_typestr()}")
+            raise ConversionError(
+                f"Executable types (world, Player, etc) cannot be compile-constant.  {ast_type.get_typestr()} -> {fixed_render.get_typestr()}"
+            ).with_loc(ast_type.loc)
         if ast_type.nullable:
             fixed_render = ast_type.clone()
             fixed_render.nullable = False
-            raise ConversionError(f"Executable types (world, player, etc) cannot be nullable.  {ast_type.get_typestr()} -> {fixed_render.get_typestr()}")
+            raise ConversionError(f"Executable types (world, Player, etc) cannot be nullable.  {ast_type.get_typestr()} -> {fixed_render.get_typestr()}").with_loc(ast_type.loc)
         if ast_type.group is True and core_type_enum == ExecCoreTypes.WORLD:
-            raise ConversionError(f"Cannot have a group of world")
+            raise ConversionError(f"Cannot have a group of world").with_loc(ast_type.loc)  # This should have been caught by the compiler
         return ExecType(core_type_enum, ast_type.group)
     elif isinstance(core_type_enum, InertCoreTypes):
         if ast_type.group:
-            raise ConversionError(f"Cannot have groups of inert types (bool, int, float, str, etc)")
+            fixed_render = ast_type.clone()
+            fixed_render.group = False
+            raise ConversionError(
+                f"Cannot have groups of inert types (bool, int, float, str, etc)  {ast_type.get_typestr()} -> {fixed_render.get_typestr()}"
+            ).with_loc(ast_type.loc)
         if core_type_enum == InertCoreTypes.NULL and ast_type.nullable:
-            raise ConversionError(f"Null is innately nullable, `?` is redundant (`null?` -> `null`)")
+            raise ConversionError(f"Null is innately nullable, `?` is redundant (`null?` -> `null`)").with_loc(ast_type.loc)
         return InertType(core_type_enum, ast_type.compile_const, ast_type.nullable)
     else:
         raise UnreachableError("Unhandled return type")
@@ -402,6 +460,6 @@ def get_type_enum(type_string: str) -> CoreTypes:
         lower_valid: Dict[str, str] = {ts.lower(): ts for ts in VALID_TYPE_STRINGS}
         if type_string.lower() in lower_valid.keys():
             # Added to hopefully easy the transition to mchy from other languages with different standards for type capitalization
-            raise ConversionError(f"Core type `{type_string}` is not known, did you mean `{lower_valid[type_string.lower()]}`")
+            raise ConversionError(f"Mchy type `{type_string}` is not known, did you mean `{lower_valid[type_string.lower()]}`")  # Location added at call-site
         else:
-            raise ConversionError(f"Core type `{type_string}` is not known")
+            raise ConversionError(f"Mchy type `{type_string}` is not known")  # Location added at call-site
