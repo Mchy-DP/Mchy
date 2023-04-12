@@ -8,7 +8,7 @@ from mchy.common.com_loc import ComLoc
 from mchy.common.com_types import ComType, ExecCoreTypes, ExecType, InertCoreTypes, InertType, matches_type
 from mchy.common.config import Config
 from mchy.contextual.struct.expr.literals import CtxExprLitStr
-from mchy.errors import ConversionError, StatementRepError, VirtualRepError
+from mchy.errors import ConversionError, LibConversionError, StatementRepError, VirtualRepError
 from mchy.library.std.ns import STD_NAMESPACE
 from mchy.stmnt.struct import SmtAtom, SmtCmd, SmtFunc, SmtModule
 from mchy.stmnt.struct.atoms import SmtConstInt, SmtConstStr, SmtVar
@@ -59,13 +59,13 @@ class CmdGive(IFunc):
                 self, executor: SmtAtom, param_binding: Dict[str, SmtAtom], extra_binding: List['SmtAtom'], module: SmtModule, function: SmtFunc, config: Config
             ) -> Tuple[List[SmtCmd], 'SmtAtom']:
         if not matches_type(ExecType(ExecCoreTypes.PLAYER, True), executor.get_type()):
-            raise ConversionError(f"Player-Scoreboard set can only operate on players, not `{executor.get_type().render()}`")
+            raise LibConversionError(f"Player-Scoreboard set can only operate on players, not `{executor.get_type().render()}`")
         item: str = get_key_with_type(param_binding, "item", SmtConstStr).value
         count: int = get_key_with_type(param_binding, "count", SmtConstInt).value
         data: str = get_key_with_type(param_binding, "data", SmtConstStr).value
         if count < 1:
-            raise ConversionError(f"Give count cannot be less than 1")
+            raise LibConversionError(f"Give count cannot be less than 1")
         if count > 6400:
             # TODO: consider generating multiple give statements so any upper bound is ok -> emit warning if number big though
-            raise ConversionError(f"Give count cannot be more than 6400")
+            raise LibConversionError(f"Give count cannot be more than 6400")
         return [SmtGiveCmd(executor, item, count, data)], module.get_null_const()

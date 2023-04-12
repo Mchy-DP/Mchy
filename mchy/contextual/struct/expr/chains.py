@@ -257,12 +257,22 @@ class CtxExprFinalChain(CtxExprGenericChain):
 
     def _flatten_children(self) -> 'CtxExprNode':
         if isinstance(self.get_type(), StructType):
-            return self._chain.yield_struct_instance(self.executor, self.get_chain_links()).with_loc(self.loc)
+            try:
+                return self._chain.yield_struct_instance(self.executor, self.get_chain_links()).with_loc(self.loc)
+            except ConversionError as err:
+                if (wrapped_data := err.intercept(ConversionError.InterceptFlags.LIBRARY_LOCLESS)):
+                    err.with_loc(self.loc)
+                raise err
         else:
             return CtxExprFinalChain(self.executor, self._links, self._chain, src_loc=self.loc)
 
     def _flatten_body(self) -> 'CtxExprLits':
-        return self._chain.yield_const_value(self.executor, self.get_chain_links())
+        try:
+            return self._chain.yield_const_value(self.executor, self.get_chain_links())
+        except ConversionError as err:
+            if (wrapped_data := err.intercept(ConversionError.InterceptFlags.LIBRARY_LOCLESS)):
+                err.with_loc(self.loc)
+            raise err
 
     def __eq__(self, other: object) -> bool:
         return super().__eq__(other) and isinstance(other, CtxExprFinalChain) and self._links == other._links and self._chain == other._chain

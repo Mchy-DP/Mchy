@@ -9,7 +9,7 @@ from mchy.common.com_loc import ComLoc
 from mchy.common.com_types import ComType, ExecCoreTypes, ExecType, InertCoreTypes, InertType
 from mchy.common.config import Config
 from mchy.contextual.struct.expr.literals import CtxExprLitBool
-from mchy.errors import ConversionError, StatementRepError, UnreachableError, VirtualRepError
+from mchy.errors import ConversionError, LibConversionError, StatementRepError, UnreachableError, VirtualRepError
 from mchy.library.std.ns import STD_NAMESPACE
 from mchy.library.std.struct_pos import StructPos
 from mchy.stmnt.struct import SmtAtom, SmtCmd, SmtFunc, SmtModule
@@ -34,7 +34,7 @@ class SmtSetblockCmd(SmtCmd):
         self.block: str = block
         self.existing_block_behavior: SetblockFlag
         if destroy_flag and keep_flag:
-            raise ConversionError(f"Cannot both keep and destroy existing blocks in setblock ({self.block}@{repr(self.location)})")
+            raise LibConversionError(f"Cannot both keep and destroy existing blocks in setblock ({self.block}@{repr(self.location)})")
         elif destroy_flag and (not keep_flag):
             self.existing_block_behavior = SetblockFlag.DESTROY
         elif (not destroy_flag) and keep_flag:

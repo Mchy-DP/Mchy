@@ -15,7 +15,8 @@ class ConversionError(Exception):
     """An error during conversion, This generally should be caught and context added and usually indicates an error in user code"""
 
     class InterceptFlags(enum.Enum):  # Each flag indicates a specific place that this error need to to be intercepted and processed in a higher scope, failure to intercept is bad
-        PARTIAL_CHAIN_OPTIONS = enum.auto()
+        PARTIAL_CHAIN_OPTIONS = enum.auto()  # used to indicate 'did you mean' should be added for chain completions
+        LIBRARY_LOCLESS = enum.auto()  # used to indicate this error expects to be given a location as it is a library error and so the init site couldn't add one
 
     def __init__(self, message: str, _prefix: Optional[str] = None, _loc: ComLoc = ComLoc()):
         super().__init__(message)
@@ -59,6 +60,13 @@ class ConversionError(Exception):
     @property
     def loc(self) -> ComLoc:
         return self._loc
+
+
+class LibConversionError(ConversionError):
+
+    def __init__(self, message: str, _prefix: Optional[str] = None, _loc: ComLoc = ComLoc()):
+        super().__init__(message, _prefix, _loc)
+        self.with_intercept(ConversionError.InterceptFlags.LIBRARY_LOCLESS)
 
 
 class MchySyntaxError(ConversionError):

@@ -11,7 +11,7 @@ from mchy.contextual.struct.expr import CtxChainLink, CtxExprNode, CtxExprPyStru
 from mchy.contextual.struct.expr.literals import CtxExprLitFloat, CtxExprLitInt, CtxExprLitNull
 from mchy.contextual.struct.expr.structs import CtxPyStruct
 from mchy.contextual.struct.expr.var import CtxExprVar
-from mchy.errors import ContextualisationError, ConversionError, VirtualRepError
+from mchy.errors import ContextualisationError, ConversionError, LibConversionError, VirtualRepError
 from mchy.library.std.ns import STD_NAMESPACE
 from mchy.stmnt.struct.atoms import SmtAtom
 from mchy.stmnt.struct.struct import SmtPyStructInstance
@@ -216,7 +216,7 @@ class ChainPosGet(IChain):
         if not isinstance(exec_type, ExecType):
             raise ContextualisationError(f"Executor not of executable type?")
         if exec_type.target == ExecCoreTypes.WORLD:
-            raise ConversionError(f"executor.pos.get() cannot be called on executor's of type world")
+            raise LibConversionError(f"executor.pos.get() cannot be called on executor's of type world")
         this_link = chain_links[-1]
         return CtxExprPyStruct(struct, {
             "dx": this_link.get_arg_for_param_described("dx", CtxExprLitFloat).value,
@@ -260,7 +260,7 @@ class ChainPosSetCoord(IChain):
         # check old_pos not directed (uses ^ style coords rather than ~ or constants)
         _defined_f_labels = {field.label for field in old_pos.struct_instance.get_set_fields()}
         if any((f_label in _defined_f_labels) for f_label in {"rx", "ry", "rz"}):
-            raise ConversionError(f"Cannot call set_coord on directed positions, coordinate would be inconsistent")
+            raise LibConversionError(f"Cannot call set_coord on directed positions, coordinate would be inconsistent")
         # build bindings
         for param_name, struct_name, preserve_name in (("force_x", "x", "dx"), ("force_y", "y", "dy"), ("force_z", "z", "dz")):
             arg_value = this_link.get_arg_for_param_of_name(param_name)
@@ -313,7 +313,7 @@ class ChainPosGetDirected(IChain):
         if not isinstance(exec_type, ExecType):
             raise ContextualisationError(f"Executor not of executable type?")
         if exec_type.target == ExecCoreTypes.WORLD:
-            raise ConversionError(f"executor.pos.get_directed() cannot be called on executor's of type world")
+            raise LibConversionError(f"executor.pos.get_directed() cannot be called on executor's of type world")
         this_link = chain_links[-1]
         return CtxExprPyStruct(struct, {
             "rx": this_link.get_arg_for_param_described("rx", CtxExprLitFloat).value,
