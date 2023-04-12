@@ -8,33 +8,13 @@ sys.path.append(os_path.dirname(os_path.dirname(__file__)))
 # Perform Required imports
 from mchy.cmd_modules.param import IParam  # noqa  #  pycodestyle doesn't like imports after ANY code even when sensible
 from mchy.cmd_modules.chains import IChain, IChainLink  # noqa  #  pycodestyle doesn't like imports after ANY code even when sensible
-from mchy.common.com_types import ComType, ExecCoreTypes, ExecType  # noqa  #  pycodestyle doesn't like imports after ANY code even when sensible
+from mchy.common.com_types import ComType, ExecCoreTypes, ExecType, executor_prefix  # noqa  #  pycodestyle doesn't like imports after ANY code even when sensible
 from mchy.errors import UnreachableError  # noqa  #  pycodestyle doesn't like imports after ANY code even when sensible
 from mchy.cmd_modules.name_spaces import Namespace  # noqa  #  pycodestyle doesn't like imports after ANY code even when sensible
 from mchy.contextual.struct.expr.abs_node import CtxExprLits  # noqa  #  pycodestyle doesn't like imports after ANY code even when sensible
 
 
 DOCS_LIBS_DIR = os_path.join(os_path.dirname(os_path.dirname(__file__)), "docs", "libs")
-
-
-def executor_prefix(exec_type: ExecType, postfix: str, explicit_world: bool = False) -> str:
-    if exec_type.target == ExecCoreTypes.WORLD:
-        if explicit_world:
-            return "world" + postfix
-        else:
-            return ""
-    elif exec_type.target == ExecCoreTypes.ENTITY:
-        if exec_type.group:
-            return "Entities" + postfix
-        else:
-            return "Entity" + postfix
-    elif exec_type.target == ExecCoreTypes.PLAYER:
-        if exec_type.group:
-            return "Players" + postfix
-        else:
-            return "Player" + postfix
-    else:
-        raise UnreachableError("Unhandled enum case")
 
 
 def _build_params_render(params: Sequence[IParam]) -> str:

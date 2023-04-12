@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Dict, List, Optional, Sequence, Tuple, Type, T
 from mchy.cmd_modules.docs_data import DocsData
 from mchy.cmd_modules.param import IParam, CtxIParam
 
-from mchy.common.com_types import ComType, ExecType, TypeUnion
+from mchy.common.com_types import ComType, ExecType, TypeUnion, executor_prefix
 from mchy.common.config import Config
 from mchy.errors import ContextualisationError, StatementRepError
 
@@ -14,7 +14,23 @@ if TYPE_CHECKING:
     from mchy.stmnt.struct import SmtModule, SmtFunc, SmtCmd, SmtAtom
 
 
+def _exec_type_chain_render(chain: 'IChainLink') -> str:
+    # Only render a concrete type for finished chains
+    if isinstance(chain, IChain):
+        return executor_prefix(chain.get_refined_executor(), ".", True)
+    else:
+        return "(?)."
+
+
 class IChainLink(ABC):
+
+    __singleton_lookup: Dict[Type['IChainLink'], 'IChainLink'] = {}
+
+    @classmethod
+    def get_instance(cls) -> 'IChainLink':
+        if cls not in IChainLink.__singleton_lookup.keys():
+            IChainLink.__singleton_lookup[cls] = cls()
+        return IChainLink.__singleton_lookup[cls]
 
     def get_docs(self) -> DocsData:
         return DocsData()
@@ -55,12 +71,36 @@ class IChainLink(ABC):
     def __init_subclass__(cls, abstract: bool = False) -> None:
         if abstract:
             return  # Do not add Abstract chains to the namespace
-        new_chain_link = cls()
+        new_chain_link = cls.get_instance()
         new_chain_link.get_namespace().register_new_chain_link(new_chain_link)
 
     def render(self):  # TODO: improve render to render chains accepting args better
+        out = ""
+        # Render predecessors
         pred = self.get_predecessor_type()
-        return f"({pred.render() if isinstance(pred, ExecType) else ('(...).' + pred.__name__)}).{self.get_name()}: ???"
+        if not isinstance(pred, ExecType):
+            pred_inst = pred.get_instance()
+            # only render the predecessors predecessor if it is terminal
+            pred_pred = pred_inst.get_predecessor_type()
+            if isinstance(pred_pred, ExecType):
+                out += _exec_type_chain_render(self)
+            # now render the predecessor
+            out += pred_inst.get_name()
+            if pred_inst.get_params() is not None:
+                out += "()"
+            out += "."
+        else:
+            out += _exec_type_chain_render(self)
+        # render this:
+        out += self.get_name()
+        if self.get_params() is not None:
+            out += "()"
+        out += " -> "
+        if isinstance(self, IChain):
+            out += self.get_chain_type().render()
+        else:
+            out += "???"
+        return out
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}(ichain=<{self.render()}>)"
@@ -119,6 +159,3 @@ class IChain(IChainLink, abstract=True):
             A `CtxExprPyStruct`
         """
         raise ContextualisationError(f"Attempted to get struct value for chain `{type(self).__name__}` however library did not provided a method?")
-
-    def render(self):
-        return super().render().rstrip("?") + self.get_chain_type().render()
