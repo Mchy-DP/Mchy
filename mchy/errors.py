@@ -1,6 +1,5 @@
-
-
-from typing import Optional, TypeVar
+import enum
+from typing import Any, Dict, Literal, Optional, Tuple, TypeVar, Union
 
 from mchy.common.com_loc import ComLoc
 
@@ -15,15 +14,28 @@ class UnreachableError(Exception):
 class ConversionError(Exception):
     """An error during conversion, This generally should be caught and context added and usually indicates an error in user code"""
 
+    class InterceptFlags(enum.Enum):  # Each flag indicates a specific place that this error need to to be intercepted and processed in a higher scope, failure to intercept is bad
+        PARTIAL_CHAIN_OPTIONS = enum.auto()
+
     def __init__(self, message: str, _prefix: Optional[str] = None, _loc: ComLoc = ComLoc()):
         super().__init__(message)
         self._msg: str = message
         self._prefix: Optional[str] = _prefix
         self._loc: ComLoc = _loc
+        self.intercept_flags: Dict[ConversionError.InterceptFlags, Any] = {}
 
     def with_loc(self: T, src_loc: ComLoc) -> T:
         self._loc = src_loc
         return self
+
+    def with_intercept(self, flag: InterceptFlags, data: Any = None):
+        self.intercept_flags[flag] = data
+        return self
+
+    def intercept(self, flag: InterceptFlags) -> Union[Literal[False], Tuple[Any]]:
+        if flag in self.intercept_flags.keys():
+            return (self.intercept_flags.pop(flag), )  # Return result as a tuple of one to ensure it is truthy
+        return False
 
     def msg(self) -> str:
         msg: str = ""
@@ -39,6 +51,10 @@ class ConversionError(Exception):
 
     def __repr__(self) -> str:
         return (super().__repr__()[:-1] + f", loc={self._loc.render()})")
+
+    def append_to_msg(self, extra_info: str) -> None:
+        self.args = (self.args[0]+extra_info,)
+        self._msg = self._msg+extra_info
 
     @property
     def loc(self) -> ComLoc:

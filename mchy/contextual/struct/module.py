@@ -1,6 +1,6 @@
 
 
-from typing import List, Optional, Sequence, Tuple, Union
+from typing import List, Optional, Sequence, Tuple, TypeGuard, Union
 from mchy.cmd_modules.chains import IChain, IChainLink
 from mchy.cmd_modules.function import CtxIFunc
 from mchy.cmd_modules.name_spaces import Namespace
@@ -221,3 +221,14 @@ class CtxModule:
             self.add_chain_link(chain)
         for struct in ns.istructs:
             self.add_struct(CtxPyStruct(struct))
+
+    def get_cont_of_clink(self, chain_link: IChainLink) -> List[IChainLink]:
+        return [
+            clink for clink in self._chain_links if (  # Return every chain link where
+                (not isinstance((pred_type := clink.get_predecessor_type()), ExecType)) and  # predecessor type is IChainLink
+                isinstance(chain_link, pred_type)  # & The IChainLink Matches
+            )
+        ]
+
+    def get_terminal_cont_of_clink(self, chain_link: IChainLink) -> List[IChain]:
+        return [click for click in self.get_cont_of_clink(chain_link) if isinstance(click, IChain)]

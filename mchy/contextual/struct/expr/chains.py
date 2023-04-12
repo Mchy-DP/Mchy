@@ -194,7 +194,9 @@ class CtxExprPartialChain(CtxExprGenericChain):
         self._chaining: List[CtxChainLink] = chaining
 
     def _get_type(self) -> ComType:
-        raise ConversionError(f"Type cannot be found for a partial chain `{self.render()}`")
+        raise ConversionError(
+            f"Type cannot be found for a partial chain `{self.render()}`"
+        ).with_intercept(ConversionError.InterceptFlags.PARTIAL_CHAIN_OPTIONS, self._chaining[-1].ichainlink)
 
     def flatten(self) -> 'CtxExprNode':
         return self._flatten_children()  # The type of CtxExprPartialChain cannot be queried
