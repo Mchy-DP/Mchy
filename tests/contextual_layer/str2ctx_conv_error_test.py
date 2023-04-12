@@ -129,6 +129,12 @@ def func(x: int, y: int, z: int = null) -> int{
     ([], """world+world.get_player().find()""", ["Cannot add", "world", "Player"], ComLoc(1, 0, 1, 31)),
     ([], """world.get_player().find()+world""", ["Cannot add", "world", "Player"], ComLoc(1, 0, 1, 31)),
     ([], """3+'pop'""", ["Cannot add", "int", "str"], ComLoc(1, 0, 1, 7)),
+    # Bad Equality
+    ([], """3==world.colors.red""", ["Cannot test equality", "struct", "Color"], ComLoc(1, 3, 1, 19)),
+    ([], """world.colors.red==3""", ["Cannot test equality", "struct", "Color"], ComLoc(1, 0, 1, 16)),
+    ([], """3==world.get_player().find()""", ["Cannot test equality", "executable types"], ComLoc(1, 3, 1, 28)),
+    ([], """world.get_player().find()==3""", ["Cannot test equality", "executable types"], ComLoc(1, 0, 1, 25)),
+    ([FD], """func(1,2)=='pop'""", ["Cannot test equality", "int", "str"], ComLoc(1, 0, 1, 16)),
 ])
 def test_conv_error_expected(test_code: str, expected_msgs: List[str], err_loc: ComLoc, setup_code: List[str]):
     # Fix line numbers
