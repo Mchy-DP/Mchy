@@ -66,12 +66,12 @@ class CtxChainLink:
                     raise ConversionError(f"Non-optional argument `{param.render()}` has no value").with_loc(self.chain_loc)  # This should be caught earlier ideally
             else:
                 ptype = param.get_param_type()
-                if isinstance(ptype, InertType) and ptype.const and (not isinstance(binding, CtxExprLits)):
-                    raise ContextualisationError(f"Type Error: parameter ({self.render()}) with constant type is not assigned to literal node")
                 if not matches_type(ptype, binding.get_type()):
                     raise ConversionError(
                         f"Parameter `{param.get_label()}` from chain `{self.render()}` is of type `{binding.get_type().render()}`, `{ptype.render()}` expected"
                     ).with_loc(binding.loc)
+                if isinstance(ptype, InertType) and ptype.const and (not isinstance(binding, CtxExprLits)):
+                    raise ContextualisationError(f"Type Error: parameter ({self.render()}) with constant type is not assigned to literal node")
             if not isinstance(param, CtxIParam):
                 raise ContextualisationError(f"Non-CtxIParam `{type(param).__name__}({param.render()})` encountered setting chain-link data of `{self.render()}`")
             validated_chain_data[param] = binding
