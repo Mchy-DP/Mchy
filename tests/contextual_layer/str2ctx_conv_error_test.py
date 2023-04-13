@@ -17,6 +17,9 @@ def func(x: int, y: int, z: int = null) -> int{
     return 42
 }
 """
+RP = r"""
+var random_player: Player = world.get_player("random").find()
+"""
 
 
 @pytest.mark.parametrize("setup_code, test_code, expected_msgs, err_loc", [
@@ -185,6 +188,9 @@ def func(x: int, y: int, z: int = null) -> int{
     ([], """3??world.get_player().find()""", ["Cannot null coalesce", "executable types"], ComLoc(1, 3, 1, 28)),
     ([], """world.get_player().find()??3""", ["Cannot null coalesce", "executable types"], ComLoc(1, 0, 1, 25)),
     ([FD], """func(1,2)??'pop'""", ["Cannot", "null coalescing", "int", "str"], ComLoc(1, 0, 1, 16)),
+
+    # --- Regression test errors ---
+    ([RP], """random_player.scoreboard.obj(random_player).set(1)""", ["Parameter", "obj_name", ".scoreboard.obj(", "Player", "str!"], ComLoc(1, 29, 1, 42)),
 ])
 def test_conv_error_expected(test_code: str, expected_msgs: List[str], err_loc: ComLoc, setup_code: List[str]):
     # Fix line numbers

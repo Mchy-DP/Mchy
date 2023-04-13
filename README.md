@@ -4,6 +4,7 @@ Mchy is a compiler which converts the custom language, *Mchy*, to *Minecraft Dat
 ## Quick Links
 * [Getting Started](#getting-started)
 * [Documentation](/docs/home.md)
+* [Fireball Staff Examples](/examples/fireball_staff)
 
 ## Getting started
 1. Download The Compiler

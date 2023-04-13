@@ -2,6 +2,7 @@ from typing import Dict, Tuple, Union
 from mchy.cmd_modules.name_spaces import Namespace
 from mchy.common.com_types import StructType, matches_type
 from mchy.common.config import Config
+from mchy.contextual.err_intercepts import handle_intercept_partial_chain_options
 from mchy.contextual.expr_generation import convert_expr, convert_expr_noflat, convert_lit_ident
 from mchy.contextual.struct.expr import CtxExprLits, CtxExprVar
 from mchy.contextual.struct.stmnt import CtxBranch, CtxIfStmnt, CtxReturn, CtxWhileLoop, CtxForLoop
@@ -18,39 +19,44 @@ def convert(ast: Root, config: Config) -> CtxModule:
     else:
         raise ContextualisationError(f"Malformed AST: Root's child is not a Scope ({str(ast.children[0])})")
     module = CtxModule(config)
-    config.logger.very_verbose(f"CTX: Importing standard namespace")
-    module.import_ns(Namespace.get_namespace("std"))
-    config.logger.very_verbose(f"CTX: Parsing global scope")
-    funcs: List[Tuple[FunctionDecl, CtxMchyFunc]] = []
-    for stmnt_or_func in ast_scope.children:
-        if isinstance(stmnt_or_func, Stmnt):
-            if len(stmnt_or_func.children) != 1:
-                raise ContextualisationError(f"Malformed AST: Stmnt does not have 1 child ({str(stmnt_or_func)})")
-            module.exec_body.extend(convert_stmnt(stmnt_or_func, None, module, [module.global_var_scope], None, config=config))
-        elif isinstance(stmnt_or_func, FunctionDecl):
-            config.logger.very_verbose(f"CTX: Parsing function declaration of function with name `{stmnt_or_func.func_name}`")
-            func, marker = convert_function_decl(stmnt_or_func, None, module, [module.global_var_scope])
-            funcs.append((stmnt_or_func, func))  # Add the function to the list of functions to revisit at the end and build the func-bodies
-            config.logger.very_verbose(f"CTX: Registering parsed function")
-            func, marker = apply_decorators(func, marker, stmnt_or_func.decorators, module, [module.global_var_scope])
-            module.add_function(func)  # Register the function and check for duplicates
-            module.exec_body.append(marker)
-        else:
-            raise ContextualisationError(f"Malformed AST: Non stmnt/func_decl in global scope ({str(stmnt_or_func)})")
-    config.logger.very_verbose(f"CTX: Completed global scope conversion")
-    config.logger.very_verbose(f"CTX: Converting function bodies")
-    for ast_fdec, func in funcs:
-        config.logger.very_verbose(f"CTX: Converting function body of function `{func.render()}`")
-        # Structure of below enumeration:
-        # ast_fdec. body.children[0].children
-        #    FDecl.SCOPE.  CODEBLOCK.LIST[STMNT]
-        for stmntix, stmnt in enumerate(ast_fdec.body.children[0].children):
-            if not isinstance(stmnt, Stmnt):
-                raise ContextualisationError(f"Non-statement in body of function `{func.render()}` at statement number `{stmntix}` found `{str(stmnt)}`")
+    try:
+        config.logger.very_verbose(f"CTX: Importing standard namespace")
+        module.import_ns(Namespace.get_namespace("std"))
+        config.logger.very_verbose(f"CTX: Parsing global scope")
+        funcs: List[Tuple[FunctionDecl, CtxMchyFunc]] = []
+        for stmnt_or_func in ast_scope.children:
+            if isinstance(stmnt_or_func, Stmnt):
+                if len(stmnt_or_func.children) != 1:
+                    raise ContextualisationError(f"Malformed AST: Stmnt does not have 1 child ({str(stmnt_or_func)})")
+                module.exec_body.extend(convert_stmnt(stmnt_or_func, None, module, [module.global_var_scope], None, config=config))
+            elif isinstance(stmnt_or_func, FunctionDecl):
+                config.logger.very_verbose(f"CTX: Parsing function declaration of function with name `{stmnt_or_func.func_name}`")
+                func, marker = convert_function_decl(stmnt_or_func, None, module, [module.global_var_scope])
+                funcs.append((stmnt_or_func, func))  # Add the function to the list of functions to revisit at the end and build the func-bodies
+                config.logger.very_verbose(f"CTX: Registering parsed function")
+                func, marker = apply_decorators(func, marker, stmnt_or_func.decorators, module, [module.global_var_scope])
+                module.add_function(func)  # Register the function and check for duplicates
+                module.exec_body.append(marker)
             else:
-                func.exec_body.extend(convert_stmnt(stmnt, func.get_executor(), module, [module.global_var_scope, func.func_scope], func, config=config))
-    config.logger.very_verbose(f"CTX: AST -> CTX conversion complete!")
-    return module
+                raise ContextualisationError(f"Malformed AST: Non stmnt/func_decl in global scope ({str(stmnt_or_func)})")
+        config.logger.very_verbose(f"CTX: Completed global scope conversion")
+        config.logger.very_verbose(f"CTX: Converting function bodies")
+        for ast_fdec, func in funcs:
+            config.logger.very_verbose(f"CTX: Converting function body of function `{func.render()}`")
+            # Structure of below enumeration:
+            # ast_fdec. body.children[0].children
+            #    FDecl.SCOPE.  CODEBLOCK.LIST[STMNT]
+            for stmntix, stmnt in enumerate(ast_fdec.body.children[0].children):
+                if not isinstance(stmnt, Stmnt):
+                    raise ContextualisationError(f"Non-statement in body of function `{func.render()}` at statement number `{stmntix}` found `{str(stmnt)}`")
+                else:
+                    func.exec_body.extend(convert_stmnt(stmnt, func.get_executor(), module, [module.global_var_scope, func.func_scope], func, config=config))
+        config.logger.very_verbose(f"CTX: AST -> CTX conversion complete!")
+        return module
+    except ConversionError as err:
+        if (wrapped_data := err.intercept(ConversionError.InterceptFlags.PARTIAL_CHAIN_OPTIONS)):
+            handle_intercept_partial_chain_options(module, err, wrapped_data)
+        raise err
 
 
 def convert_function_decl(ast_fdecl: FunctionDecl, executing_type: Optional[ExecType], module: CtxModule, var_scopes: List[VarScope]) -> Tuple[CtxMchyFunc, MarkerDeclFunc]:
