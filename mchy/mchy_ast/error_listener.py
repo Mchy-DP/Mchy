@@ -80,6 +80,8 @@ class MchyErrorListener(ErrorListener):
                     raise MchySyntaxError(f"Expected expression, got '{repr(get_token_text(offendingSymbol))[1:-1]}' - did you mean `return null`")
                 raise MchySyntaxError(f"Expected expression, got '{get_token_text(offendingSymbol)}'")
         if isinstance(ctx, recognizer.Code_blockContext):
+            if offendingSymbol.type == recognizer.EOF:
+                raise MchySyntaxError("File ended unexpectedly without closing scope - Did you forget a `}`")
             if (
                         isinstance(parent_ctx, (recognizer.If_stmntContext, recognizer.Elif_stmntContext, recognizer.Else_stmntContext)) and
                         (offendingSymbol.type == recognizer.COLON) and {recognizer.CBOPEN} == expected_toks

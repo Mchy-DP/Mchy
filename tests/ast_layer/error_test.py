@@ -42,6 +42,7 @@ _TEST_CONFIG = Config(verbosity=Config.Verbosity.VV, logger=ComLogger(std_out_le
     ('x[2] = 1', ["Cannot use '[' in this context"]),
     ('var foo: grup[Player]', ["Invalid type", "grup[", "foo", "Group["]),
     ('def foo() -> int {\nreturn 42\n}s', ["s", "\\n"]),
+    ('if true {', ["File ended unexpectedly", "closing scope", "}"]),
 ])
 def test_parse_raises(code: str, error_message_match: Union[str, List[str]]):
     if isinstance(error_message_match, str):
