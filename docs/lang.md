@@ -299,7 +299,7 @@ random_player_at_level_30.say("I'm at level 30!")
 | Not              | `not X`   | Yields true if `X` is False and False if `X` is True                    |
 | And              | `X and Y` | Yields true if both `X` and `Y` are True, False otherwise               |
 | Or               | `X or Y`  | Yields true if either `X` or `Y` are True, False otherwise              |
-| NullCoal         | `X ?? Y`  | Yields `X` if `X` is not null, `Y` otherwise.  `Y` cannot be null       |
+| Null Coalescing  | `X ?? Y`  | Yields `X` if `X` is not null, `Y` otherwise.  `Y` cannot be null       |
 
 
 ## Misc
@@ -327,7 +327,7 @@ print("I am normal text, ", selected_color, "I am scary coloured text!")
 ### Decorators
 Functions can be proceeded by `@<decorator>` to change/add behaviours of that function.
 #### Ticking
-The `@ticking` decorator can proceed any function that executes on world with no return type or parameters.  When the `@ticking` decorator is used the function will run once every 20th of a second.
+The `@ticking` decorator can precede any function that executes on world with no return type or parameters.  When the `@ticking` decorator is used the function will run once every 20th of a second.
 ```py
 @ticking
 def main_tick(){
