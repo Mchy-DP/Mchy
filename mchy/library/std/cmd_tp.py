@@ -48,6 +48,8 @@ class SmtTpCmd(SmtCmd):
             return [ComCmd(cmd)]
         else:
             at_exec_vdat = get_exec_vdat(location_executor, linker)
+            if not at_exec_vdat.solitary:
+                raise ConversionError("`tp` called with Group of target positions, cannot teleport entity to multiple places?")
             return [ComCmd(f"execute at {at_exec_vdat.get_selector(stack_level)} run {cmd}")]
 
 
