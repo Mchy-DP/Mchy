@@ -1,5 +1,6 @@
 from typing import Dict, Sequence, Tuple, Union
 from mchy.common.abs_ctx import AbsCtxFunc, AbsCtxParam
+from mchy.common.com_diff import did_you_mean_str
 from mchy.common.com_types import matches_type
 from mchy.contextual.struct.expr import *
 from mchy.mchy_ast.nodes import *
@@ -156,7 +157,10 @@ def _build_arg_param_binding(
                 param = param
                 break
         else:
-            raise ConversionError(f"Argument of name `{ast_args.label}` is not an parameter of `{source_err_rep}`").with_loc(ast_args.loc)
+            raise ConversionError(
+                f"Argument of name `{ast_args.label}` is not an parameter of `{source_err_rep}`" +
+                (" - "+dum_str if (dum_str := did_you_mean_str(ast_args.label, [param_.get_label() for param_ in params])) is not None else "")
+            ).with_loc(ast_args.loc)
         if param in param_bindings.keys():
             raise ConversionError(f"Parameter `{param.get_label()}` of `{source_err_rep}` already has a value").with_loc(ast_args.loc)
         param_bindings[param] = convert_expr(ast_args.value, executing_type, module, var_scopes)
