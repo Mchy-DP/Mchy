@@ -146,11 +146,11 @@ print("Finished loop")
 > Minecraft Chat:
 > ```txt
 > Starting loop
-> On iteration 4
-> On iteration 3
-> On iteration 2
-> On iteration 1
 > On iteration 0
+> On iteration 1
+> On iteration 2
+> On iteration 3
+> On iteration 4
 > Finished loop
 > ```
 
