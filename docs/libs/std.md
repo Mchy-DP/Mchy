@@ -343,7 +343,7 @@ version -> int
     ```
     (?).get_entities().of_name(name: str!)
     ```
-    > FILTER: Filter out all entities not named the specified name
+    > FILTER: Filter to include only entities with the specified name
     > 
     > Params:
     >   - **name**: The entity name passing entities have
@@ -562,7 +562,7 @@ version -> int
     ```
     (?).get_entity(sort: str! = nearest).of_name(name: str!)
     ```
-    > FILTER: Filter out all entities not named the specified name
+    > FILTER: Filter to include only entities with the specified name
     > 
     > Params:
     >   - **name**: The entity name passing entities have
@@ -809,7 +809,7 @@ version -> int
     ```
     (?).get_player(sort: str! = nearest).of_name(name: str!)
     ```
-    > FILTER: Filter out all entities not named the specified name
+    > FILTER: Filter to include only entities with the specified name
     > 
     > Params:
     >   - **name**: The entity name passing entities have
@@ -1054,7 +1054,7 @@ version -> int
     ```
     (?).get_players().of_name(name: str!)
     ```
-    > FILTER: Filter out all entities not named the specified name
+    > FILTER: Filter to include only entities with the specified name
     > 
     > Params:
     >   - **name**: The entity name passing entities have
