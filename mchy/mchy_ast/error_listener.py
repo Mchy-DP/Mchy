@@ -1,28 +1,15 @@
-import difflib
-import re
 from typing import List, Optional, Set
 from antlr4 import ParserRuleContext, CommonTokenStream
 from antlr4.error.ErrorListener import ErrorListener
 from antlr4.Token import CommonToken
 from antlr4.error.Errors import RecognitionException, InputMismatchException, NoViableAltException, FailedPredicateException, LexerNoViableAltException
+from mchy.common.com_diff import is_similar
 from mchy.common.com_loc import ComLoc
 from mchy.common.config import Config
 
 from mchy.errors import AbstractTreeError, MchySyntaxError
 from mchy.mchy_ast.antlr_typed_help import assert_is_token, get_expected_toks_str, get_input, get_token_text, loc_end_from_tok
 from mchy.mchy_ast.mchy_parser import MchyCustomParser
-
-
-def is_similar(str1: str, str2: str) -> bool:
-    # Convert both strings to lowercase for case-insensitive comparison
-    str1_lower = str1.lower()
-    str2_lower = str2.lower()
-
-    # Compute a similarity score between the two strings
-    similarity = difflib.SequenceMatcher(None, str1_lower, str2_lower).ratio()
-
-    # Return True if the similarity score is above a threshold
-    return similarity >= 0.8
 
 
 KEYWORD_TOKENS = [
