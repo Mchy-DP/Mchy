@@ -296,4 +296,11 @@ def convert_lit_ident(ast_lit_ident: ExprLitIdent, module: CtxModule, var_scopes
         # ctx_var is not a variable in any known scope
         raise ConversionError(f"Variable `{var_name}` is not defined").with_loc(ast_lit_ident.loc)
 
+    if isinstance(ctx_var.var_type, ExecType) and (not var_scopes[-1].var_defined(var_name)):
+        # If we found a var of exec type but it was not found in local scope then it may be cleaned up by the time we try and use it
+        raise ConversionError(
+            f"Executable-typed variable `{var_name}` is accessed from inner scope - It's reference will be deleted by this time. " +
+            f"You probably want to select it again again with `world.get_entities().(...).find()`"
+        ).with_loc(ast_lit_ident.loc)
+
     return CtxExprVar(ctx_var, src_loc=ast_lit_ident.loc)

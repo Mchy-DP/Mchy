@@ -192,6 +192,7 @@ var random_player: Player = world.get_player("random").find()
 
     # --- Regression test errors ---
     ([RP], """random_player.scoreboard.obj(random_player).set(1)""", ["Parameter", "obj_name", ".scoreboard.obj(", "Player", "str!"], ComLoc(1, 29, 1, 42)),
+    ([RP], """def foo(){random_player.say("Hello")}""", ["random_player", "scope", "reference will be deleted", ".get_entities()"], ComLoc(1, 10, 1, 23))
 ])
 def test_conv_error_expected(test_code: str, expected_msgs: List[str], err_loc: ComLoc, setup_code: List[str]):
     # Fix line numbers
