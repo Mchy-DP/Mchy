@@ -30,6 +30,7 @@ def func(x: int, y: int, z: int = null) -> int{
     ([], r"""def foo(x: int) -> int!{}""", ["foo", "compile-constant return type", "runtime type"], ComLoc(1, 19, 1, 23)),
     ([], r"""def foo(locus: Pos) -> int{}""", ["foo", "locus", "Struct-type", "Pos"], ComLoc(1, 8, 1, 18)),
     ([], r"""def foo(locus: int) -> Pos{}""", ["foo", "Struct return type", "Pos"], ComLoc(1, 23, 1, 26)),
+    ([], r"""def foo() -> int{return "foo"}""", ["foo", "expects a return type", "int", "str"], ComLoc(1, 24, 1, 29)),
     # If typing
     ([], r"""if 42 {}""", ["If", "int", "bool"], ComLoc(1, 3, 1, 5)),
     ([], r"""if True {} elif 42 {}""", ["Elif", "int", "bool"], ComLoc(1, 16, 1, 18)),

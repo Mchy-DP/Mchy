@@ -117,6 +117,8 @@ class MchyErrorListener(ErrorListener):
                                     f"Invalid type `{core_type_text}[...` found in declaration of variable " +
                                     f"{assert_is_token(statement_body.var_name).text}, did you mean 'Group[...'?"
                                 )
+            elif isinstance(parent_ctx, recognizer.Function_declContext):
+                pass  # Cannot really add more context to this as they can be too varied
             else:
                 raise AbstractTreeError(f"Statement ending encountered outside statement while adding context to error: {msg}")
 

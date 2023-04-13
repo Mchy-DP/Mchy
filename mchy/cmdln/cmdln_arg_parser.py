@@ -227,7 +227,7 @@ def parse_args(args: Optional[List[str]] = None) -> Tuple[str, Config]:
         logger.very_verbose(f"Input file '{_mchy_file}' requested, Found at '{mchy_file_path}'")
     else:
         logger.error(f"File-Not-Found: Input file '{_mchy_file}' could not be found at '{mchy_file_path}'")
-        exit(1)
+        sys.exit(1)
     if os_path.splitext(mchy_file_path)[1] != ".mchy":
         logger.warn(f"Input file '{_mchy_file}' has extension '{os_path.splitext(mchy_file_path)[1]}', '.mchy' expected - double check file is correct?")
 

@@ -1,5 +1,6 @@
 
 import shutil
+import sys
 from mchy.common.com_cmd import ComCmd
 from mchy.common.config import Config
 from mchy.stmnt.struct.linker import SmtLinker
@@ -121,5 +122,5 @@ class VirDP:
                     f"File-Exists: Attempted to write to output file '{prj_path}' however it already exists and was missing generated markers that would imply " +
                     f"it can safely be overwritten.  Program stopping to prevent damage, please delete/move output folder and try again"
                 )
-                exit(1)
+                sys.exit(1)
         to_disk(self._root, prj_path)
