@@ -1,5 +1,6 @@
 from typing import Dict, Tuple, Union
 from mchy.cmd_modules.name_spaces import Namespace
+from mchy.common.com_diff import DID_YOU_MEAN, did_you_mean_str
 from mchy.common.com_types import StructType, matches_type
 from mchy.common.config import Config
 from mchy.contextual.err_intercepts import handle_intercept_partial_chain_options
@@ -469,9 +470,14 @@ def get_type_enum(type_string: str) -> CoreTypes:
     elif type_string == "Player":
         return ExecCoreTypes.PLAYER
     else:
-        lower_valid: Dict[str, str] = {ts.lower(): ts for ts in VALID_TYPE_STRINGS}
-        if type_string.lower() in lower_valid.keys():
-            # Added to hopefully easy the transition to mchy from other languages with different standards for type capitalization
-            raise ConversionError(f"Mchy type `{type_string}` is not known, did you mean `{lower_valid[type_string.lower()]}`")  # Location added at call-site
+        err_msg = f"Mchy type `{type_string}` is not known"
+        # Try generate Did you mean
+        did_u_mean: Optional[str]
+        if type_string.lower() == "Players".lower():
+            did_u_mean = f"{DID_YOU_MEAN} `Group[Player]`?"
         else:
-            raise ConversionError(f"Mchy type `{type_string}` is not known")  # Location added at call-site
+            did_u_mean = did_you_mean_str(type_string, VALID_TYPE_STRINGS)
+        # generate error
+        if did_u_mean is not None:
+            err_msg += " - " + did_u_mean
+        raise ConversionError(err_msg)  # Location added at call-site
