@@ -86,6 +86,8 @@ class IChainLink(ABC):
                 pred_pred = pred_inst.get_predecessor_type()
                 if isinstance(pred_pred, ExecType):
                     out += _exec_type_chain_render(self)
+                else:
+                    out += "(...)."
                 # now render the predecessor
                 out += pred_inst.get_name()
                 if pred_inst.get_params() is not None:
