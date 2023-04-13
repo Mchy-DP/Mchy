@@ -475,6 +475,8 @@ def get_type_enum(type_string: str) -> CoreTypes:
         did_u_mean: Optional[str]
         if type_string.lower() == "Players".lower():
             did_u_mean = f"{DID_YOU_MEAN} `Group[Player]`?"
+        elif type_string.lower() in ["Entitys".lower(), "Entities".lower()]:
+            did_u_mean = f"{DID_YOU_MEAN} `Group[Entity]`?"
         else:
             did_u_mean = did_you_mean_str(type_string, VALID_TYPE_STRINGS)
         # generate error

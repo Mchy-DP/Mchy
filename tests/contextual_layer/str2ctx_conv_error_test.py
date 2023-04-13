@@ -91,6 +91,8 @@ var random_player: Player = world.get_player("random").find()
     ([], r"""var x: Player!""", ["Executable types", "compile-constant", "Player! -> Player"], ComLoc(1, 7, 1, 14)),
     ([], r"""var x: Player?""", ["Executable types", "nullable", "Player? -> Player"], ComLoc(1, 7, 1, 14)),
     ([], r"""var x: Players""", ["type", "Players", "not known", "Did you mean", "Group[Player]"], ComLoc(1, 7, 1, 14)),
+    ([], r"""var x: Group[Players]""", ["type", "Players", "not known", "Did you mean", "Group[Player]"], ComLoc(1, 7, 1, 21)),
+    ([], r"""var x: Entities""", ["type", "Entities", "not known", "Did you mean", "Group[Entity]"], ComLoc(1, 7, 1, 15)),
     ([], r"""var x: Group[int]""", ["group", "inert", "Group[int] -> int"], ComLoc(1, 7, 1, 17)),
     ([], r"""var x: null?""", ["nullable", "`null?` -> `null`"], ComLoc(1, 7, 1, 12)),
     # Func redefinition
