@@ -26,8 +26,6 @@ def convert(ast: Root, config: Config) -> CtxModule:
         if isinstance(stmnt_or_func, Stmnt):
             if len(stmnt_or_func.children) != 1:
                 raise ContextualisationError(f"Malformed AST: Stmnt does not have 1 child ({str(stmnt_or_func)})")
-            if isinstance(stmnt_or_func.children[0], ReturnLn):
-                raise ConversionError(f"Return cannot be used outside a function").with_loc(stmnt_or_func.children[0].loc)
             module.exec_body.extend(convert_stmnt(stmnt_or_func, None, module, [module.global_var_scope], None, config=config))
         elif isinstance(stmnt_or_func, FunctionDecl):
             config.logger.very_verbose(f"CTX: Parsing function declaration of function with name `{stmnt_or_func.func_name}`")
@@ -180,7 +178,15 @@ def convert_stmnt(
     elif isinstance(stmnt_body, Assignment):
         return [convert_assignment(stmnt_body, executing_type, module, var_scopes)]
     elif isinstance(stmnt_body, ReturnLn):
-        return [CtxReturn(convert_expr(stmnt_body.target, executing_type, module, var_scopes))]
+        if enc_func is None:
+            raise ConversionError(f"Return cannot be used outside a function").with_loc(stmnt_body.loc)
+        value = convert_expr(stmnt_body.target, executing_type, module, var_scopes)
+        if matches_type(enc_func.get_return_type(), value.get_type()):
+            return [CtxReturn(value)]
+        else:
+            raise ConversionError(
+                f"Function `{enc_func.get_name()}` expects a return type of `{enc_func.get_return_type().render()}`, found `{value.get_type().render()}`"
+            ).with_loc(value.loc)
     elif isinstance(stmnt_body, UserComment):
         return []  # TODO: Make user comments persist into output to aid user debugging
     elif isinstance(stmnt_body, Scope):
