@@ -63,6 +63,10 @@ print("I counted ", apple_count, " apples, I expected to count 9!")
 ```
 These variables are also implicitly read-only even if `var` was used to define them. For more information see the [typing](#typing) section.
 
+### Executable typed variables
+
+Variables with executable types (see [typing](#typing)) are only valid in the scope in which they are made.  This us due to minecraft potentially having unloaded some of the entities in the mean time causing problems like variables not equalling themselves.  If you do need to be able to find entities again and the normal scoping rule won't let you, you can tag the entities with [`Entities.tag_add(<TAG>)`](/docs/libs/std.md#tag_add) then reselect them in the new scope with `world.get_entities().with_tag(<TAG>).find()`.  You are responsible for ensuring TAG is unique.
+
 ## If-Elif-Else
 
 If statements can be used to execute some code only if a condition is met:
@@ -359,6 +363,45 @@ def output_apples(){
 > /function apple_prints:generated/public/output_apples
 > apples!
 > ```
+### Executable Type Downcasting
+
+There are some functions that need to execute on a single entity (normally because the underlying minecraft function only works on single entities), for example `Entity.scoreboard.obj().get()`.  However sometimes you want to execute the command on all of them, for instance using `scoreboard.obj().get()` to perform some action on all creatures with a specific score.  This of cause presents the problem: if you blindly call a function expecting a solo entity with a group of entities, you get a compiler error:
+```py
+var pigs: Group[Entity] = world.get_entities().of_type("pig").find()
+
+if pigs.scoreboard.obj("pig_flight").get() >= 200{
+    # ...
+}
+```
+> Terminal:
+> ```bash
+> $ .\compile.sh
+> ...
+> ERROR: Chain `(...).obj().get() -> int` cannot execute on type Group[Entity], expected: Entity
+> ```
+
+Often it is possible to solve this problem by, for instance, re-selecting only the entities that meet the new criteria.  For example:
+```py
+var pigs: Group[Entity] = world.get_entities().of_type("pig").find()
+
+var flying_pigs: Group[Entity] = world.get_entities().of_type("pig").with_score("pig_flight", min=200).find()
+flying_pigs.say("I'm a flying pig")
+```
+
+However somtimes the only solution is to somehow downcast the type to `Entity` and execute as each entity in turn.  In such cases you can define a function that executes as the downcast type then call that function with the Goruped type.  The function will then execute once for each entity in the entity group:
+```
+var pigs: Group[Entity] = world.get_entities().of_type("pig").find()
+
+def Entity pig_flight_test(){
+    if this.scoreboard.obj("pig_flight").get() >= 200{
+        this.say("I'm a flying pig")
+    }
+}
+pig.pig_flight_test()
+```
+
+Note that this is often fairly inefficient and other options should be considered first.
+
 ## Typing
 There are 3 broad catagories of type in mchy: Inert types, Executable types & Struct Types.  Struct types are special types used by structures and minimal knowledge is needed about them, as such they will not be discussed here more than to acknowledge their existence.
 ### Inert Types
