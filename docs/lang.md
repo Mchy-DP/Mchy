@@ -387,9 +387,9 @@ The value `<speed>` must be a hard-coded float due to the underlying command.  H
 ...
 let flame_speed: float! = 0.05
 
-world.particle(world.pos.constant(0,70,0), 0.1, 0.1, 0.1,  flame_speed, 40)
-world.particle(world.pos.constant(0,70,0), 0.01,0.1, 0.01, flame_speed, 10)
-world.particle(world.pos.constant(0,70,0), 1.5, 1.5, 1.5,  flame_speed, 100)
+world.particle(world.pos.constant(0,70,0), "minecraft:flame", 0.1, 0.1, 0.1,  flame_speed, 40)
+world.particle(world.pos.constant(0,70,0), "minecraft:flame", 0.01,0.1, 0.01, flame_speed, 10)
+world.particle(world.pos.constant(0,70,0), "minecraft:flame", 1.5, 1.5, 1.5,  flame_speed, 100)
 ...
-world.particle(world.pos.constant(0,70,0),-0.2,-0.1,-0.2,  flame_speed, 8)
+world.particle(world.pos.constant(0,70,0), "minecraft:flame",-0.2,-0.1,-0.2,  flame_speed, 8)
 ```
