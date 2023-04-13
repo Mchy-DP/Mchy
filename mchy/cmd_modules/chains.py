@@ -104,6 +104,13 @@ class IChainLink(ABC):
             out += "???"
         return out
 
+    def solo_render(self, include_return: bool):
+        return (
+            self.get_name() +
+            ('()' if self.get_params() is not None else '') +
+            (f' -> {self.get_chain_type().render()}' if include_return and isinstance(self, IChain) else '')
+        )
+
     def __repr__(self) -> str:
         return f"{type(self).__name__}(ichain=<{self.render()}>)"
 
