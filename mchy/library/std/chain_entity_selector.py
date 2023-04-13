@@ -784,7 +784,7 @@ class ChainLinkPartialSelectorOfName(ChainLinkPartialSelector, abstract=True):
 
     def get_docs(self) -> DocsData:
         return DocsData(
-            short_summary="FILTER: Filter out all entities not named the specified name",
+            short_summary="FILTER: Filter to include only entities with the specified name",
             param_info={
                 "name": "The entity name passing entities have",
             },
