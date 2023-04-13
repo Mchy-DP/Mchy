@@ -15,9 +15,6 @@ def Group[Player] give_fireball_staff(){
 }
 
 def Player cast_fireball(){
-    # Reset clicked
-    this.scoreboard.obj(RIGHT_CLICK_OBJ).set(0)
-
     # Make fireball
     let fireball: Entity = world.summon(this.pos.get(dy=1.5), "minecraft:marker", "{CustomName:'{\"text\":\"fireball\",\"color\":\"#FF9900\"}'}")
     fireball.rotate.match(this)
@@ -47,7 +44,7 @@ def Player cast_fireball(){
 
         # allow checks for loop end
         ittertaion_count = ittertaion_count + 1
-        let all_nearby_mobs: Entity = fireball.get_entity("arbitrary").in_radius(max=0.8).not_of_type("minecraft:player").not_of_type("minecraft:marker").not_of_type("minecraft:armor_stand").not_of_type("minecraft:area_effect_cloud").not_of_type("minecraft:experience_orb").find()
+        let all_nearby_mobs: Entity = fireball.get_entity("arbitrary").in_radius(max=1.3).not_of_type("minecraft:player").not_of_type("minecraft:marker").not_of_type("minecraft:armor_stand").not_of_type("minecraft:area_effect_cloud").not_of_type("minecraft:experience_orb").find()
         if ((not world.block_exists(fireball.pos.get(), "minecraft:air")) or (world.entity_exists(all_nearby_mobs))){
             collided = True
         }
@@ -96,4 +93,5 @@ def Player cast_fireball(){
 @ticking
 def main_tick(){
     world.get_players().matching_nbt("{SelectedItem:{tag:{fb_fireball_staff:1b}}}").with_score(RIGHT_CLICK_OBJ, min=1).find().cast_fireball()
+    world.get_players().find().scoreboard.obj(RIGHT_CLICK_OBJ).set(0)
 }
