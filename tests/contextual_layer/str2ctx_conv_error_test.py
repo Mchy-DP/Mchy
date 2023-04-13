@@ -84,12 +84,13 @@ var random_player: Player = world.get_player("random").find()
     ([], """var x: Color = world.colors.red\nx = world.colors.blue""", ["struct variables", "read-only", "cannot be assigned to", "Color"], ComLoc(2, 0, 2, 21)),
     # Bad typing
     ([], r"""var x: pop""", ["type", "pop", "not known"], ComLoc(1, 7, 1, 10)),
-    ([], r"""var x: Int""", ["type", "Int", "not known", "did you mean", "int"], ComLoc(1, 7, 1, 10)),
+    ([], r"""var x: Int""", ["type", "Int", "not known", "Did you mean", "int"], ComLoc(1, 7, 1, 10)),
     ([], r"""var x: Pos!""", ["Struct", "compile-constant", "`Pos!` -> `Pos`"], ComLoc(1, 7, 1, 11)),
     ([], r"""var x: Pos?""", ["Struct", "nullable", "`Pos?` -> `Pos`"], ComLoc(1, 7, 1, 11)),
     ([], r"""var x: Group[Pos]""", ["Struct", "grouped", "`Group[Pos]` -> `Pos`"], ComLoc(1, 7, 1, 17)),
     ([], r"""var x: Player!""", ["Executable types", "compile-constant", "Player! -> Player"], ComLoc(1, 7, 1, 14)),
     ([], r"""var x: Player?""", ["Executable types", "nullable", "Player? -> Player"], ComLoc(1, 7, 1, 14)),
+    ([], r"""var x: Players""", ["type", "Players", "not known", "Did you mean", "Group[Player]"], ComLoc(1, 7, 1, 14)),
     ([], r"""var x: Group[int]""", ["group", "inert", "Group[int] -> int"], ComLoc(1, 7, 1, 17)),
     ([], r"""var x: null?""", ["nullable", "`null?` -> `null`"], ComLoc(1, 7, 1, 12)),
     # Func redefinition
