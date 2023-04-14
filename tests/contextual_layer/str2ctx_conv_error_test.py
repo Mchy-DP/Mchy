@@ -40,9 +40,10 @@ var random_player: Player = world.get_player("random").find()
     # Func-call errors
     ([FD], r"""func(x=5, 10)""", ["Positional argument's cannot follow keyword arguments"], ComLoc(1, 10, 1, 12)),
     ([FD], r"""func(1, 2, 3, 4)""", ["only takes 3 arguments, 4 given"], ComLoc(1, 5, 1, 15)),
-    ([FD], r"""func(1, 2, fake=3)""", ["fake", "not an parameter"], ComLoc(1, 11, 1, 17)),
+    ([FD], r"""func(1, 2, fake=3)""", ["fake", "not an parameter"], ComLoc(1, 11, 1, 15)),
     ([FD], r"""func(1, 2, 3, z=3)""", ["z", "already has a value"], ComLoc(1, 14, 1, 17)),
     ([FD], r"""func(1, z=3)""", ["y", "has no value"], ComLoc(1, 0, 1, 12)),
+    ([], r"""print(ms="hia")""", ["ms", "not an parameter", "print", "*:"], ComLoc(1, 6, 1, 8)),
     # Bad chains
     ([], r"""world.colors.made_up_color()""", ["colors", "cannot be continued", "made_up_color"], ComLoc(1, 13, 1, 26)),
     ([], r"""world.colors.made_up_color""", ["colors", "cannot be continued", "made_up_color"], ComLoc(1, 13, 1, 26)),

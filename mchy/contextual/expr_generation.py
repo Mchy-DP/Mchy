@@ -132,25 +132,26 @@ def _build_arg_param_binding(
     param_bindings: Dict[AbsCtxParam, Optional[CtxExprNode]] = {}
     extra_bindings: List[CtxExprNode] = []
 
-    # strip off extra args
-    if allow_extra_args:
-        while len(positional_args) > (len(params) - len(keyword_args)):
-            extra_bindings.insert(0, convert_expr(positional_args.pop().value, executing_type, module, var_scopes))
-    else:
-        if len(positional_args) > len(params):
-            loc = ComLoc()
-            for arg in args:
-                loc = loc.union(arg.loc)
-            raise ConversionError(f"`{source_err_rep}` only takes {len(params)} arguments, {len(positional_args)} given").with_loc(loc)
-
     # parse positional args
     for pix, ast_args in enumerate(positional_args):
-        param_bindings[params[pix]] = convert_expr(ast_args.value, executing_type, module, var_scopes)
+        if len(params) > pix:
+            param_bindings[params[pix]] = convert_expr(ast_args.value, executing_type, module, var_scopes)
+        else:
+            # extra args
+            if allow_extra_args:
+                extra_bindings.append(convert_expr(ast_args.value, executing_type, module, var_scopes))
+            else:
+                loc = ComLoc()
+                for arg in args:
+                    loc = loc.union(arg.loc)
+                raise ConversionError(f"`{source_err_rep}` only takes {len(params)} arguments, {len(positional_args)} given").with_loc(loc)
 
     # parse keyword args
     for ast_args in keyword_args:
         if ast_args.label is None:
             raise UnreachableError("Keyword param has no label despite earlier check to the contrary")
+        if ast_args.label_ident is None:
+            raise UnreachableError("Keyword param has no label_ident despite having a label???")
         param: AbsCtxParam
         for param in params:
             if ast_args.label == param.get_label():
@@ -160,7 +161,7 @@ def _build_arg_param_binding(
             raise ConversionError(
                 f"Argument of name `{ast_args.label}` is not an parameter of `{source_err_rep}`" +
                 (" - "+dum_str if (dum_str := did_you_mean_str(ast_args.label, [param_.get_label() for param_ in params])) is not None else "")
-            ).with_loc(ast_args.loc)
+            ).with_loc(ast_args.label_ident.loc)
         if param in param_bindings.keys():
             raise ConversionError(f"Parameter `{param.get_label()}` of `{source_err_rep}` already has a value").with_loc(ast_args.loc)
         param_bindings[param] = convert_expr(ast_args.value, executing_type, module, var_scopes)
