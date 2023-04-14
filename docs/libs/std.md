@@ -33,7 +33,7 @@ cmd(mc_cmd: str!) -> null
 
 ### effect_add
 ```
-Entities.effect_add(effect: str!, seconds: int!, amplifier: int!, particles: bool! = True) -> null
+Entities.effect_add(effect: str!, seconds: int!, amplifier: int!, show_particles: bool! = True) -> null
 ```
 
 ### effect_clear

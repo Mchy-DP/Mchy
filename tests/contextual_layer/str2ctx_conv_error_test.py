@@ -40,9 +40,10 @@ var random_player: Player = world.get_player("random").find()
     # Func-call errors
     ([FD], r"""func(x=5, 10)""", ["Positional argument's cannot follow keyword arguments"], ComLoc(1, 10, 1, 12)),
     ([FD], r"""func(1, 2, 3, 4)""", ["only takes 3 arguments, 4 given"], ComLoc(1, 5, 1, 15)),
-    ([FD], r"""func(1, 2, fake=3)""", ["fake", "not an parameter"], ComLoc(1, 11, 1, 17)),
+    ([FD], r"""func(1, 2, fake=3)""", ["fake", "not an parameter"], ComLoc(1, 11, 1, 15)),
     ([FD], r"""func(1, 2, 3, z=3)""", ["z", "already has a value"], ComLoc(1, 14, 1, 17)),
     ([FD], r"""func(1, z=3)""", ["y", "has no value"], ComLoc(1, 0, 1, 12)),
+    ([], r"""print(ms="hia")""", ["ms", "not an parameter", "print", "*:"], ComLoc(1, 6, 1, 8)),
     # Bad chains
     ([], r"""world.colors.made_up_color()""", ["colors", "cannot be continued", "made_up_color"], ComLoc(1, 13, 1, 26)),
     ([], r"""world.colors.made_up_color""", ["colors", "cannot be continued", "made_up_color"], ComLoc(1, 13, 1, 26)),
@@ -84,12 +85,15 @@ var random_player: Player = world.get_player("random").find()
     ([], """var x: Color = world.colors.red\nx = world.colors.blue""", ["struct variables", "read-only", "cannot be assigned to", "Color"], ComLoc(2, 0, 2, 21)),
     # Bad typing
     ([], r"""var x: pop""", ["type", "pop", "not known"], ComLoc(1, 7, 1, 10)),
-    ([], r"""var x: Int""", ["type", "Int", "not known", "did you mean", "int"], ComLoc(1, 7, 1, 10)),
+    ([], r"""var x: Int""", ["type", "Int", "not known", "Did you mean", "int"], ComLoc(1, 7, 1, 10)),
     ([], r"""var x: Pos!""", ["Struct", "compile-constant", "`Pos!` -> `Pos`"], ComLoc(1, 7, 1, 11)),
     ([], r"""var x: Pos?""", ["Struct", "nullable", "`Pos?` -> `Pos`"], ComLoc(1, 7, 1, 11)),
     ([], r"""var x: Group[Pos]""", ["Struct", "grouped", "`Group[Pos]` -> `Pos`"], ComLoc(1, 7, 1, 17)),
     ([], r"""var x: Player!""", ["Executable types", "compile-constant", "Player! -> Player"], ComLoc(1, 7, 1, 14)),
     ([], r"""var x: Player?""", ["Executable types", "nullable", "Player? -> Player"], ComLoc(1, 7, 1, 14)),
+    ([], r"""var x: Players""", ["type", "Players", "not known", "Did you mean", "Group[Player]"], ComLoc(1, 7, 1, 14)),
+    ([], r"""var x: Group[Players]""", ["type", "Players", "not known", "Did you mean", "Group[Player]"], ComLoc(1, 7, 1, 21)),
+    ([], r"""var x: Entities""", ["type", "Entities", "not known", "Did you mean", "Group[Entity]"], ComLoc(1, 7, 1, 15)),
     ([], r"""var x: Group[int]""", ["group", "inert", "Group[int] -> int"], ComLoc(1, 7, 1, 17)),
     ([], r"""var x: null?""", ["nullable", "`null?` -> `null`"], ComLoc(1, 7, 1, 12)),
     # Func redefinition
@@ -191,6 +195,7 @@ var random_player: Player = world.get_player("random").find()
 
     # --- Regression test errors ---
     ([RP], """random_player.scoreboard.obj(random_player).set(1)""", ["Parameter", "obj_name", ".scoreboard.obj(", "Player", "str!"], ComLoc(1, 29, 1, 42)),
+    ([RP], """def foo(){random_player.say("Hello")}""", ["random_player", "scope", "reference will be deleted", ".get_entities()"], ComLoc(1, 10, 1, 23))
 ])
 def test_conv_error_expected(test_code: str, expected_msgs: List[str], err_loc: ComLoc, setup_code: List[str]):
     # Fix line numbers

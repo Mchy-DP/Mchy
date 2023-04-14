@@ -45,7 +45,7 @@ class SmtObjVarLinkage(SmtVarLinkage):
 class SmtExecVarLinkage(SmtVarLinkage):
     """Used when the variable stores it's value as a tagged entity rather than in storage"""
     _tag: str
-    _solitary: bool
+    solitary: bool  # True if this is non-grouped
     _player: bool
 
     def get_full_tag(self, stack_level: Optional[int]) -> str:
@@ -57,7 +57,7 @@ class SmtExecVarLinkage(SmtVarLinkage):
         return self._tag+f"-r{str(stack_level).rjust(3, '0')}"+("" if self._public else "-I")+f"-{self.var_name}"
 
     def get_selector(self, stack_level: Optional[int]) -> str:
-        return "@"+('a' if self._player else 'e')+f"[tag={self.get_full_tag(stack_level)}"+(', limit=1, sort=arbitrary' if self._solitary else '')+"]"
+        return "@"+('a' if self._player else 'e')+f"[tag={self.get_full_tag(stack_level)}"+(', limit=1, sort=arbitrary' if self.solitary else '')+"]"
 
 
 class SmtVarFlavour(enum.Enum):

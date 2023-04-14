@@ -6,6 +6,7 @@ from mchy.cmd_modules.function import CtxIFunc
 from mchy.cmd_modules.name_spaces import Namespace
 from mchy.cmd_modules.properties import IProp
 from mchy.common.abs_ctx import AbsCtxFunc
+from mchy.common.com_diff import did_you_mean_opt, how_similar, render_did_you_mean
 from mchy.common.com_loc import ComLoc
 from mchy.common.com_types import ComType, ExecCoreTypes, ExecType, InertType, StructType, matches_type
 from mchy.common.config import Config
@@ -39,50 +40,26 @@ class CtxModule:
                 return func
         return None
 
-    def _did_you_mean(self, names: Sequence[str], extended: bool) -> List[str]:
-        did_you_mean: List[str] = []
-        for name_variation in names:
-            if extended:
-                for func in self._functions:
-                    if func.get_name().lower() == name_variation.lower():
-                        did_you_mean.append(f"The function `{func.render()}`")
-                for chain_link in self._chain_links:
-                    if chain_link.get_name().lower() == name_variation.lower() and isinstance(chain_link.get_predecessor_type(), ExecType):
-                        did_you_mean.append(f"The chain `{chain_link.render()}`")
-                for prop in self._props:
-                    if prop.get_name().lower() == name_variation.lower():
-                        did_you_mean.append(f"The property `{prop.render()}`")
-            else:
-                for func in self._functions:
-                    if func.get_name() == name_variation:
-                        did_you_mean.append(f"The function `{func.render()}`")
-                for chain_link in self._chain_links:
-                    if chain_link.get_name() == name_variation and isinstance(chain_link.get_predecessor_type(), ExecType):
-                        did_you_mean.append(f"The chain `{chain_link.render()}`")
-                for prop in self._props:
-                    if prop.get_name() == name_variation:
-                        did_you_mean.append(f"The property `{prop.render()}`")
-        return did_you_mean
-
-    def get_did_you_mean_for_name(self, name: str) -> Optional[str]:
+    def get_did_you_mean_for_name(self, bad_name: str) -> Optional[str]:
         """Get 'Did you mean' suggestions for a given function/property name"""
 
-        name_varients = [name, name+"s", name.rstrip("s")]
-        attempted_fixes: List[Tuple[List[str], bool]] = [
-            ([name], False),
-            ([name], True),
-            (name_varients, False),
-            (name_varients, True),
+        # get close options
+        close_func_names = did_you_mean_opt(bad_name, [func.get_name() for func in self._functions])
+        close_prop_names = did_you_mean_opt(bad_name, [prop.get_name() for prop in self._props])
+        close_clink_names = did_you_mean_opt(bad_name, [clink.get_name() for clink in self._chain_links if isinstance(clink.get_predecessor_type(), ExecType)])
+
+        # combine results
+        combined_close_names: List[Tuple[str, str, float]] = [
+            *[("The function", name, how_similar(bad_name, name)) for name in close_func_names],
+            *[("The property", name, how_similar(bad_name, name)) for name in close_prop_names],
+            *[("The chain", name, how_similar(bad_name, name)) for name in close_clink_names]
         ]
-        for name_variation, extended in attempted_fixes:
-            did_you_mean = self._did_you_mean(name_variation, extended)
-            if len(did_you_mean) == 0:
-                continue
-            elif len(did_you_mean) == 1:
-                return f"Did you mean: " + did_you_mean[0]
-            else:
-                return f"Did you mean: [" + " OR ".join(did_you_mean) + "]"
-        return None
+
+        # cut options down to best 3
+        best_options = list(sorted(combined_close_names, key=lambda x: x[2], reverse=True))[:3]
+
+        # Return 'did you mean' string
+        return render_did_you_mean([f"{prefix} '{name}'" for prefix, name, closeness in best_options])
 
     def get_function_oerr(self, executor: ExecType, name: str) -> AbsCtxFunc:
         func = self.get_function(executor, name)

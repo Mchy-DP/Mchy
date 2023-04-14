@@ -19,7 +19,7 @@ from mchy.stmnt.struct.linker import SmtExecVarLinkage, SmtLinker, SmtObjVarLink
 
 class SmtEffectCmd(SmtCmd):
 
-    def __init__(self, executor: SmtAtom, effect: str, seconds: int, amp: int, particles: bool) -> None:
+    def __init__(self, executor: SmtAtom, effect: str, seconds: int, amp: int, show_particles: bool) -> None:
         self.executor: SmtAtom = executor
         _exec_type = self.executor.get_type()
         if not isinstance(_exec_type, ExecType):
@@ -27,10 +27,10 @@ class SmtEffectCmd(SmtCmd):
         self.effect: str = effect
         self.seconds: int = seconds
         self.amp: int = amp
-        self.particles: bool = particles
+        self.show_particles: bool = show_particles
 
     def __repr__(self) -> str:
-        return f"{type(self).__name__}(exec={self.executor}, effect={self.effect}, duration={self.seconds}s, amplifier={self.amp}, particles={self.particles})"
+        return f"{type(self).__name__}(exec={self.executor}, effect={self.effect}, duration={self.seconds}s, amplifier={self.amp}, particles={self.show_particles})"
 
     def virtualize(self, linker: SmtLinker, stack_level: int) -> List[ComCmd]:
         # Get exec data:
@@ -40,7 +40,7 @@ class SmtEffectCmd(SmtCmd):
         if not isinstance(exec_vdat, SmtExecVarLinkage):
             raise VirtualRepError(f"Executor variable data for `{repr(self.executor)}` does not include tag despite being of executable type?")
         # return command
-        return [ComCmd(f"effect give {exec_vdat.get_selector(stack_level)} {self.effect} {self.seconds} {self.amp} {('true' if self.particles else 'false')}")]
+        return [ComCmd(f"effect give {exec_vdat.get_selector(stack_level)} {self.effect} {self.seconds} {self.amp} {('false' if self.show_particles else 'true')}")]
 
 
 class SmtClearEffectCmd(SmtCmd):
@@ -82,7 +82,7 @@ class CmdEffectAdd(IFunc):
             IParam("effect", InertType(InertCoreTypes.STR, True)),
             IParam("seconds", InertType(InertCoreTypes.INT, True)),
             IParam("amplifier", InertType(InertCoreTypes.INT, True)),
-            IParam("particles", InertType(InertCoreTypes.BOOL, True), CtxExprLitBool(True, src_loc=ComLoc()))
+            IParam("show_particles", InertType(InertCoreTypes.BOOL, True), CtxExprLitBool(True, src_loc=ComLoc()))
         ]
 
     def get_return_type(self) -> ComType:
@@ -95,14 +95,14 @@ class CmdEffectAdd(IFunc):
         effect = get_key_with_type(param_binding, "effect", SmtConstStr).value  # TODO: emit warning if effect is not recognized
         seconds = get_key_with_type(param_binding, "seconds", SmtConstInt).value
         amp = get_key_with_type(param_binding, "amplifier", SmtConstInt).value
-        particles = (get_key_with_type(param_binding, "particles", SmtConstInt).value >= 1)
+        show_particles = (get_key_with_type(param_binding, "show_particles", SmtConstInt).value >= 1)
         # validation
         if seconds <= 0:
             raise LibConversionError(f"Effect amplitude must be greater than 0 (found: {amp})")
         if amp < 0:
             raise LibConversionError(f"Effect amplitude cannot be negative (found: {amp})")
         # build and return statements
-        return [SmtEffectCmd(executor, effect, seconds, amp, particles)], module.get_null_const()
+        return [SmtEffectCmd(executor, effect, seconds, amp, show_particles)], module.get_null_const()
 
 
 class CmdEffectClear(IFunc):

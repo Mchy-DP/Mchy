@@ -342,7 +342,11 @@ class ExprFragParam(ExprGen):
         initial_children.append(value)
         super().__init__(*initial_children, **kwargs)
         self.value: ExprGen = value
-        self.label: Optional[str] = None if label is None else label.value
+        self.label_ident: Optional[ExprLitIdent] = label
+
+    @property
+    def label(self) -> Optional[str]:
+        return self.label_ident.value if self.label_ident is not None else None
 
     def get_src(self) -> str:
         return (f"{self.label} = " if self.label is None else "") + self.value.get_src()
