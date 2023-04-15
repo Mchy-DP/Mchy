@@ -576,9 +576,6 @@ class ExprLitGen(ExprGen):
     def deep_repr(self) -> str:
         return repr(self)
 
-    def get_src(self) -> str:
-        return self.value
-
 
 class ExprLitIdent(ExprLitGen):
 
@@ -589,6 +586,9 @@ class ExprLitIdent(ExprLitGen):
     def _validate_value(self, value) -> None:
         if not isinstance(value, str):
             raise TypeError(f"value for `{type(self).__name__}` must be an `str` not `{type(value).__name__}`")
+
+    def get_src(self) -> str:
+        return str(self.value)
 
 
 class ExprLitStr(ExprLitGen):
@@ -615,6 +615,9 @@ class ExprLitFloat(ExprLitGen):
         if not isinstance(value, float):
             raise TypeError(f"value for `{type(self).__name__}` must be an `float` not `{type(value).__name__}`")
 
+    def get_src(self) -> str:
+        return str(self.value)
+
 
 class ExprLitInt(ExprLitGen):
 
@@ -625,6 +628,9 @@ class ExprLitInt(ExprLitGen):
     def _validate_value(self, value) -> None:
         if not isinstance(value, int):
             raise TypeError(f"value for `{type(self).__name__}` must be an `int` not `{type(value).__name__}`")
+
+    def get_src(self) -> str:
+        return str(self.value)
 
 
 class ExprLitNull(ExprLitGen):
@@ -678,3 +684,6 @@ class ExprLitBool(ExprLitGen):
     def _validate_value(self, value) -> None:
         if not isinstance(value, bool):
             raise TypeError(f"value for `{type(self).__name__}` must be an `bool` not `{type(value).__name__}`")
+
+    def get_src(self) -> str:
+        return "true" if self.value else "false"
