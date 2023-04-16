@@ -64,7 +64,7 @@ class AbsCtxFunc(ABC):
         return (
             f"def " + ((self.get_executor().render()+" ") if self.get_executor().target != ExecCoreTypes.WORLD else "") +
             f"{self.get_name()}({', '.join(param.render() for param in self.get_params())}" +
-            (", " if len(self.get_params()) >= 1 else "") +
+            (", " if ((len(self.get_params()) >= 1) and (self.allow_extra_args())) else "") +
             (f"*: {self.get_extra_args_type().render()}" if self.allow_extra_args() else "") +
             f") -> {self.get_return_type().render()}"
         )
