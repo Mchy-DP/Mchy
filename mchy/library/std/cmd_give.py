@@ -64,7 +64,7 @@ class CmdGive(IFunc):
         count: int = get_key_with_type(param_binding, "count", SmtConstInt).value
         data: str = get_key_with_type(param_binding, "data", SmtConstStr).value
         if count < 1:
-            raise LibConversionError(f"Give count cannot be less than 1")
+            raise LibConversionError(f"Give count cannot be less than 1")  # TODO: Consider suggesting the mc-cmd `clear` after it is implemented
         if count > 6400:
             # TODO: consider generating multiple give statements so any upper bound is ok -> emit warning if number big though
             raise LibConversionError(f"Give count cannot be more than 6400")
