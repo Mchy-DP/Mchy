@@ -4,7 +4,7 @@ from tests.e2e.targeted.helpers import any_line_matches, conversion_helper, get_
 import pytest
 
 
-def test_simple_summon():
+def test_null_coal():
     code = """
     var x1: int? = 5
     var x2: int? = null
