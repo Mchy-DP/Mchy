@@ -4,4 +4,4 @@
 cd "$(dirname "$0")/.."
 
 echo "> testing:"
-python -m pytest --cov-report html --cov=mchy "tests/"
+python -m pytest --cov-report html --cov-config=./dev_util/.res/normal.coveragerc --cov=mchy "tests/"
