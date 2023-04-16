@@ -1,12 +1,14 @@
 
-from typing import Any
+from typing import Any, Tuple
 from mchy.cmd_modules.chains import IChain, IChainLink
 from mchy.contextual.struct.module import CtxModule
-from mchy.errors import ConversionError
+from mchy.errors import ContextualisationError, ConversionError
 
 
-def handle_intercept_partial_chain_options(ctx_module: CtxModule, error: ConversionError, wrapped_data: Any) -> None:
+def handle_intercept_partial_chain_options(ctx_module: CtxModule, error: ConversionError, wrapped_data: Tuple[Any]) -> None:
     last_partial_clink: IChainLink = wrapped_data[0]
+    if not isinstance(last_partial_clink, IChainLink):
+        raise ContextualisationError("Non-IChainLink encountered after unwrapping data")
     continuations = ctx_module.get_cont_of_clink(last_partial_clink)
     terminal_cont = [click for click in continuations if isinstance(click, IChain)]
     if len(terminal_cont) >= 1:

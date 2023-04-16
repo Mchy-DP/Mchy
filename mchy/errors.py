@@ -38,6 +38,7 @@ class ConversionError(Exception):
             return (self.intercept_flags.pop(flag), )  # Return result as a tuple of one to ensure it is truthy
         return False
 
+    @property
     def msg(self) -> str:
         msg: str = ""
         if self._prefix is not None:
