@@ -179,7 +179,10 @@ class SmtComplexPrintingTellrawCmd(SmtCmd):
                     raise VirtualRepError(f"Unknown struct type in print `{atom.get_type()}`?")
             else:
                 raise VirtualRepError(f"{type(atom)} - missing from print")
-        cmds.append(ComCmd(f'tellraw @a ["", '+', '.join(comp.get_component() for comp in comps)+']'))
+        if len(comps) >= 1:
+            cmds.append(ComCmd(f'tellraw @a ["", '+', '.join(comp.get_component() for comp in comps)+']'))
+        else:
+            cmds.append(ComCmd('tellraw @a [""]'))
         return cmds
 
 
