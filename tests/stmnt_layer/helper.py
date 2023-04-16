@@ -82,6 +82,8 @@ def _cmd_eq(cmd1: SmtCmd, cmd2: SmtCmd) -> bool:
         return _atom_eq(cmd1.lhs, cmd2.lhs) and _atom_eq(cmd1.rhs, cmd2.rhs) and _atom_eq(cmd1.out, cmd2.out)
     elif isinstance(cmd1, SmtOrCmd) and isinstance(cmd2, SmtOrCmd):
         return _atom_eq(cmd1.lhs, cmd2.lhs) and _atom_eq(cmd1.rhs, cmd2.rhs) and _atom_eq(cmd1.out, cmd2.out)
+    elif isinstance(cmd1, SmtNullCoalCmd) and isinstance(cmd2, SmtNullCoalCmd):
+        return _atom_eq(cmd1.opt_atom, cmd2.opt_atom) and _atom_eq(cmd1.def_atom, cmd2.def_atom) and _atom_eq(cmd1.out, cmd2.out)
     elif isinstance(cmd1, SmtRawEntitySelector) and isinstance(cmd2, SmtRawEntitySelector):
         return _atom_eq(cmd1.executor, cmd2.executor) and _atom_eq(cmd1.target_var, cmd2.target_var) and cmd1.selector == cmd2.selector
     else:

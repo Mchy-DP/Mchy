@@ -10,10 +10,12 @@ from tests.stmnt_layer.helper import diff_cmds_list
 import pytest
 
 _INT = InertType(InertCoreTypes.INT)
+_NULLABLE_INT = InertType(InertCoreTypes.INT, nullable=True)
 
 _MODULE = CtxModule(Config())
-_INT_VAR = _MODULE.global_var_scope.register_new_var("foo", InertType(InertCoreTypes.INT), False, MarkerDeclVar().with_enclosing_function(None), ComLoc())
-_INT_VAR2 = _MODULE.global_var_scope.register_new_var("bar", InertType(InertCoreTypes.INT), False, MarkerDeclVar().with_enclosing_function(None), ComLoc())
+_INT_VAR = _MODULE.global_var_scope.register_new_var("foo", _INT, False, MarkerDeclVar().with_enclosing_function(None), ComLoc())
+_INT_VAR2 = _MODULE.global_var_scope.register_new_var("bar", _INT, False, MarkerDeclVar().with_enclosing_function(None), ComLoc())
+_NULLABLE_INT_VAR = _MODULE.global_var_scope.register_new_var("nullish", _NULLABLE_INT, False, MarkerDeclVar().with_enclosing_function(None), ComLoc())
 _BOOL_VAR = _MODULE.global_var_scope.register_new_var("fooboo", InertType(InertCoreTypes.BOOL), False, MarkerDeclVar().with_enclosing_function(None), ComLoc())
 
 _LOC = ComLoc()
@@ -113,6 +115,14 @@ _LOC = ComLoc()
     ]),
     ([CtxAssignment(_INT_VAR, CtxExprOr(CtxExprLitBool(True, src_loc=_LOC), CtxExprLitBool(True, src_loc=_LOC)))], [
         SmtOrCmd(SmtConstInt(1), SmtConstInt(1), SmtPseudoVar(0, _INT)),
+        SmtAssignCmd(SmtPublicVar("foo", _INT), SmtPseudoVar(0, _INT))
+    ]),
+    ([CtxAssignment(_INT_VAR, CtxExprNullCoal(CtxExprVar(_NULLABLE_INT_VAR, src_loc=_LOC), CtxExprLitInt(10, src_loc=_LOC)))], [
+        SmtNullCoalCmd(
+            # Useful data
+            SmtPublicVar("nullish", _NULLABLE_INT), SmtConstInt(10), SmtPseudoVar(0, _INT),
+            # Clobber registers & constant
+            SmtPseudoVar(1, _INT), SmtPseudoVar(2, _INT), SmtPseudoVar(3, _INT), SmtPseudoVar(4, _INT), SmtPseudoVar(5, _INT), SmtConstNull()),
         SmtAssignCmd(SmtPublicVar("foo", _INT), SmtPseudoVar(0, _INT))
     ]),
 ])
