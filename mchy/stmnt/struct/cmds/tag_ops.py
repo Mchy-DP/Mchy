@@ -55,6 +55,7 @@ class SmtTagRemoveCmd(SmtCmd):
 
 
 class SmtRawEntitySelector(SmtCmd):
+    """Assign the target_var to the entities selected by a raw selector"""
 
     def __init__(self, executor: SmtAtom, target_var: SmtVar, selector: str) -> None:
         self.executor: SmtAtom = executor
@@ -77,4 +78,7 @@ class SmtRawEntitySelector(SmtCmd):
         target_vdat = linker.lookup_var(self.target_var)
         if not isinstance(target_vdat, SmtExecVarLinkage):
             raise VirtualRepError(f"Attempted to assign selector to variable `{target_vdat.var_name}` without attached tag.  (selector: {self.selector})")
-        return [ComCmd(f"{executor_selection}tag {self.selector} add {target_vdat.get_full_tag(stack_level)}")]
+        return [
+            ComCmd(f"tag {target_vdat.get_selector(stack_level, force_group=True)} remove {target_vdat.get_full_tag(stack_level)}"),
+            ComCmd(f"{executor_selection}tag {self.selector} add {target_vdat.get_full_tag(stack_level)}")
+        ]
