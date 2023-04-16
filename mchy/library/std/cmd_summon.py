@@ -155,7 +155,7 @@ class SmtSummonCmd(SmtCmd):
         pos_str, executor = StructPos.build_position_string(get_struct_instance(self.location))
         cmd = f"summon {self.entity_type} {pos_str} {summon_data}"
         # Build commands
-        empty_tag_command = ComCmd(f"tag {out_vdat.get_selector(stack_level)} remove {out_vdat.get_full_tag(stack_level)}")
+        empty_tag_command = ComCmd(f"tag {out_vdat.get_selector(stack_level, force_group=True)} remove {out_vdat.get_full_tag(stack_level)}")
         if executor is None:
             return [empty_tag_command, ComCmd(cmd)]
         else:
