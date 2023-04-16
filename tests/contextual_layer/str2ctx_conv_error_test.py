@@ -55,6 +55,7 @@ var random_player: Player = world.get_player("random").find()
     ([], r"""4.colors.hex()""", ["only be accessed", "executable type", "int"], ComLoc(1, 0, 1, 1)),
     ([], r"""4.made_up_property""", ["only be accessed", "executable type", "int"], ComLoc(1, 0, 1, 1)),
     ([], r"""world.pos.get()""", ["Chain", ".pos.get()", "cannot execute on", "world", "Group[Entity]"], ComLoc(1, 0, 1, 5)),
+    ([RP], r"""random_player = world.get_players()""", ["partial chain", "world.get_players()", ".find()"], ComLoc(1, 16, 1, 35)),
     # STD-call Mis-typing
     ([], r"""world.say(42)""", ["Param", "msg", "int", "str"], ComLoc(1, 10, 1, 12)),
     ([], r"""world.colors.hex(42)""", ["Param", "color_code", "int", "str"], ComLoc(1, 17, 1, 19)),
