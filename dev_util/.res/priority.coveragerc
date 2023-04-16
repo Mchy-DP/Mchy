@@ -22,3 +22,9 @@ exclude_lines =
     raise ContextualisationError
     raise StatementRepError
     raise VirtualRepError
+
+    # Don't complain about catching those errors either:
+    except AbstractTreeError
+    except ContextualisationError
+    except StatementRepError
+    except VirtualRepError
