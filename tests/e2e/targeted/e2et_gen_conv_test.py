@@ -136,19 +136,27 @@ def test_print_all_types():
     var d2: bool? = null
     var d3: bool! = True
     var d4: bool = True
+    var e1: Player = world.get_player().find()
+    var e2: Group[Player] = world.get_players().find()
+    var e3: Entity = world.get_entity().find()
+    var e4: Group[Entity] = world.get_entities().find()
 
-    print("Varaible `a1: str!?`   has value: ", a1, " (Expected: TEST)")
-    print("Varaible `a2: str!?`   has value: ", a2, " (Expected: null)")
-    print("Varaible `b1: float!?` has value: ", b1, " (Expected: 3.14)")
-    print("Varaible `b2: float!?` has value: ", b2, " (Expected: null)")
-    print("Varaible `c1: int?`    has value: ", c1, " (Expected: 13)")
-    print("Varaible `c2: int?`    has value: ", c2, " (Expected: null)")
-    print("Varaible `c3: int!`    has value: ", c3, " (Expected: 13)")
-    print("Varaible `c4: int`     has value: ", c4, " (Expected: 13)")
-    print("Varaible `d1: bool?`   has value: ", d1, " (Expected: True)")
-    print("Varaible `d2: bool?`   has value: ", d2, " (Expected: null)")
-    print("Varaible `d3: bool!`   has value: ", d3, " (Expected: True)")
-    print("Varaible `d4: bool`    has value: ", d4, " (Expected: True)")
+    print("Varaible `a1: str!?`     has value: ", a1, " (Expected: TEST)")
+    print("Varaible `a2: str!?`     has value: ", a2, " (Expected: null)")
+    print("Varaible `b1: float!?`   has value: ", b1, " (Expected: 3.14)")
+    print("Varaible `b2: float!?`   has value: ", b2, " (Expected: null)")
+    print("Varaible `c1: int?`      has value: ", c1, " (Expected: 13)")
+    print("Varaible `c2: int?`      has value: ", c2, " (Expected: null)")
+    print("Varaible `c3: int!`      has value: ", c3, " (Expected: 13)")
+    print("Varaible `c4: int`       has value: ", c4, " (Expected: 13)")
+    print("Varaible `d1: bool?`     has value: ", d1, " (Expected: True)")
+    print("Varaible `d2: bool?`     has value: ", d2, " (Expected: null)")
+    print("Varaible `d3: bool!`     has value: ", d3, " (Expected: True)")
+    print("Varaible `d4: bool`      has value: ", d4, " (Expected: True)")
+    print("Varaible `e1: Player`    has value: ", e1, " (Expected: A player)")
+    print("Varaible `e2: G[Player]` has value: ", e2, " (Expected: Many Players)")
+    print("Varaible `e3: Entity`    has value: ", e3, " (Expected: A Entity)")
+    print("Varaible `e4: G[Entity]` has value: ", e4, " (Expected: Chat Spam)")
     """
     ast_root, ctx_module, smt_module, vir_dp = conversion_helper(code)
 
@@ -164,6 +172,10 @@ def test_print_all_types():
     assert any_line_matches(vir_dp.load_master_file, r"^tellraw.*`d2.*<null>.*Expected:"), _helper_assert_msg("d2") + vir_dp.load_master_file.get_file_data()
     assert any_line_matches(vir_dp.load_master_file, r"^tellraw.*`d3.*(1|True|true).*Expected:"), _helper_assert_msg("d3") + vir_dp.load_master_file.get_file_data()
     assert any_line_matches(vir_dp.load_master_file, r"^tellraw.*`d4.*score.*var_d4.*glob.*Expected:"), _helper_assert_msg("d4") + vir_dp.load_master_file.get_file_data()
+    assert any_line_matches(vir_dp.load_master_file, r"^tellraw.*`e1.*selector.*@a.*var_e1.*limit=1.*Expected:"), _helper_assert_msg("e1") + vir_dp.load_master_file.get_file_data()
+    assert any_line_matches(vir_dp.load_master_file, r"^tellraw.*`e2.*selector.*@a.*var_e2.*Expected:"), _helper_assert_msg("e2") + vir_dp.load_master_file.get_file_data()
+    assert any_line_matches(vir_dp.load_master_file, r"^tellraw.*`e3.*selector.*@e.*var_e3.*limit=1.*Expected:"), _helper_assert_msg("e3") + vir_dp.load_master_file.get_file_data()
+    assert any_line_matches(vir_dp.load_master_file, r"^tellraw.*`e4.*selector.*@e.*var_e4.*Expected:"), _helper_assert_msg("e4") + vir_dp.load_master_file.get_file_data()
 
 
 def test_simple_getting_entities():
