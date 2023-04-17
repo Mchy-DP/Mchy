@@ -65,7 +65,6 @@ class MchyErrorListener(ErrorListener):
                 if get_input(recognizer).LB(1).type == recognizer.COLON:
                     if isinstance(parent_ctx, recognizer.Variable_declContext):
                         raise MchySyntaxError(f"Missing type in type annotation of the variable declaration of {get_token_text(assert_is_token(parent_ctx.var_name))}")
-                    raise MchySyntaxError(f"Missing type in type annotation")  # not sure exactly how this can be raised
                 raise MchySyntaxError(f"Incomplete type, expected {get_expected_toks_str(recognizer, list(expected_toks))}")
             if (offendingSymbol.type == recognizer.WORLD) and ({recognizer.IDENTIFIER} == expected_toks) and (get_input(recognizer).LB(2).type == recognizer.GROUP):
                 raise MchySyntaxError(f"Cannot have groups of world")
