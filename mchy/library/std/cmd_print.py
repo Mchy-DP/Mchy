@@ -206,9 +206,8 @@ class CmdPrint(IFunc):
             InertType(InertCoreTypes.INT, nullable=True),
             InertType(InertCoreTypes.BOOL, nullable=True),
             InertType(InertCoreTypes.NULL),
-            ExecType(ExecCoreTypes.WORLD, group=False),
+            ExecType(ExecCoreTypes.ENTITY, group=True),
             StructColor.get_type()
-            # TODO: Expand valid types: executable types
         )
 
     def get_return_type(self) -> ComType:
