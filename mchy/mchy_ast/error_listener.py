@@ -115,6 +115,16 @@ class MchyErrorListener(ErrorListener):
             else:
                 raise AbstractTreeError(f"Statement ending encountered outside statement while adding context to error: {msg}")
 
+        # === Specific late errors ===
+        if isinstance(ctx, recognizer.StmntContext):
+            if offendingSymbol.type == recognizer.IDENTIFIER:
+                token_LT1 = assert_is_token(get_input(recognizer).LT(1))
+                if token_LT1.type == recognizer.IDENTIFIER:
+                    if is_similar(get_token_text(token_LT1), "def") or (get_token_text(token_LT1) in ("function", "fun", "func")):
+                        raise MchySyntaxError(
+                            f"No valid option for `{get_token_text(token_LT1)} {get_token_text(offendingSymbol)}`, did you mean `def {get_token_text(offendingSymbol)}`?"
+                        )
+
         # === Late/slightly less generic errors ===
         if (offendingSymbol.type in KEYWORD_TOKENS) and (recognizer.IDENTIFIER in expected_toks):
             # If the offending token is a keyword and identifier's are valid here then the user probably accidentally misused a keyword
