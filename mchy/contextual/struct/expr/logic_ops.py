@@ -38,8 +38,7 @@ class CtxExprNot(CtxExprNode):
         if isinstance(self.target, CtxExprLitBool):
             return CtxExprLitBool((not self.target.value), src_loc=self.loc)
         else:
-            my_type = self.get_type()
-            raise ContextualisationError(f"Cannot flatten `{type(self).__name__}` node of type `{my_type}`")
+            raise ContextualisationError(f"Cannot flatten `{type(self).__name__}` node of type `{self.get_type()}`")
 
 
 class CtxExprAnd(CtxExprNode):
@@ -84,8 +83,7 @@ class CtxExprAnd(CtxExprNode):
         if isinstance(self.left, CtxExprLitBool) and isinstance(self.right, CtxExprLitBool):
             return CtxExprLitBool((self.left.value and self.right.value), src_loc=self.loc)
         else:
-            my_type = self.get_type()
-            raise ContextualisationError(f"Cannot flatten `{type(self).__name__}` node of type `{my_type}`")
+            raise ContextualisationError(f"Cannot flatten `{type(self).__name__}` node of type `{self.get_type()}`")
 
 
 class CtxExprOr(CtxExprNode):
@@ -130,5 +128,4 @@ class CtxExprOr(CtxExprNode):
         if isinstance(self.left, CtxExprLitBool) and isinstance(self.right, CtxExprLitBool):
             return CtxExprLitBool((self.left.value or self.right.value), src_loc=self.loc)
         else:
-            my_type = self.get_type()
-            raise ContextualisationError(f"Cannot flatten `{type(self).__name__}` node of type `{my_type}`")
+            raise ContextualisationError(f"Cannot flatten `{type(self).__name__}` node of type `{self.get_type()}`")
