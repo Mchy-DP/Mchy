@@ -27,6 +27,10 @@ COMMON_TYPE_STRINGS = [
 ]
 
 
+def _helper_is_typeish(typeish_ident: str) -> bool:
+    return any(is_similar(typeish_ident, type_) for type_ in COMMON_TYPE_STRINGS)
+
+
 class MchyErrorListener(ErrorListener):
 
     def __init__(self, config: Config) -> None:
@@ -65,7 +69,7 @@ class MchyErrorListener(ErrorListener):
             if expected_toks == {recognizer.COLON}:
                 param_name: str = get_token_text(assert_is_token(ctx.param_name))
                 if offendingSymbol.type == recognizer.IDENTIFIER:
-                    if any(is_similar(param_name, type_) for type_ in COMMON_TYPE_STRINGS):
+                    if _helper_is_typeish(param_name):
                         raise MchySyntaxError(f"Invalid type annotation, Did you mean `{get_token_text(offendingSymbol)}: {param_name}`?")
                 raise MchySyntaxError(f"Missing type annotation in declaration of param `{param_name}`")
         if isinstance(ctx, recognizer.TypeContext):
@@ -131,6 +135,11 @@ class MchyErrorListener(ErrorListener):
                     if is_similar(get_token_text(token_LT1), "def") or (get_token_text(token_LT1) in ("function", "fun", "func")):
                         raise MchySyntaxError(
                             f"No valid option for `{get_token_text(token_LT1)} {get_token_text(offendingSymbol)}`, did you mean `def {get_token_text(offendingSymbol)}`?"
+                        )
+                    if _helper_is_typeish(get_token_text(token_LT1)):
+                        raise MchySyntaxError(
+                            f"No valid option for `{get_token_text(token_LT1)} {get_token_text(offendingSymbol)}`, " +
+                            f"did you mean `var {get_token_text(offendingSymbol)}: {get_token_text(token_LT1)}`?"
                         )
 
         # === Late/slightly less generic errors ===

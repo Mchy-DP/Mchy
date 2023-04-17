@@ -19,6 +19,7 @@ _TEST_CONFIG = Config(verbosity=Config.Verbosity.VV, logger=ComLogger(std_out_le
     ("var h: Group = 1", ["Incomplete type", "["]),
     ("var h: Group[world] = 1", ["Cannot have groups of world"]),
     ("var h: int =", ["Cannot assign to nothing"]),
+    ("int v", ["No valid option", "int v", "var v: int"]),
     ("h =", ["Cannot assign to nothing"]),
     ("var h: int =\n", ["Cannot assign to nothing"]),
     ("h =\n", ["Cannot assign to nothing"]),
