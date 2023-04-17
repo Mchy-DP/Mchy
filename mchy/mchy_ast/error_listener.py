@@ -22,6 +22,10 @@ LINE_END_TOKENS = [
     MchyCustomParser.EOF, MchyCustomParser.CBCLOSE, MchyCustomParser.NEWLINE  # CBCLOSE included due to recovery sometimes accepting CBCLOSE as a line ending
 ]
 
+COMMON_TYPE_STRINGS = [
+    "str", "int", "float", "char", "bool", "double", "long", "short", "byte"
+]
+
 
 class MchyErrorListener(ErrorListener):
 
@@ -59,7 +63,11 @@ class MchyErrorListener(ErrorListener):
                 raise MchySyntaxError(f"Missing type annotation in declaration of variable `{get_token_text(assert_is_token(ctx.var_name))}`")
         if isinstance(ctx, recognizer.Param_declContext):
             if expected_toks == {recognizer.COLON}:
-                raise MchySyntaxError(f"Missing type annotation in declaration of param `{get_token_text(assert_is_token(ctx.param_name))}`")
+                param_name: str = get_token_text(assert_is_token(ctx.param_name))
+                if offendingSymbol.type == recognizer.IDENTIFIER:
+                    if any(is_similar(param_name, type_) for type_ in COMMON_TYPE_STRINGS):
+                        raise MchySyntaxError(f"Invalid type annotation, Did you mean `{get_token_text(offendingSymbol)}: {param_name}`?")
+                raise MchySyntaxError(f"Missing type annotation in declaration of param `{param_name}`")
         if isinstance(ctx, recognizer.TypeContext):
             if get_input(recognizer).LB(1).type == recognizer.COLON:
                 if offendingSymbol.type == recognizer.EQUAL:

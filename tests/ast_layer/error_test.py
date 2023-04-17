@@ -36,6 +36,7 @@ _TEST_CONFIG = Config(verbosity=Config.Verbosity.VV, logger=ComLogger(std_out_le
     ('def foo(p1bar:){}', ["Missing type", "param", "p1bar"]),
     ('def foo(p1bar:,p2){}', ["Missing type", "param", "p1bar"]),
     ('function foo(p1: int)', ["No valid option", "function foo", "def foo"]),
+    ('def foo(int p1){}', ["Invalid type annotation", "p1: int"]),
     ('var x: int = for while', ["keyword", "for"]),
     ('var x: int = for 3', ["keyword", "for"]),
     ('var x: int = -> while', ["expected expression"]),
