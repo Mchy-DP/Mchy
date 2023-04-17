@@ -1,4 +1,4 @@
-from typing import List, Optional, Sequence
+from typing import List, Optional, Sequence, Union
 
 # Ensure Mchy on path:
 import sys
@@ -8,7 +8,7 @@ sys.path.append(os_path.dirname(os_path.dirname(__file__)))
 # Perform Required imports
 from mchy.cmd_modules.param import IParam  # noqa  #  pycodestyle doesn't like imports after ANY code even when sensible
 from mchy.cmd_modules.chains import IChain, IChainLink  # noqa  #  pycodestyle doesn't like imports after ANY code even when sensible
-from mchy.common.com_types import ComType, ExecCoreTypes, ExecType, executor_prefix  # noqa  #  pycodestyle doesn't like imports after ANY code even when sensible
+from mchy.common.com_types import ComType, ExecCoreTypes, ExecType, TypeUnion, executor_prefix  # noqa  #  pycodestyle doesn't like imports after ANY code even when sensible
 from mchy.errors import UnreachableError  # noqa  #  pycodestyle doesn't like imports after ANY code even when sensible
 from mchy.cmd_modules.name_spaces import Namespace  # noqa  #  pycodestyle doesn't like imports after ANY code even when sensible
 from mchy.contextual.struct.expr.abs_node import CtxExprLits  # noqa  #  pycodestyle doesn't like imports after ANY code even when sensible
@@ -17,7 +17,7 @@ from mchy.contextual.struct.expr.abs_node import CtxExprLits  # noqa  #  pycodes
 DOCS_LIBS_DIR = os_path.join(os_path.dirname(os_path.dirname(__file__)), "docs", "libs")
 
 
-def _build_params_render(params: Sequence[IParam]) -> str:
+def _build_params_render(params: Sequence[IParam], extra_param_type: Optional[Union[ComType, TypeUnion]]) -> str:
     params_out = ""
     for param in params:
         params_out += f"{param.label}: {param.param_type.render()}"
@@ -32,6 +32,8 @@ def _build_params_render(params: Sequence[IParam]) -> str:
                 else:
                     params_out += "..."
         params_out += ", "
+    if extra_param_type is not None:
+        params_out += "*: " + extra_param_type.render()
     return params_out.rstrip(", ")
 
 
@@ -52,7 +54,7 @@ class ChainingTree:
         out = f"{self.link.get_name()}"
         params = self.link.get_params()
         if params is not None:
-            out += "("+_build_params_render(params)+")"
+            out += "("+_build_params_render(params, self.link.get_extra_param_type())+")"
         return out
 
     def this_chain(self) -> str:
@@ -126,7 +128,7 @@ def generate_doc(ns: Namespace) -> str:
     for func in sorted(ns.ifuncs, key=lambda x: x.get_name()):
         func_out = f"### {func.get_name()}\n"
         func_out += f"```\n{executor_prefix(func.get_executor_type(), '.')}{func.get_name()}("
-        func_out += _build_params_render(func.get_params())
+        func_out += _build_params_render(func.get_params(), func.get_extra_param_type())
         func_out += f") -> {func.get_return_type().render()}\n```\n"
         func_out += func.get_docs().render()
         out += func_out

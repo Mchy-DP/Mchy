@@ -1,0 +1,31 @@
+##### KEEP NORMAL & PRIORITY IN SYNC #####
+[report]
+omit =
+    # Don't test coverage of built files - testing them is outside scope as we assume they are good
+    mchy/built/*.py
+
+exclude_lines = 
+    # Re-enable basic checks
+    pragma: no cover
+
+    # Exclude TYPE_CHECKING blocks as they are unreachable always
+    if TYPE_CHECKING:
+
+    # Don't complain about abstract methods, they aren't run:
+    @(abc\.)?abstractmethod
+
+
+    ### PRIORITY EXTENSIONS ###
+
+    # Don't complain about errors the user should never see unless we made a mistake
+    raise AbstractTreeError
+    raise ContextualisationError
+    raise StatementRepError
+    raise VirtualRepError
+    raise UnreachableError
+
+    # Don't complain about catching those errors either:
+    except AbstractTreeError
+    except ContextualisationError
+    except StatementRepError
+    except VirtualRepError

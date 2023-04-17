@@ -69,7 +69,7 @@ def main_by_arg(file_text: str, config: Config):
                 config.logger.warn("Compiler Warning: Unhandled Intercept Flags: " + ",".join(f"{k}: {repr(v)[:25]}" for k, v in err.intercept_flags.items()))
                 config.logger.very_verbose("ConversionError Traceback for missing intercept: "+traceback.format_exc())
             config.logger.very_verbose("Conversion Error: "+repr(err))
-            config.logger.error(err.msg())
+            config.logger.error(err.msg)
     except Exception as err:
         config.logger.very_verbose("Compiler Error: "+traceback.format_exc())
         config.logger.very_verbose("Compiler Error: "+repr(err))

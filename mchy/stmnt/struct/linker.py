@@ -56,8 +56,13 @@ class SmtExecVarLinkage(SmtVarLinkage):
             raise VirtualRepError(f"Non-Stackless variable `{self.var_name}` has no stack level attached to request for tag. (Scope: `{self._tag}`)")
         return self._tag+f"-r{str(stack_level).rjust(3, '0')}"+("" if self._public else "-I")+f"-{self.var_name}"
 
-    def get_selector(self, stack_level: Optional[int]) -> str:
-        return "@"+('a' if self._player else 'e')+f"[tag={self.get_full_tag(stack_level)}"+(', limit=1, sort=arbitrary' if self.solitary else '')+"]"
+    def get_selector(self, stack_level: Optional[int], *, force_group: bool = False) -> str:
+        return (
+            "@"+('a' if self._player else 'e') +
+            f"[tag={self.get_full_tag(stack_level)}" + (
+                (', limit=1, sort=arbitrary' if (self.solitary and (not force_group)) else '')
+            ) + "]"
+        )
 
 
 class SmtVarFlavour(enum.Enum):

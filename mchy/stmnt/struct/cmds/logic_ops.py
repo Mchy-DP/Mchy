@@ -81,16 +81,15 @@ class SmtAndCmd(SmtCmd):
                     ),
                 ]
             elif isinstance(self.rhs, SmtConstInt):
-                if self.rhs.value >= 1:
+                if self.rhs.value <= 0:
                     return [
                         ComCmd(f"scoreboard players set {out_vdat.var_name} {out_vdat.get_objective(stack_level)} 0"),
                     ]
                 else:
                     return [
-                        ComCmd(f"scoreboard players set {out_vdat.var_name} {out_vdat.get_objective(stack_level)} 0"),
                         ComCmd(
-                            f"execute if score {lhs_vdat.var_name} {lhs_vdat.get_objective(stack_level)} matches 1.. run " +
-                            f"scoreboard players set {out_vdat.var_name} {out_vdat.get_objective(stack_level)} 1"
+                            f"scoreboard players operation {out_vdat.var_name} {out_vdat.get_objective(stack_level)} = " +
+                            f"{lhs_vdat.var_name} {lhs_vdat.get_objective(stack_level)}"
                         ),
                     ]
             else:
@@ -102,16 +101,15 @@ class SmtAndCmd(SmtCmd):
                     raise VirtualRepError(
                         f"Attempted to perform And using rhs variable without an objective value ({repr(self)})"
                     )
-                if self.lhs.value >= 1:
+                if self.lhs.value <= 0:
                     return [
                         ComCmd(f"scoreboard players set {out_vdat.var_name} {out_vdat.get_objective(stack_level)} 0"),
                     ]
                 else:
                     return [
-                        ComCmd(f"scoreboard players set {out_vdat.var_name} {out_vdat.get_objective(stack_level)} 0"),
                         ComCmd(
-                            f"execute if score {rhs_vdat.var_name} {rhs_vdat.get_objective(stack_level)} matches 1.. run " +
-                            f"scoreboard players set {out_vdat.var_name} {out_vdat.get_objective(stack_level)} 1"
+                            f"scoreboard players operation {out_vdat.var_name} {out_vdat.get_objective(stack_level)} = " +
+                            f"{rhs_vdat.var_name} {rhs_vdat.get_objective(stack_level)}"
                         ),
                     ]
             elif isinstance(self.rhs, SmtConstInt):
@@ -166,10 +164,9 @@ class SmtOrCmd(SmtCmd):
                     ]
                 else:
                     return [
-                        ComCmd(f"scoreboard players set {out_vdat.var_name} {out_vdat.get_objective(stack_level)} 1"),
                         ComCmd(
-                            f"execute if score {lhs_vdat.var_name} {lhs_vdat.get_objective(stack_level)} matches ..0 run " +
-                            f"scoreboard players set {out_vdat.var_name} {out_vdat.get_objective(stack_level)} 0"
+                            f"scoreboard players operation {out_vdat.var_name} {out_vdat.get_objective(stack_level)} = " +
+                            f"{lhs_vdat.var_name} {lhs_vdat.get_objective(stack_level)}"
                         ),
                     ]
             else:
@@ -187,10 +184,9 @@ class SmtOrCmd(SmtCmd):
                     ]
                 else:
                     return [
-                        ComCmd(f"scoreboard players set {out_vdat.var_name} {out_vdat.get_objective(stack_level)} 1"),
                         ComCmd(
-                            f"execute if score {rhs_vdat.var_name} {rhs_vdat.get_objective(stack_level)} matches ..0 run " +
-                            f"scoreboard players set {out_vdat.var_name} {out_vdat.get_objective(stack_level)} 0"
+                            f"scoreboard players operation {out_vdat.var_name} {out_vdat.get_objective(stack_level)} = " +
+                            f"{rhs_vdat.var_name} {rhs_vdat.get_objective(stack_level)}"
                         ),
                     ]
             elif isinstance(self.rhs, SmtConstInt):

@@ -68,8 +68,12 @@ class SmtAssignCmd(SmtCmd):
                     f"`{source_vdat.var_name}` of type `{source_type}` - `{source_type}` is not a valid `{target_type.render()}`"
                 )
             return [
-                ComCmd(f"tag {target_vdat.get_selector(self._target_stack_level(stack_level))} remove {target_vdat.get_full_tag(self._target_stack_level(stack_level))}"),
-                ComCmd(f"tag {source_vdat.get_selector(self._source_stack_level(stack_level))} add {target_vdat.get_full_tag(self._target_stack_level(stack_level))}")
+                ComCmd(
+                    f"tag {target_vdat.get_selector(self._target_stack_level(stack_level), force_group=True)}" +
+                    f" remove {target_vdat.get_full_tag(self._target_stack_level(stack_level))}"
+                ), ComCmd(
+                    f"tag {source_vdat.get_selector(self._source_stack_level(stack_level))} add {target_vdat.get_full_tag(self._target_stack_level(stack_level))}"
+                )
             ]
         else:
             raise UnreachableError(f"Unhandled var exec target `{repr(target_type)}`")

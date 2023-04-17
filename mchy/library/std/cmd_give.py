@@ -59,12 +59,12 @@ class CmdGive(IFunc):
                 self, executor: SmtAtom, param_binding: Dict[str, SmtAtom], extra_binding: List['SmtAtom'], module: SmtModule, function: SmtFunc, config: Config
             ) -> Tuple[List[SmtCmd], 'SmtAtom']:
         if not matches_type(ExecType(ExecCoreTypes.PLAYER, True), executor.get_type()):
-            raise LibConversionError(f"Player-Scoreboard set can only operate on players, not `{executor.get_type().render()}`")
+            raise VirtualRepError(f"Player-Scoreboard set can only operate on players, not `{executor.get_type().render()}`")
         item: str = get_key_with_type(param_binding, "item", SmtConstStr).value
         count: int = get_key_with_type(param_binding, "count", SmtConstInt).value
         data: str = get_key_with_type(param_binding, "data", SmtConstStr).value
         if count < 1:
-            raise LibConversionError(f"Give count cannot be less than 1")
+            raise LibConversionError(f"Give count cannot be less than 1")  # TODO: Consider suggesting the mc-cmd `clear` after it is implemented
         if count > 6400:
             # TODO: consider generating multiple give statements so any upper bound is ok -> emit warning if number big though
             raise LibConversionError(f"Give count cannot be more than 6400")

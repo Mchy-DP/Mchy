@@ -6,7 +6,6 @@ from typing import Collection, Dict, List, Optional, Sequence, Tuple, Union
 from mchy.cmd_modules.function import IFunc, IParam
 from mchy.cmd_modules.helper import NULL_CTX_TYPE
 from mchy.cmd_modules.name_spaces import Namespace
-from mchy.cmd_modules.smt_cmds.simple_const_str_tellraw import SmtSimpleStrConstTellrawCmd
 from mchy.common.com_cmd import ComCmd
 from mchy.common.com_types import ComType, ExecCoreTypes, ExecType, InertCoreTypes, InertType, TypeUnion, matches_type
 from mchy.common.config import Config
@@ -179,7 +178,10 @@ class SmtComplexPrintingTellrawCmd(SmtCmd):
                     raise VirtualRepError(f"Unknown struct type in print `{atom.get_type()}`?")
             else:
                 raise VirtualRepError(f"{type(atom)} - missing from print")
-        cmds.append(ComCmd(f'tellraw @a ["", '+', '.join(comp.get_component() for comp in comps)+']'))
+        if len(comps) >= 1:
+            cmds.append(ComCmd(f'tellraw @a ["", '+', '.join(comp.get_component() for comp in comps)+']'))
+        else:
+            cmds.append(ComCmd('tellraw @a [""]'))
         return cmds
 
 
@@ -204,9 +206,8 @@ class CmdPrint(IFunc):
             InertType(InertCoreTypes.INT, nullable=True),
             InertType(InertCoreTypes.BOOL, nullable=True),
             InertType(InertCoreTypes.NULL),
-            ExecType(ExecCoreTypes.WORLD, group=False),
+            ExecType(ExecCoreTypes.ENTITY, group=True),
             StructColor.get_type()
-            # TODO: Expand valid types: executable types
         )
 
     def get_return_type(self) -> ComType:

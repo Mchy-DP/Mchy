@@ -1,0 +1,15 @@
+##### KEEP NORMAL & PRIORITY IN SYNC #####
+[report]
+omit =
+    # Don't test coverage of built files - testing them is outside scope as we assume they are good
+    mchy/built/*.py
+
+exclude_lines = 
+    # Re-enable basic checks
+    pragma: no cover
+
+    # Exclude TYPE_CHECKING blocks as they are unreachable always
+    if TYPE_CHECKING:
+
+    # Don't complain about abstract methods, they aren't run:
+    @(abc\.)?abstractmethod

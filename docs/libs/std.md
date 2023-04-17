@@ -78,7 +78,7 @@ Players.play_sound(sound_location: std::Pos, sound: str!, channel: str! = master
 
 ### print
 ```
-print() -> null
+print(*: Union[str?, float?, int?, bool?, null, Group[Entity], std::Color]) -> null
 ```
 
 ### say
@@ -1261,7 +1261,7 @@ version -> int
 
     * ### json_name
       ```
-      world.scoreboard.conf.json_name(obj_name: str!)
+      world.scoreboard.conf.json_name(obj_name: str!, *: Union[str!, std::Color])
       ```
 
   * ### obj

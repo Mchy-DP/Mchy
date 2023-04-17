@@ -3,6 +3,7 @@
 mchy/built
 releases
 **/.dev_manual_tests
+tests/e2e/tool_calls/*/dp
 
 
 ############################################

@@ -115,8 +115,7 @@ class CtxExprCompGTE(CtxExprNode):
         elif isinstance(self.left, (CtxExprLitFloat, CtxExprLitInt, CtxExprLitBool)) and isinstance(self.right, (CtxExprLitFloat, CtxExprLitInt, CtxExprLitBool)):
             return CtxExprLitBool(bool(float(self.left.value) >= float(self.right.value)), src_loc=self.loc)
         else:
-            my_type = self.get_type()
-            raise ContextualisationError(f"Cannot flatten `{type(self).__name__}` node of type `{my_type}`")
+            raise ContextualisationError(f"Cannot flatten `{type(self).__name__}` node of type `{self.get_type()}`")
 
 
 class CtxExprCompGT(CtxExprNode):
@@ -166,8 +165,7 @@ class CtxExprCompGT(CtxExprNode):
         elif isinstance(self.left, (CtxExprLitFloat, CtxExprLitInt, CtxExprLitBool)) and isinstance(self.right, (CtxExprLitFloat, CtxExprLitInt, CtxExprLitBool)):
             return CtxExprLitBool(bool(float(self.left.value) > float(self.right.value)), src_loc=self.loc)
         else:
-            my_type = self.get_type()
-            raise ContextualisationError(f"Cannot flatten `{type(self).__name__}` node of type `{my_type}`")
+            raise ContextualisationError(f"Cannot flatten `{type(self).__name__}` node of type `{self.get_type()}`")
 
 
 class CtxExprCompLTE(CtxExprNode):
@@ -217,8 +215,7 @@ class CtxExprCompLTE(CtxExprNode):
         elif isinstance(self.left, (CtxExprLitFloat, CtxExprLitInt, CtxExprLitBool)) and isinstance(self.right, (CtxExprLitFloat, CtxExprLitInt, CtxExprLitBool)):
             return CtxExprLitBool(bool(float(self.left.value) <= float(self.right.value)), src_loc=self.loc)
         else:
-            my_type = self.get_type()
-            raise ContextualisationError(f"Cannot flatten `{type(self).__name__}` node of type `{my_type}`")
+            raise ContextualisationError(f"Cannot flatten `{type(self).__name__}` node of type `{self.get_type()}`")
 
 
 class CtxExprCompLT(CtxExprNode):
@@ -268,5 +265,4 @@ class CtxExprCompLT(CtxExprNode):
         elif isinstance(self.left, (CtxExprLitFloat, CtxExprLitInt, CtxExprLitBool)) and isinstance(self.right, (CtxExprLitFloat, CtxExprLitInt, CtxExprLitBool)):
             return CtxExprLitBool(bool(float(self.left.value) < float(self.right.value)), src_loc=self.loc)
         else:
-            my_type = self.get_type()
-            raise ContextualisationError(f"Cannot flatten `{type(self).__name__}` node of type `{my_type}`")
+            raise ContextualisationError(f"Cannot flatten `{type(self).__name__}` node of type `{self.get_type()}`")

@@ -136,6 +136,6 @@ COMMENT: '#' ~[\n]*;
 
 RAW_CMD: ([ \t]*) '/' {((self.cust_get_index_into_line() - len(self.text)) == 0)}? ~[\n]*;
 
-WS: [ \t] -> skip;
+WS: [ \t] -> channel(HIDDEN);
 
 UNKNOWN_CHAR: .;

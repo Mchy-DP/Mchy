@@ -8,8 +8,8 @@ from tests.helpers.token_helper import TokRep, compare_tok_reps
 
 def build_tok_stream(math_text: str) -> Tuple[MchyCustomLexer, List[Token]]:
     lexer = MchyCustomLexer(InputStream(math_text))
-
-    return lexer, list(lexer.getAllTokens())
+    token: Token
+    return lexer, [token for token in lexer.getAllTokens() if (token.channel == Token.DEFAULT_CHANNEL)]
 
 
 ML = MchyCustomLexer

@@ -22,6 +22,14 @@ LINE_END_TOKENS = [
     MchyCustomParser.EOF, MchyCustomParser.CBCLOSE, MchyCustomParser.NEWLINE  # CBCLOSE included due to recovery sometimes accepting CBCLOSE as a line ending
 ]
 
+COMMON_TYPE_STRINGS = [
+    "str", "int", "float", "char", "bool", "double", "long", "short", "byte"
+]
+
+
+def _helper_is_typeish(typeish_ident: str) -> bool:
+    return any(is_similar(typeish_ident, type_) for type_ in COMMON_TYPE_STRINGS)
+
 
 class MchyErrorListener(ErrorListener):
 
@@ -59,14 +67,22 @@ class MchyErrorListener(ErrorListener):
                 raise MchySyntaxError(f"Missing type annotation in declaration of variable `{get_token_text(assert_is_token(ctx.var_name))}`")
         if isinstance(ctx, recognizer.Param_declContext):
             if expected_toks == {recognizer.COLON}:
-                raise MchySyntaxError(f"Missing type annotation in declaration of param `{get_token_text(assert_is_token(ctx.param_name))}`")
+                param_name: str = get_token_text(assert_is_token(ctx.param_name))
+                if offendingSymbol.type == recognizer.IDENTIFIER:
+                    if _helper_is_typeish(param_name):
+                        raise MchySyntaxError(f"Invalid type annotation, Did you mean `{get_token_text(offendingSymbol)}: {param_name}`?")
+                raise MchySyntaxError(f"Missing type annotation in declaration of param `{param_name}`")
         if isinstance(ctx, recognizer.TypeContext):
-            if offendingSymbol.type == recognizer.EQUAL:
-                if get_input(recognizer).LB(1).type == recognizer.COLON:
+            if get_input(recognizer).LB(1).type == recognizer.COLON:
+                if offendingSymbol.type == recognizer.EQUAL:
                     if isinstance(parent_ctx, recognizer.Variable_declContext):
                         raise MchySyntaxError(f"Missing type in type annotation of the variable declaration of {get_token_text(assert_is_token(parent_ctx.var_name))}")
-                    raise MchySyntaxError(f"Missing type in type annotation")  # not sure exactly how this can be raised
+                if offendingSymbol.type in (recognizer.PCLOSE, recognizer.COMMA):
+                    if isinstance(parent_ctx, recognizer.Param_declContext):
+                        raise MchySyntaxError(f"Missing type in type annotation of the param declaration of {get_token_text(assert_is_token(parent_ctx.param_name))}")
                 raise MchySyntaxError(f"Incomplete type, expected {get_expected_toks_str(recognizer, list(expected_toks))}")
+            if get_input(recognizer).LB(1).type == recognizer.GROUP:
+                raise MchySyntaxError(f"Incomplete type: Group incomplete, expected {get_expected_toks_str(recognizer, list(expected_toks))}")
             if (offendingSymbol.type == recognizer.WORLD) and ({recognizer.IDENTIFIER} == expected_toks) and (get_input(recognizer).LB(2).type == recognizer.GROUP):
                 raise MchySyntaxError(f"Cannot have groups of world")
         if isinstance(ctx, recognizer.ExprContext):
@@ -110,6 +126,21 @@ class MchyErrorListener(ErrorListener):
                 pass  # Cannot really add more context to this as they can be too varied
             else:
                 raise AbstractTreeError(f"Statement ending encountered outside statement while adding context to error: {msg}")
+
+        # === Specific late errors ===
+        if isinstance(ctx, recognizer.StmntContext):
+            if offendingSymbol.type == recognizer.IDENTIFIER:
+                token_LT1 = assert_is_token(get_input(recognizer).LT(1))
+                if token_LT1.type == recognizer.IDENTIFIER:
+                    if is_similar(get_token_text(token_LT1), "def") or (get_token_text(token_LT1) in ("function", "fun", "func")):
+                        raise MchySyntaxError(
+                            f"No valid option for `{get_token_text(token_LT1)} {get_token_text(offendingSymbol)}`, did you mean `def {get_token_text(offendingSymbol)}`?"
+                        )
+                    if _helper_is_typeish(get_token_text(token_LT1)):
+                        raise MchySyntaxError(
+                            f"No valid option for `{get_token_text(token_LT1)} {get_token_text(offendingSymbol)}`, " +
+                            f"did you mean `var {get_token_text(offendingSymbol)}: {get_token_text(token_LT1)}`?"
+                        )
 
         # === Late/slightly less generic errors ===
         if (offendingSymbol.type in KEYWORD_TOKENS) and (recognizer.IDENTIFIER in expected_toks):
