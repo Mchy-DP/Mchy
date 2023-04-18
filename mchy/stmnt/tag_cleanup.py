@@ -1,7 +1,7 @@
 from typing import List
 from mchy.common.com_types import ExecCoreTypes, ExecType
 from mchy.stmnt.struct.abs_cmd import SmtCmd
-from mchy.stmnt.struct.function import SmtFunc
+from mchy.stmnt.struct.function import SmtFunc, SmtMchyFunc
 from mchy.stmnt.struct.linker import SmtLinker, SmtVarLinkage, SmtExecVarLinkage
 from mchy.stmnt.struct.cmds import SmtCleanupTag
 from mchy.errors import VirtualRepError
@@ -22,5 +22,7 @@ def get_cleanup_stmnts(smt_func: SmtFunc, linker: 'SmtLinker', stack_level: int)
                 raise VirtualRepError("Variable with executable linkage is not of executable type?")
             if var_type.target == ExecCoreTypes.WORLD:
                 continue  # World tags can never be assigned to so don't need to be cleanup up
+            if isinstance(smt_func, SmtMchyFunc) and (var == smt_func.return_var):
+                continue  # Don't cleanup return values
             cmds.append(SmtCleanupTag(var_dat.get_full_tag(stack_level)))
     return cmds
