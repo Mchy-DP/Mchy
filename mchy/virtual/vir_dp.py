@@ -113,14 +113,20 @@ class VirDP:
         # TODO: option to suppress backup creation
         prj_path = os_path.join(self._config.output_path, self._config.project_name)
         if os_path.exists(prj_path):
+            self._config.logger.very_verbose("DISK: Output path already exists, checking if we can overwrite")
             # check file is what we think it is:
             if os_path.exists(os_path.join(prj_path, "pack.mcmeta")) and os_path.exists(os_path.join(prj_path, "generated.txt")):  # Is a datapack that we generated
+                self._config.logger.very_verbose("DISK: We made this, backing up old datapack")
                 _make_archive(prj_path, prj_path+".zip")
+                self._config.logger.very_verbose("DISK: Backed up existing datapack")
                 shutil.rmtree(prj_path)
+                self._config.logger.very_verbose("DISK: Deleted old datapack")
             else:
                 self._config.logger.error(
                     f"File-Exists: Attempted to write to output file '{prj_path}' however it already exists and was missing generated markers that would imply " +
                     f"it can safely be overwritten.  Program stopping to prevent damage, please delete/move output folder and try again"
                 )
                 sys.exit(1)
+        self._config.logger.very_verbose("DISK: Writing files to disk")
         to_disk(self._root, prj_path)
+        self._config.logger.very_verbose("DISK: Done!")
