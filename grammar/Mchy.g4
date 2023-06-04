@@ -31,7 +31,7 @@ code_block: '{' NEWLINE* (stmnt)* '}';
 
 variable_decl: varkw=(VAR|LET) var_name=IDENTIFIER COLON var_type=type (EQUAL assignment_target=expr)?;
 
-assignment: lhs=IDENTIFIER EQUAL rhs=expr;
+assignment: lhs=IDENTIFIER method=(EQUAL|PLUSEQUAL|MINUSEQUAL|MULTEQUAL|DIVEQUAL|MODEQUAL) rhs=expr;
 
 return_ln: RETURN target=expr;
 
@@ -107,6 +107,13 @@ IDENTIFIER: (LETTER|'_')(ALPHANUMERIC|'_')*;
 
 ARROW: '->';
 EQUAL: '=';
+PLUSEQUAL: '+=';
+MINUSEQUAL: '-=';
+MULTEQUAL: '*=';
+DIVEQUAL: '/=';
+MODEQUAL: '%=';
+PLUSPLUS: '++';
+MINUSMINUS: '--';
 EQUALITY: '==';
 INEQUALITY: '!=';
 COMP_LTE: '<=';
