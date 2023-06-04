@@ -64,11 +64,12 @@ def parse_args(args: Optional[List[str]] = None) -> Tuple[str, Config]:
             "Prevent the log file being overwritten. Only required to counteract --overwrite-log flag set by json config."
         )
     )
-    group_debug.add_argument(
+    group_backup = parser.add_mutually_exclusive_group()
+    group_backup.add_argument(
         "--no-backup", action="store_true",
         help="Suppress backup creation. Improves '(5/6) Writing to disk' compiler step duration."
     )
-    group_debug.add_argument(
+    group_backup.add_argument(
         "--force-backup", action="store_true",
         help="Force backup creation. Only required to counteract --no-backup flag set by json config."
     )
