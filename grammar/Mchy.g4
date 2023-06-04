@@ -1,18 +1,20 @@
 grammar Mchy;
 
-mchy_file: NEWLINE* top=top_level_scope EOF;
+mchy_file: NEWLINE* top=top_level_scope NEWLINE* EOF;
 
-top_level_scope: (stmnt|function_decl)+;
+top_level_scope: top_elems (stmnt_ending top_elems)*;
 
-stmnt: (expr|variable_decl|assignment|unary_stmnt|return_ln|if_stmnt|while_loop|for_loop|user_comment|raw_cmd) stmnt_ending;
+top_elems: (stmnt|function_decl);
 
-function_decl: decorators=decorator_list def_kw=DEF (exec_type=type)? func_name=IDENTIFIER '(' params=param_decl_list? ')' (ARROW return_type=type)? body=scoped_code_block stmnt_ending;
+stmnt: (expr|variable_decl|assignment|unary_stmnt|return_ln|if_stmnt|while_loop|for_loop|user_comment|raw_cmd);
+
+function_decl: decorators=decorator_list def_kw=DEF (exec_type=type)? func_name=IDENTIFIER '(' params=param_decl_list? ')' (ARROW return_type=type)? body=scoped_code_block;
 
 decorator_list: (decorator NEWLINE)*;
 
 decorator: ATSIGN decorator_name=IDENTIFIER;
 
-stmnt_ending: (NEWLINE | EOF) NEWLINE*;
+stmnt_ending: NEWLINE+;
 
 raw_cmd: mc_cmd=RAW_CMD;
 
@@ -27,7 +29,7 @@ elif_stmnt: ELIF condition=expr body=code_block (continuation=elif_stmnt)?;
 else_stmnt: ELSE body=code_block;
 
 scoped_code_block: block=code_block;
-code_block: '{' NEWLINE* (stmnt)* '}';
+code_block: '{' (NEWLINE* stmnt (stmnt_ending stmnt)*)? NEWLINE* '}';
 
 variable_decl: varkw=(VAR|LET) var_name=IDENTIFIER COLON var_type=type (EQUAL assignment_target=expr)?;
 

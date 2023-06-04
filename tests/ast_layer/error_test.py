@@ -46,6 +46,7 @@ _TEST_CONFIG = Config(verbosity=Config.Verbosity.VV, logger=ComLogger(std_out_le
     ('(x)[2] = 1', ["Cannot use '[' in this context"]),
     ('x[2] = 1', ["Cannot use '[' in this context"]),
     ('var foo: grup[Player]', ["Invalid type", "grup[", "foo", "Group["]),
+    ('def foo(){var foo: grup[Player]}', ["Invalid type", "grup[", "foo", "Group["]),
     ('def foo() -> int {\nreturn 42\n}s', ["s", "\\n"]),
     ('if true {', ["File ended unexpectedly", "closing scope", "}"]),
 ])
