@@ -73,6 +73,10 @@ def parse_args(args: Optional[List[str]] = None) -> Tuple[str, Config]:
         "--force-backup", action="store_true",
         help="Force backup creation. Only required to counteract --no-backup flag set by json config."
     )
+    parser.add_argument(
+        '--recursion-limit', type=int, default=None,
+        help='The maximum level of recursion. Default is 32. Large values may cause slow compilations.'
+    )
 
     pargs: argparse.Namespace = parser.parse_args(args)
 
@@ -243,6 +247,18 @@ def parse_args(args: Optional[List[str]] = None) -> Tuple[str, Config]:
         else:
             do_backup = True  # default to True
 
+    # === Get recursion limit
+    recursion_limit: int
+    if pargs.recursion_limit is not None:
+        recursion_limit = pargs.recursion_limit
+    else:
+        if "recursion_limit" in json_dict.keys():
+            recursion_limit = json_dict["recursion_limit"]
+        elif "recursion-limit" in json_dict.keys():
+            recursion_limit = json_dict["recursion-limit"]
+        else:
+            recursion_limit = 32  # default to 32
+
     # === Get mchy file
     _mchy_file = pargs.file
     mchy_file_path = os_path.abspath(_mchy_file)
@@ -261,6 +277,7 @@ def parse_args(args: Optional[List[str]] = None) -> Tuple[str, Config]:
     return (mchy_file_path, Config(
         project_name=project_name,
         project_namespace=project_namespace,
+        recursion_limit=recursion_limit,
         logger=logger,
         output_path=output_path,
         debug_mode=mchy_debug,
