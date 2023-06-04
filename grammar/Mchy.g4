@@ -4,7 +4,7 @@ mchy_file: NEWLINE* top=top_level_scope EOF;
 
 top_level_scope: (stmnt|function_decl)+;
 
-stmnt: (expr|variable_decl|assignment|return_ln|if_stmnt|while_loop|for_loop|user_comment|raw_cmd) stmnt_ending;
+stmnt: (expr|variable_decl|assignment|unary_stmnt|return_ln|if_stmnt|while_loop|for_loop|user_comment|raw_cmd) stmnt_ending;
 
 function_decl: decorators=decorator_list def_kw=DEF (exec_type=type)? func_name=IDENTIFIER '(' params=param_decl_list? ')' (ARROW return_type=type)? body=scoped_code_block stmnt_ending;
 
@@ -31,7 +31,9 @@ code_block: '{' NEWLINE* (stmnt)* '}';
 
 variable_decl: varkw=(VAR|LET) var_name=IDENTIFIER COLON var_type=type (EQUAL assignment_target=expr)?;
 
-assignment: lhs=IDENTIFIER EQUAL rhs=expr;
+assignment: lhs=IDENTIFIER method=(EQUAL|PLUSEQUAL|MINUSEQUAL|MULTEQUAL|DIVEQUAL|MODEQUAL) rhs=expr;
+
+unary_stmnt: target=IDENTIFIER operation=(PLUSPLUS|MINUSMINUS);
 
 return_ln: RETURN target=expr;
 
@@ -107,6 +109,13 @@ IDENTIFIER: (LETTER|'_')(ALPHANUMERIC|'_')*;
 
 ARROW: '->';
 EQUAL: '=';
+PLUSEQUAL: '+=';
+MINUSEQUAL: '-=';
+MULTEQUAL: '*=';
+DIVEQUAL: '/=';
+MODEQUAL: '%=';
+PLUSPLUS: '++';
+MINUSMINUS: '--';
 EQUALITY: '==';
 INEQUALITY: '!=';
 COMP_LTE: '<=';

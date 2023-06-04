@@ -118,10 +118,73 @@ class AstBuilderVisitor(MchyVisitor):
         ).with_loc(loc_from_ctx(ctx))
 
     def visitAssignment(self, ctx: MchyParser.AssignmentContext):
-        return Assignment(
-            ExprLitIdent(str(ctx.lhs.text)).with_loc(loc_from_tok(ctx.lhs)),
-            self.visit(ctx.rhs)
-        ).with_loc(loc_from_ctx(ctx))
+        if ctx.method.type == MchyCustomParser.EQUAL:
+            return Assignment(
+                ExprLitIdent(str(ctx.lhs.text)).with_loc(loc_from_tok(ctx.lhs)),
+                self.visit(ctx.rhs)
+            ).with_loc(loc_from_ctx(ctx))
+        elif ctx.method.type == MchyCustomParser.PLUSEQUAL:
+            return Assignment(
+                ExprLitIdent(str(ctx.lhs.text)).with_loc(loc_from_tok(ctx.lhs)),
+                ExprPlus(
+                    ExprLitIdent(str(ctx.lhs.text)).with_loc(loc_from_tok(ctx.lhs)),
+                    self.visit(ctx.rhs)
+                ).with_loc(loc_from_ctx(ctx))
+            ).with_loc(loc_from_ctx(ctx))
+        elif ctx.method.type == MchyCustomParser.MINUSEQUAL:
+            return Assignment(
+                ExprLitIdent(str(ctx.lhs.text)).with_loc(loc_from_tok(ctx.lhs)),
+                ExprMinus(
+                    ExprLitIdent(str(ctx.lhs.text)).with_loc(loc_from_tok(ctx.lhs)),
+                    self.visit(ctx.rhs)
+                ).with_loc(loc_from_ctx(ctx))
+            ).with_loc(loc_from_ctx(ctx))
+        elif ctx.method.type == MchyCustomParser.MULTEQUAL:
+            return Assignment(
+                ExprLitIdent(str(ctx.lhs.text)).with_loc(loc_from_tok(ctx.lhs)),
+                ExprMult(
+                    ExprLitIdent(str(ctx.lhs.text)).with_loc(loc_from_tok(ctx.lhs)),
+                    self.visit(ctx.rhs)
+                ).with_loc(loc_from_ctx(ctx))
+            ).with_loc(loc_from_ctx(ctx))
+        elif ctx.method.type == MchyCustomParser.DIVEQUAL:
+            return Assignment(
+                ExprLitIdent(str(ctx.lhs.text)).with_loc(loc_from_tok(ctx.lhs)),
+                ExprDiv(
+                    ExprLitIdent(str(ctx.lhs.text)).with_loc(loc_from_tok(ctx.lhs)),
+                    self.visit(ctx.rhs)
+                ).with_loc(loc_from_ctx(ctx))
+            ).with_loc(loc_from_ctx(ctx))
+        elif ctx.method.type == MchyCustomParser.MODEQUAL:
+            return Assignment(
+                ExprLitIdent(str(ctx.lhs.text)).with_loc(loc_from_tok(ctx.lhs)),
+                ExprMod(
+                    ExprLitIdent(str(ctx.lhs.text)).with_loc(loc_from_tok(ctx.lhs)),
+                    self.visit(ctx.rhs)
+                ).with_loc(loc_from_ctx(ctx))
+            ).with_loc(loc_from_ctx(ctx))
+        else:
+            raise TypeError(f"Unhandled assignment symbol (found: {MchyCustomParser.symbolicNames[ctx.method.type]})")
+
+    def visitUnary_stmnt(self, ctx: MchyParser.Unary_stmntContext):
+        if ctx.operation.type == MchyCustomParser.PLUSPLUS:
+            return Assignment(
+                ExprLitIdent(str(ctx.target.text)).with_loc(loc_from_tok(ctx.target)),
+                ExprPlus(
+                    ExprLitIdent(str(ctx.target.text)).with_loc(loc_from_tok(ctx.target)),
+                    ExprLitInt(1).with_loc(loc_from_ctx(ctx))
+                ).with_loc(loc_from_ctx(ctx))
+            ).with_loc(loc_from_ctx(ctx))
+        elif ctx.operation.type == MchyCustomParser.MINUSMINUS:
+            return Assignment(
+                ExprLitIdent(str(ctx.target.text)).with_loc(loc_from_tok(ctx.target)),
+                ExprMinus(
+                    ExprLitIdent(str(ctx.target.text)).with_loc(loc_from_tok(ctx.target)),
+                    ExprLitInt(1).with_loc(loc_from_ctx(ctx))
+                ).with_loc(loc_from_ctx(ctx))
+            ).with_loc(loc_from_ctx(ctx))
+        else:
+            raise TypeError(f"Unhandled unary symbol (found: {MchyCustomParser.symbolicNames[ctx.operation.type]})")
 
     def visitReturn_ln(self, ctx: MchyParser.Return_lnContext):
         return ReturnLn(self.visit(ctx.target)).with_loc(loc_from_ctx(ctx))
