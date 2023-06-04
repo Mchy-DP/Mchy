@@ -33,20 +33,24 @@ class CustomErrorStrategy(DefaultErrorStrategy):
             self._custom_raise_next_report()
 
     def _custom_raise_next_report(self) -> None:
+        """Whatever the next lazy report is: raise is as though we never caught it"""
         self.__lazy_error_reporting[0][1]()
         self.__lazy_error_reporting = self.__lazy_error_reporting[1:]
 
     def _custom_next_report_is_err(self, e: RecognitionException) -> bool:
+        """True if the next lazy report is the supplied error"""
         return len(self.__lazy_error_reporting) > 0 and self.__lazy_error_reporting[0][0] == e
 
     # Complex recovery
-    def custom_is_ident_cbclose_err(self, recognizer: MchyCustomParser) -> bool:
+    def custom_helper_is_ident_cbclose_err(self, recognizer: MchyCustomParser) -> bool:
+        """True if the situation is a identifier followed by a closing brace"""
         current_token = assert_is_token(recognizer.getCurrentToken())
         next_token = assert_is_token(recognizer.getTokenStream().LT(2))
         return current_token.type == recognizer.IDENTIFIER and next_token.type == recognizer.CBCLOSE and isinstance(recognizer._ctx, recognizer.StmntContext)
 
     def reportError(self, recognizer: MchyCustomParser, e: RecognitionException):
-        if self.custom_is_ident_cbclose_err(recognizer):
+        """Report or silence errors"""
+        if self.custom_helper_is_ident_cbclose_err(recognizer):
             # delay reporting error until recover attempted
             _intended_report = super().reportError
             self.__lazy_error_reporting.append((e, lambda: _intended_report(recognizer, e)))
@@ -54,6 +58,7 @@ class CustomErrorStrategy(DefaultErrorStrategy):
         super().reportError(recognizer, e)
 
     def recover(self, recognizer: MchyCustomParser, e: RecognitionException):
+        """Attempt to recover from some sort of error"""
         self.custom_flush_lazy_errs(e)
         current_token = assert_is_token(recognizer.getCurrentToken())
         next_token = assert_is_token(recognizer.getTokenStream().LT(2))
