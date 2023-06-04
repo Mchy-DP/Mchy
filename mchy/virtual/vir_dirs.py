@@ -42,6 +42,13 @@ class VirFSNode():
         except VirtualRepError as e:
             raise VirtualRepError(str(e)+f"/{self.fs_name}").with_traceback(e.__traceback__) from None
 
+    def delete(self) -> None:
+        if self._parent is not None:
+            if self in self._parent.children:
+                self._parent.delete_child(self)  # This will re-call this function once self is unregistered as a child
+            else:
+                self._parent = None
+
     @property
     def fs_name(self) -> str:
         return self._name
@@ -64,6 +71,15 @@ class VirFolder(VirFSNode):
     def add_child(self, child: VirFSNode):
         self._children.append(child)
         child.link_parent(self)
+
+    def delete_child(self, child: VirFSNode):
+        self._children.remove(child)
+        child.delete()
+
+    def delete(self) -> None:
+        for child in self.children:
+            self.delete_child(child)
+        super().delete()
 
     @property
     def children(self) -> Tuple[VirFSNode, ...]:
