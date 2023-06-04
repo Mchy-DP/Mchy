@@ -110,15 +110,17 @@ class VirDP:
         return self._linker
 
     def write_to_disk(self):
-        # TODO: option to suppress backup creation
         prj_path = os_path.join(self._config.output_path, self._config.project_name)
         if os_path.exists(prj_path):
             self._config.logger.very_verbose("DISK: Output path already exists, checking if we can overwrite")
             # check file is what we think it is:
             if os_path.exists(os_path.join(prj_path, "pack.mcmeta")) and os_path.exists(os_path.join(prj_path, "generated.txt")):  # Is a datapack that we generated
-                self._config.logger.very_verbose("DISK: We made this, backing up old datapack")
-                _make_archive(prj_path, prj_path+".zip")
-                self._config.logger.very_verbose("DISK: Backed up existing datapack")
+                if self._config.do_backup:
+                    self._config.logger.very_verbose("DISK: We made this, backing up old datapack")
+                    _make_archive(prj_path, prj_path+".zip")
+                    self._config.logger.very_verbose("DISK: Backed up existing datapack")
+                else:
+                    self._config.logger.very_verbose("DISK: We made this, skipping backup due to config")
                 shutil.rmtree(prj_path)
                 self._config.logger.very_verbose("DISK: Deleted old datapack")
             else:
