@@ -66,6 +66,10 @@ class VirDP:
         return self._extra_frags_init
 
     @property
+    def generated_root(self) -> VirNSFolder:
+        return self._generated
+
+    @property
     def extra_frags_tick(self) -> VirFolder:
         return self._extra_frags_tick
 
