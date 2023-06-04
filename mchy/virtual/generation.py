@@ -140,10 +140,10 @@ def convert(smt_module: SmtModule, config: Config = Config()) -> VirDP:
     for smt_func in smt_module.get_smt_mchy_funcs():
         vir_dp.mchy_func_fld.add_child(convert_mchy_func(smt_func, vir_dp, config, _extra_error_state_begin))
 
-    config.logger.very_verbose("Optimizing")
+    config.logger.very_verbose("VIR: Optimizing")
     vir_dp = optimize(vir_dp)
 
-    config.logger.very_verbose("Done, returning")
+    config.logger.very_verbose("VIR: Done, returning")
     return vir_dp
 
 

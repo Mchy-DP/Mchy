@@ -141,7 +141,7 @@ class CallableFilesOnly(VirOptimisation):
         else:
             if len((_isect := live_files.intersection(dead_files))) >= 1:
                 raise VirtualRepError(f"Some files are both alive and dead? {repr(_isect)}")
-            vir_dp._config.logger.very_verbose(f"{type(self).__name__}: Deleting `{len(dead_files)}` unreachable files (Preserved: `{len(live_files)}`)")
+            vir_dp._config.logger.very_verbose(f"VIR: {type(self).__name__}: Deleting `{len(dead_files)}` unreachable files (Preserved: `{len(live_files)}`)")
             return vir_dp
 
     def _prune_tree(self, tree: VirFolder, live_files: FrozenSet[VirMCHYFile]) -> List[VirMCHYFile]:
@@ -168,17 +168,18 @@ class DeleteEmptyFolders(VirOptimisation):
         return Config.Optimize.O1
 
     def optimize(self, vir_dp: VirDP) -> Optional[VirDP]:
-        if self._prune_empty(vir_dp.generated_root):
+        if (pcount := self._prune_empty(vir_dp.generated_root)) >= 1:
+            vir_dp._config.logger.very_verbose(f"VIR: {type(self).__name__}: Deleting `{pcount}` empty folders")
             return vir_dp
         else:
             return None
 
-    def _prune_empty(self, node: VirFolder) -> bool:
-        if len(node.children) == 0:
-            node.delete()
-            return True
-        pruned: bool = False
+    def _prune_empty(self, node: VirFolder) -> int:
+        pruned: int = 0
         for child in node.children:
             if isinstance(child, VirFolder):
-                pruned = (self._prune_empty(child) or pruned)
+                pruned += self._prune_empty(child)
+        if len(node.children) == 0:
+            node.delete()
+            pruned += 1
         return pruned
