@@ -209,7 +209,7 @@ def parse_args(args: Optional[List[str]] = None) -> Tuple[str, Config]:
         elif "debug" in json_dict.keys():
             mchy_debug = True
         else:
-            mchy_debug = False  # default to False
+            mchy_debug = Config.DEFAULT_DEBUG_MODE
 
     # === Get Optimization Level
     optimization: Config.Optimize
@@ -245,7 +245,7 @@ def parse_args(args: Optional[List[str]] = None) -> Tuple[str, Config]:
         elif "no_backup" in json_dict.keys() or "no-backup" in json_dict.keys():
             do_backup = False
         else:
-            do_backup = True  # default to True
+            do_backup = Config.DEFAULT_DO_BACKUP
 
     # === Get recursion limit
     recursion_limit: int
@@ -257,7 +257,7 @@ def parse_args(args: Optional[List[str]] = None) -> Tuple[str, Config]:
         elif "recursion-limit" in json_dict.keys():
             recursion_limit = json_dict["recursion-limit"]
         else:
-            recursion_limit = 32  # default to 32
+            recursion_limit = Config.DEFAULT_RECURSION_LIMIT
 
     # === Get mchy file
     _mchy_file = pargs.file
