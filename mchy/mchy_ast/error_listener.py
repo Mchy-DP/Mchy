@@ -7,7 +7,7 @@ from mchy.common.com_diff import is_similar
 from mchy.common.com_loc import ComLoc
 from mchy.common.config import Config
 
-from mchy.errors import AbstractTreeError, MchySyntaxError
+from mchy.errors import AbstractTreeError, MchySyntaxError, UnreachableError
 from mchy.mchy_ast.antlr_typed_help import assert_is_token, get_expected_toks_str, get_input, get_token_text, loc_end_from_tok
 from mchy.mchy_ast.mchy_parser import MchyCustomParser
 
@@ -29,6 +29,30 @@ COMMON_TYPE_STRINGS = [
 
 def _helper_is_typeish(typeish_ident: str) -> bool:
     return any(is_similar(typeish_ident, type_) for type_ in COMMON_TYPE_STRINGS)
+
+
+def _helper_ctx(recognizer: MchyCustomParser) -> str:
+    top: str = ""
+    middle: str = ""
+    bottom: str = ""
+    footer: str = ""
+    for i in range(-4, 5):
+        token: Optional[CommonToken] = get_input(recognizer).LT(i)
+        if token is None:
+            continue
+        else:
+            assert_is_token(token)
+        name: str = (recognizer.symbolicNames[token.type] + " ")
+        text: str = repr(get_token_text(token))[1:-1]
+        length = max(len(name), len(text))
+        top += name.ljust(length)
+        middle += text.ljust(length)
+        if i == 1:
+            bottom += "^".ljust(length)
+        else:
+            bottom += (" " * length)
+    footer += ", ".join(recognizer.symbolicNames[etok] for etok in recognizer.getExpectedTokens())
+    return "\n".join([top, middle, bottom, footer])
 
 
 class MchyErrorListener(ErrorListener):
@@ -55,6 +79,9 @@ class MchyErrorListener(ErrorListener):
         self.config.logger.very_verbose(
             f"Mchy Syntax Error: off_sym={recognizer.symbolicNames[offendingSymbol.type]} err={repr(e)} " +
             f"ctx={type(ctx).__name__} parent_ctx={type(parent_ctx).__name__} expected_toks={expected_toks} msg='{msg}'"
+        )
+        self.config.logger.very_verbose(
+            "Further context: \n" + _helper_ctx(recognizer)
         )
 
         # === Early errors ===
@@ -106,12 +133,22 @@ class MchyErrorListener(ErrorListener):
         if isinstance(ctx, recognizer.Function_declContext):
             if (offendingSymbol.type == recognizer.COLON) and ({recognizer.CBOPEN, recognizer.ARROW} == expected_toks):
                 raise MchySyntaxError("Curly braces { and } should used for scoping, not indentation/colon")
-        if isinstance(ctx, recognizer.Stmnt_endingContext):
-            if isinstance(parent_ctx, recognizer.StmntContext):
-                statement_body = parent_ctx.getChild(0)
+        if isinstance(ctx, (recognizer.Mchy_fileContext, recognizer.Code_blockContext)):
+            prior_ctx: ParserRuleContext
+            if isinstance(ctx, recognizer.Mchy_fileContext):
+                # prior_ctx = File.Top_Scope.Last_elem.scope
+                prior_ctx = ctx.children[0].children[-1].children[0]
+            elif isinstance(ctx, recognizer.Code_blockContext):
+                # prior_ctx = Code_block.Last_scope
+                prior_ctx = ctx.children[-1]
+            else:
+                raise UnreachableError("Instance of file or code block is neither a file or a code block")
+
+            if isinstance(prior_ctx, recognizer.StmntContext):
+                statement_body = prior_ctx.getChild(0)
                 # Raise more specific error
                 if offendingSymbol.type == recognizer.EQUAL:
-                    raise MchySyntaxError(f"Cannot assign to non-variable `{stream.getText(parent_ctx.start.start, offendingSymbol.stop)}`")
+                    raise MchySyntaxError(f"Cannot assign to non-variable `{stream.getText(prior_ctx.start.start, offendingSymbol.stop)}`")
                 if offendingSymbol.type == recognizer.SBOPEN:
                     if isinstance(statement_body, recognizer.Variable_declContext):
                         core_type = statement_body.var_type.core_type
@@ -122,24 +159,26 @@ class MchyErrorListener(ErrorListener):
                                     f"Invalid type `{core_type_text}[...` found in declaration of variable " +
                                     f"{assert_is_token(statement_body.var_name).text}, did you mean 'Group[...'?"
                                 )
-            elif isinstance(parent_ctx, recognizer.Function_declContext):
+            elif isinstance(prior_ctx, recognizer.Function_declContext):
                 pass  # Cannot really add more context to this as they can be too varied
             else:
                 raise AbstractTreeError(f"Statement ending encountered outside statement while adding context to error: {msg}")
 
         # === Specific late errors ===
-        if isinstance(ctx, recognizer.StmntContext):
+        if isinstance(ctx, (recognizer.Mchy_fileContext, recognizer.Code_blockContext)):
+            # double identifier in a stmnt-expected context
             if offendingSymbol.type == recognizer.IDENTIFIER:
-                token_LT1 = assert_is_token(get_input(recognizer).LT(1))
-                if token_LT1.type == recognizer.IDENTIFIER:
-                    if is_similar(get_token_text(token_LT1), "def") or (get_token_text(token_LT1) in ("function", "fun", "func")):
+                token_prev = assert_is_token(get_input(recognizer).LT(-1))
+                token_this = assert_is_token(get_input(recognizer).LT(1))
+                if token_prev.type == recognizer.IDENTIFIER and token_this.type == recognizer.IDENTIFIER:
+                    if is_similar(get_token_text(token_prev), "def") or (get_token_text(token_prev) in ("function", "fun", "func")):
                         raise MchySyntaxError(
-                            f"No valid option for `{get_token_text(token_LT1)} {get_token_text(offendingSymbol)}`, did you mean `def {get_token_text(offendingSymbol)}`?"
+                            f"No valid option for `{get_token_text(token_prev)} {get_token_text(token_this)}`, did you mean `def {get_token_text(token_this)}`?"
                         )
-                    if _helper_is_typeish(get_token_text(token_LT1)):
+                    if _helper_is_typeish(get_token_text(token_prev)):
                         raise MchySyntaxError(
-                            f"No valid option for `{get_token_text(token_LT1)} {get_token_text(offendingSymbol)}`, " +
-                            f"did you mean `var {get_token_text(offendingSymbol)}: {get_token_text(token_LT1)}`?"
+                            f"No valid option for `{get_token_text(token_prev)} {get_token_text(token_this)}`, " +
+                            f"did you mean `var {get_token_text(token_this)}: {get_token_text(token_prev)}`?"
                         )
 
         # === Late/slightly less generic errors ===
@@ -150,7 +189,7 @@ class MchyErrorListener(ErrorListener):
             # DBQ_STRING is only in expecting_toks if the start of an expression is expected
             raise MchySyntaxError(f"Encountered '{get_token_text(offendingSymbol)}', expected expression")
         if offendingSymbol.type == recognizer.SBOPEN:
-            raise MchySyntaxError(f"Cannot use '[' in this context?  Are you attempting to index a list/array, arrays are not yet supported so this won't work")
+            raise MchySyntaxError(f"Cannot use '[' in this context?  Are you attempting to index a list/array, arrays are not yet supported so this won't work.")
 
         # Super generic catch-all error
         raise MchySyntaxError(msg)

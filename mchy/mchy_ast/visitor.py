@@ -13,7 +13,10 @@ class AstBuilderVisitor(MchyVisitor):
         return self.visit(ctx.top)
 
     def visitTop_level_scope(self, ctx: MchyParser.Top_level_scopeContext):
-        return Root(Scope(*list(self.visit(child) for child in ctx.children)))
+        return Root(Scope(*list(self.visit(child) for child in ctx.children if isinstance(child, MchyCustomParser.Top_elemsContext))))
+
+    def visitTop_elems(self, ctx: MchyParser.Top_elemsContext):
+        return self.visit(ctx.children[0])
 
     def visitStmnt(self, ctx: MchyParser.StmntContext):
         stmnt_child: Node = self.visit(ctx.children[0])
@@ -93,14 +96,7 @@ class AstBuilderVisitor(MchyVisitor):
         return Scope(code_block).with_loc(code_block.loc)
 
     def visitCode_block(self, ctx: MchyParser.Code_blockContext):
-        filtered_stmnts = []
-        for stmnt in ctx.children[1:]:
-            if isinstance(stmnt, antlr4.TerminalNode):
-                if stmnt.symbol.type in (MchyCustomParser.CBCLOSE, MchyCustomParser.CBOPEN, MchyCustomParser.NEWLINE):
-                    continue
-            else:
-                filtered_stmnts.append(stmnt)
-        return CodeBlock(*list(self.visit(child) for child in filtered_stmnts)).with_loc(loc_from_ctx(ctx))
+        return CodeBlock(*list(self.visit(child) for child in ctx.children if isinstance(child, MchyCustomParser.StmntContext))).with_loc(loc_from_ctx(ctx))
 
     def visitVariable_decl(self, ctx: MchyParser.Variable_declContext):
         read_only: bool
