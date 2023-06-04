@@ -28,6 +28,7 @@ class Config():
     DEFAULT_DEBUG_MODE: bool = False
     DEFAULT_VERBOSITY: Verbosity = Verbosity.NORMAL
     DEFAULT_OPTIMISATION: Optimize = Optimize.NOTHING
+    DEFAULT_DO_BACKUP: bool = True
 
     def __init__(
             self,
@@ -40,6 +41,7 @@ class Config():
             debug_mode: bool = DEFAULT_DEBUG_MODE,
             verbosity: Verbosity = DEFAULT_VERBOSITY,
             optimisation: Optimize = DEFAULT_OPTIMISATION,
+            do_backup: bool = DEFAULT_DO_BACKUP
             ) -> None:
         self._project_name: str = project_name
         self._project_namespace: str = project_namespace
@@ -50,6 +52,7 @@ class Config():
         self._debug_mode: bool = debug_mode
         self._verbosity: Config.Verbosity = verbosity
         self._optimisation: Config.Optimize = optimisation
+        self._do_backup: bool = do_backup
 
     @property
     def project_name(self) -> str:
@@ -86,3 +89,7 @@ class Config():
     @property
     def optimisation(self) -> Optimize:
         return self._optimisation
+
+    @property
+    def do_backup(self) -> bool:
+        return self._do_backup

@@ -64,6 +64,19 @@ def parse_args(args: Optional[List[str]] = None) -> Tuple[str, Config]:
             "Prevent the log file being overwritten. Only required to counteract --overwrite-log flag set by json config."
         )
     )
+    group_backup = parser.add_mutually_exclusive_group()
+    group_backup.add_argument(
+        "--no-backup", action="store_true",
+        help="Suppress backup creation. Improves '(5/6) Writing to disk' compiler step duration."
+    )
+    group_backup.add_argument(
+        "--force-backup", action="store_true",
+        help="Force backup creation. Only required to counteract --no-backup flag set by json config."
+    )
+    parser.add_argument(
+        '--recursion-limit', type=int, default=None,
+        help='The maximum level of recursion. Default is 32. Large values may cause slow compilations.'
+    )
 
     pargs: argparse.Namespace = parser.parse_args(args)
 
@@ -196,7 +209,7 @@ def parse_args(args: Optional[List[str]] = None) -> Tuple[str, Config]:
         elif "debug" in json_dict.keys():
             mchy_debug = True
         else:
-            mchy_debug = False  # default to False
+            mchy_debug = Config.DEFAULT_DEBUG_MODE
 
     # === Get Optimization Level
     optimization: Config.Optimize
@@ -220,6 +233,32 @@ def parse_args(args: Optional[List[str]] = None) -> Tuple[str, Config]:
         else:
             optimization = Config.Optimize.NOTHING
 
+    # === Get backup needed
+    do_backup: bool
+    if pargs.force_backup:
+        do_backup = True
+    elif pargs.no_backup:
+        do_backup = False
+    else:
+        if "backup" in json_dict.keys() or "force_backup" in json_dict.keys() or "force-backup" in json_dict.keys():
+            do_backup = True
+        elif "no_backup" in json_dict.keys() or "no-backup" in json_dict.keys():
+            do_backup = False
+        else:
+            do_backup = Config.DEFAULT_DO_BACKUP
+
+    # === Get recursion limit
+    recursion_limit: int
+    if pargs.recursion_limit is not None:
+        recursion_limit = pargs.recursion_limit
+    else:
+        if "recursion_limit" in json_dict.keys():
+            recursion_limit = json_dict["recursion_limit"]
+        elif "recursion-limit" in json_dict.keys():
+            recursion_limit = json_dict["recursion-limit"]
+        else:
+            recursion_limit = Config.DEFAULT_RECURSION_LIMIT
+
     # === Get mchy file
     _mchy_file = pargs.file
     mchy_file_path = os_path.abspath(_mchy_file)
@@ -238,9 +277,11 @@ def parse_args(args: Optional[List[str]] = None) -> Tuple[str, Config]:
     return (mchy_file_path, Config(
         project_name=project_name,
         project_namespace=project_namespace,
+        recursion_limit=recursion_limit,
         logger=logger,
         output_path=output_path,
         debug_mode=mchy_debug,
         verbosity=verbosity_level,
-        optimisation=optimization
+        optimisation=optimization,
+        do_backup=do_backup
     ))
