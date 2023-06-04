@@ -114,6 +114,8 @@ _TEST_CONFIG = Config()
     ("foo %= 15", [(Root, 0), (Scope, 0), (Stmnt, 0), (Assignment, 1), (ExprMod, None)], ComLoc(1, 0, 1, 9)),
     ("foo %= 15", [(Root, 0), (Scope, 0), (Stmnt, 0), (Assignment, 1), (ExprMod, 0), (ExprLitIdent, None)], ComLoc(1, 0, 1, 3)),
     ("foo %= 15", [(Root, 0), (Scope, 0), (Stmnt, 0), (Assignment, 1), (ExprMod, 1), (ExprLitInt, None)], ComLoc(1, 7, 1, 9)),
+    ("foo++", [(Root, 0), (Scope, 0), (Stmnt, 0), (Assignment, None)], ComLoc(1, 0, 1, 5)),
+    ("foo--", [(Root, 0), (Scope, 0), (Stmnt, 0), (Assignment, None)], ComLoc(1, 0, 1, 5)),
     ("if x1 {11} elif x2 {22} else {33}", [(Root, 0), (Scope, 0), (Stmnt, 0), (IfStruct, None)], ComLoc(1, 0, 1, 33)),
     ("if x1 {11} elif x2 {22} else {33}", [(Root, 0), (Scope, 0), (Stmnt, 0), (IfStruct, 0), (ExprLitIdent, None)], ComLoc(1, 3, 1, 5)),
     ("if x1 {11} elif x2 {22} else {33}", [(Root, 0), (Scope, 0), (Stmnt, 0), (IfStruct, 1), (CodeBlock, None)], ComLoc(1, 6, 1, 10)),

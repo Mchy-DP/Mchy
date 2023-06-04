@@ -166,6 +166,26 @@ class AstBuilderVisitor(MchyVisitor):
         else:
             raise TypeError(f"Unhandled assignment symbol (found: {MchyCustomParser.symbolicNames[ctx.method.type]})")
 
+    def visitUnary_stmnt(self, ctx: MchyParser.Unary_stmntContext):
+        if ctx.operation.type == MchyCustomParser.PLUSPLUS:
+            return Assignment(
+                ExprLitIdent(str(ctx.target.text)).with_loc(loc_from_tok(ctx.target)),
+                ExprPlus(
+                    ExprLitIdent(str(ctx.target.text)).with_loc(loc_from_tok(ctx.target)),
+                    ExprLitInt(1).with_loc(loc_from_ctx(ctx))
+                ).with_loc(loc_from_ctx(ctx))
+            ).with_loc(loc_from_ctx(ctx))
+        elif ctx.operation.type == MchyCustomParser.MINUSMINUS:
+            return Assignment(
+                ExprLitIdent(str(ctx.target.text)).with_loc(loc_from_tok(ctx.target)),
+                ExprMinus(
+                    ExprLitIdent(str(ctx.target.text)).with_loc(loc_from_tok(ctx.target)),
+                    ExprLitInt(1).with_loc(loc_from_ctx(ctx))
+                ).with_loc(loc_from_ctx(ctx))
+            ).with_loc(loc_from_ctx(ctx))
+        else:
+            raise TypeError(f"Unhandled unary symbol (found: {MchyCustomParser.symbolicNames[ctx.operation.type]})")
+
     def visitReturn_ln(self, ctx: MchyParser.Return_lnContext):
         return ReturnLn(self.visit(ctx.target)).with_loc(loc_from_ctx(ctx))
 
