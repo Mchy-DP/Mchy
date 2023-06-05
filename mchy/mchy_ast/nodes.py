@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod, abstractproperty
 from itertools import zip_longest
-from typing import Any, List, Optional, TypeVar, Union
+from typing import Any, List, Optional, Tuple, TypeVar, Union
 
 from mchy.common.com_loc import ComLoc
 
@@ -62,9 +62,9 @@ class Root(Node):
 
 class Scope(Node):
 
-    def __init__(self, *stmnts: 'Union[Stmnt, FunctionDecl]', **kwargs):
+    def __init__(self, *stmnts: Union['Stmnt', 'FunctionDecl', 'Include'], **kwargs):
         super().__init__(*stmnts, **kwargs)
-        self.stmnts: List[Union[Stmnt, FunctionDecl]] = list(stmnts)
+        self.stmnts: List[Union[Stmnt, FunctionDecl, Include]] = list(stmnts)
 
 
 class FunctionDecl(Node):
@@ -134,6 +134,14 @@ class Decorator(Node):
     @property
     def dec_name(self) -> str:
         return self.decorator_name_ident.value
+
+
+class Include(Node):
+
+    def __init__(self, resource: 'ExprGen', *targeting: 'ExprLitIdent', **kwargs):
+        super().__init__(resource, *targeting, **kwargs)
+        self.resource: ExprGen = resource
+        self.targeting: Tuple[ExprLitIdent, ...] = targeting
 
 
 class Stmnt(Node):

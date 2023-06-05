@@ -134,6 +134,8 @@ _TEST_CONFIG = Config()
     ("true or true", Root(Scope(Stmnt(ExprOr(ExprLitBool(True), ExprLitBool(True)))))),
     ("false and false", Root(Scope(Stmnt(ExprAnd(ExprLitBool(False), ExprLitBool(False)))))),
     ("false or false", Root(Scope(Stmnt(ExprOr(ExprLitBool(False), ExprLitBool(False)))))),
+    # Inclusion
+    ("include './test.txt' at tags.blocks", Root(Scope(Include(ExprLitStr("./test.txt"), ExprLitIdent("tags"), ExprLitIdent("blocks")))))
 ])
 def test_tree_matches(expression: str, expected_tree: Root):
     root_node: Root = mchy_parse(expression, _TEST_CONFIG)

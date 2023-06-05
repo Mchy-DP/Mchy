@@ -18,6 +18,14 @@ class AstBuilderVisitor(MchyVisitor):
     def visitTop_elems(self, ctx: MchyParser.Top_elemsContext):
         return self.visit(ctx.children[0])
 
+    def visitInclusions(self, ctx: MchyParser.InclusionsContext):
+        return Include(self.visit(ctx.resource), *self.visit(ctx.inc_path)).with_loc(loc_from_ctx(ctx))
+
+    def visitInclusion_path(self, ctx: MchyParser.Inclusion_pathContext):
+        return ([] if ctx.initial_dot is None else [ExprLitIdent(".").with_loc(loc_from_tok(ctx.initial_dot))]) + list(
+            (ExprLitIdent(child.symbol.text).with_loc(loc_from_tok(child.symbol))) for child in ctx.children if child.symbol.type == MchyCustomParser.IDENTIFIER
+        )
+
     def visitStmnt(self, ctx: MchyParser.StmntContext):
         stmnt_child: Node = self.visit(ctx.children[0])
         return Stmnt(stmnt_child).with_loc(loc_from_ctx(ctx).with_line_end(stmnt_child.loc.line_end).with_col_end(stmnt_child.loc.col_end))

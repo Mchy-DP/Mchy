@@ -4,7 +4,11 @@ mchy_file: NEWLINE* top=top_level_scope NEWLINE* EOF;
 
 top_level_scope: top_elems (stmnt_ending top_elems)*;
 
-top_elems: (stmnt|function_decl);
+top_elems: (stmnt|function_decl|inclusions);
+
+inclusions: inckw=INCLUDE resource=expr AT inc_path=inclusion_path;
+
+inclusion_path: initial_dot=DOT? IDENTIFIER (DOT IDENTIFIER)*;
 
 stmnt: (expr|variable_decl|assignment|unary_stmnt|return_ln|if_stmnt|while_loop|for_loop|user_comment|raw_cmd);
 
@@ -90,6 +94,8 @@ INT: DIGIT+;
 VAR: 'var';
 LET: 'let';
 DEF: 'def';
+INCLUDE: 'include';
+AT: 'at';
 GROUP: 'Group';
 NULL: 'null';
 TRUE: 'true'|'True';
