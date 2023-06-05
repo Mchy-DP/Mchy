@@ -283,5 +283,6 @@ def parse_args(args: Optional[List[str]] = None) -> Tuple[str, Config]:
         debug_mode=mchy_debug,
         verbosity=verbosity_level,
         optimisation=optimization,
-        do_backup=do_backup
+        do_backup=do_backup,
+        inclusion_path=os_path.dirname(mchy_file_path),
     ))

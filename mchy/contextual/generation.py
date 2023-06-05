@@ -6,6 +6,7 @@ from mchy.common.config import Config
 from mchy.contextual.err_intercepts import handle_intercept_partial_chain_options
 from mchy.contextual.expr_generation import convert_expr, convert_expr_noflat, convert_lit_ident
 from mchy.contextual.struct.expr import CtxExprLits, CtxExprVar
+from mchy.common.com_inclusion import FileInclusion
 from mchy.contextual.struct.stmnt import CtxBranch, CtxIfStmnt, CtxReturn, CtxWhileLoop, CtxForLoop
 from mchy.mchy_ast.nodes import *
 from mchy.contextual.struct import *
@@ -25,21 +26,23 @@ def convert(ast: Root, config: Config) -> CtxModule:
         module.import_ns(Namespace.get_namespace("std"))
         config.logger.very_verbose(f"CTX: Parsing global scope")
         funcs: List[Tuple[FunctionDecl, CtxMchyFunc]] = []
-        for stmnt_or_func in ast_scope.children:
-            if isinstance(stmnt_or_func, Stmnt):
-                if len(stmnt_or_func.children) != 1:
-                    raise ContextualisationError(f"Malformed AST: Stmnt does not have 1 child ({str(stmnt_or_func)})")
-                module.exec_body.extend(convert_stmnt(stmnt_or_func, None, module, [module.global_var_scope], None, config=config))
-            elif isinstance(stmnt_or_func, FunctionDecl):
-                config.logger.very_verbose(f"CTX: Parsing function declaration of function with name `{stmnt_or_func.func_name}`")
-                func, marker = convert_function_decl(stmnt_or_func, None, module, [module.global_var_scope])
-                funcs.append((stmnt_or_func, func))  # Add the function to the list of functions to revisit at the end and build the func-bodies
+        for top_level_elem in ast_scope.children:
+            if isinstance(top_level_elem, Stmnt):
+                if len(top_level_elem.children) != 1:
+                    raise ContextualisationError(f"Malformed AST: Stmnt does not have 1 child ({str(top_level_elem)})")
+                module.exec_body.extend(convert_stmnt(top_level_elem, None, module, [module.global_var_scope], None, config=config))
+            elif isinstance(top_level_elem, FunctionDecl):
+                config.logger.very_verbose(f"CTX: Parsing function declaration of function with name `{top_level_elem.func_name}`")
+                func, marker = convert_function_decl(top_level_elem, None, module, [module.global_var_scope])
+                funcs.append((top_level_elem, func))  # Add the function to the list of functions to revisit at the end and build the func-bodies
                 config.logger.very_verbose(f"CTX: Registering parsed function")
-                func, marker = apply_decorators(func, marker, stmnt_or_func.decorators, module, [module.global_var_scope])
+                func, marker = apply_decorators(func, marker, top_level_elem.decorators, module, [module.global_var_scope])
                 module.add_function(func)  # Register the function and check for duplicates
                 module.exec_body.append(marker)
+            elif isinstance(top_level_elem, Include):
+                module.add_inclusion(convert_include(top_level_elem, module, [module.global_var_scope], config))
             else:
-                raise ContextualisationError(f"Malformed AST: Non stmnt/func_decl in global scope ({str(stmnt_or_func)})")
+                raise ContextualisationError(f"Malformed AST: Non stmnt/func_decl/include in global scope ({str(top_level_elem)})")
         config.logger.very_verbose(f"CTX: Completed global scope conversion")
         config.logger.very_verbose(f"CTX: Converting function bodies")
         for ast_fdec, func in funcs:
@@ -133,6 +136,31 @@ def _assert_no_params(func: CtxMchyFunc, func_type: str) -> None:
             f"{func_type} functions cannot have any parameters.  Consider deleting params: " +
             f"`def {func.get_name()}({func_params[0].render()}{(', ...' if len(func_params) > 1 else '')})` ---> `def {func.get_name()}()`"
         ).with_loc(func_params[0].label_loc)
+
+
+def convert_include(
+            include: Include,
+            module: CtxModule,
+            var_scopes: List[VarScope],
+            config: Config
+        ) -> FileInclusion:
+    # get resource path
+    resource_expr: CtxExprNode = convert_expr(include.resource, None, module, var_scopes)
+    if not matches_type(InertType(InertCoreTypes.STR, const=True), resource_expr.get_type()):
+        raise ConversionError(
+            f"Resources to include must be string constants (str!), not {resource_expr.get_type().render()}"
+        )  # FIXME: loc & test
+    if not isinstance(resource_expr, CtxExprLitStr):
+        raise ContextualisationError(f"Include resource is string constant but is not a string literal, found {repr(resource_expr)}")
+    resource_path: str = resource_expr.value
+    # build target location
+    output_path: List[str] = []
+    targeting = [tar.value for tar in include.targeting]
+    if targeting[0] == ".":
+        output_path.append(config.project_namespace)
+        targeting = targeting[1:]
+    output_path.extend(targeting)
+    return FileInclusion(resource_path, output_path, include.loc)
 
 
 def apply_decorators(func: CtxMchyFunc, marker: MarkerDeclFunc, decorators: List[Decorator], module: CtxModule, var_scopes: List[VarScope]) -> Tuple[CtxMchyFunc, MarkerDeclFunc]:

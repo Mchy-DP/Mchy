@@ -1,4 +1,5 @@
 
+from mchy.common.com_inclusion import FileInclusion
 from mchy.common.com_types import ExecCoreTypes, ExecType, InertCoreTypes, InertType
 from mchy.common.config import Config
 from mchy.contextual.struct.ctx_func import CtxMchyFunc
@@ -212,3 +213,17 @@ def test_public_func_registered():
     module = convert(ast_root, Config())
 
     assert module.get_public_funcs() == [module.get_function_oerr(ExecType(ExecCoreTypes.WORLD, False), "give_apple")]
+
+
+def test_inclusion_included():
+    ast_root = Root(Scope(
+        Include(ExprLitStr("file1.txt"), ExprLitIdent("dp_name_2")),
+        Include(ExprLitStr("file2.txt"), ExprLitIdent("."), ExprLitIdent("tags")),
+    ))
+
+    module = convert(ast_root, Config())
+
+    assert list(module.get_inclusions()) == [
+        FileInclusion("file1.txt", ["dp_name_2"], ComLoc()),
+        FileInclusion("file2.txt", ["prj_ns", "tags"], ComLoc())
+    ]

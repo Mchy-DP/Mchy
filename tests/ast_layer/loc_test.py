@@ -130,6 +130,10 @@ _TEST_CONFIG = Config()
     ("for foo in 0..x {1}", [(Root, 0), (Scope, 0), (Stmnt, 0), (ForLoop, 2), (ExprLitIdent, None)], ComLoc(1, 14, 1, 15)),
     ("for foo in 0..x {1}", [(Root, 0), (Scope, 0), (Stmnt, 0), (ForLoop, 3), (CodeBlock, None)], ComLoc(1, 16, 1, 19)),
     ("while x {1}", [(Root, 0), (Scope, 0), (Stmnt, 0), (WhileLoop, None)], ComLoc(1, 0, 1, 11)),
+    ("include 'foo' at tags.blocks", [(Root, 0), (Scope, 0), (Include, None)], ComLoc(1, 0, 1, 28)),
+    ("include 'foo' at tags.blocks", [(Root, 0), (Scope, 0), (Include, 0), (ExprLitStr, None)], ComLoc(1, 8, 1, 13)),
+    ("include 'foo' at tags.blocks", [(Root, 0), (Scope, 0), (Include, 1), (ExprLitIdent, None)], ComLoc(1, 17, 1, 21)),
+    ("include 'foo' at tags.blocks", [(Root, 0), (Scope, 0), (Include, 2), (ExprLitIdent, None)], ComLoc(1, 22, 1, 28)),
 ])
 def test_loc_expected(code: str, path: List[Tuple[Type[Node], Optional[int]]], loc: ComLoc):
     root_node: Root = mchy_parse(code, _TEST_CONFIG)
