@@ -23,6 +23,7 @@ from mchy.stmnt.struct.smt_frag import SmtFragment
 
 def convert(ctx_module: CtxModule, config: Config) -> SmtModule:
     smt_module = SmtModule()
+    smt_module.file_inclusions.extend(ctx_module.get_inclusions())
     config.logger.very_verbose(f"SMT: Registering functions")
     # register functions
     mchy_funcs = ctx_module.get_mchy_functions()

@@ -1,6 +1,7 @@
 
 from typing import Any, Dict, List, Optional, Set, Tuple
 from mchy.cmd_modules.function import CtxIFunc, CtxIParam
+from mchy.common.com_inclusion import FileInclusion
 from mchy.common.com_types import InertCoreTypes, InertType
 from mchy.common.config import Config
 from mchy.contextual.struct import CtxMchyFunc
@@ -23,6 +24,7 @@ class SmtModule:
         self._ctx_iparam_defaults: Dict[CtxIParam, Optional[SmtAtom]] = {}
         self._world_lit_val = SmtWorld()
         self.public_functions: Dict[str, SmtFunc] = {}
+        self.file_inclusions: List[FileInclusion] = []
 
         # Ensures before any global scope code runs the imported functions are fully loaded
         self.setup_function.func_frag.body.append(SmtInvokeFuncCmd(self.import_ns_function, self.get_world()))
