@@ -12,6 +12,7 @@ from mchy.common.com_types import ComType, ExecCoreTypes, ExecType, InertType, S
 from mchy.common.config import Config
 from mchy.contextual.struct.ctx_func import CtxMchyFunc
 from mchy.contextual.struct.expr import CtxChainLink, CtxChain, CtxPyStruct
+from mchy.common.com_inclusion import FileInclusion
 from mchy.contextual.struct.stmnt import CtxStmnt
 from mchy.contextual.struct.var_scope import VarScope
 from mchy.errors import ConversionError
@@ -29,6 +30,13 @@ class CtxModule:
         self._structs: List[CtxPyStruct] = []
         self._ticking_funcs: List[CtxMchyFunc] = []
         self._public_funcs: List[CtxMchyFunc] = []
+        self._inclusions: List[FileInclusion] = []
+
+    def add_inclusion(self, new_inc: FileInclusion) -> None:
+        self._inclusions.append(new_inc)
+
+    def get_inclusions(self) -> Tuple[FileInclusion, ...]:
+        return tuple(self._inclusions)
 
     def func_defined(self, executor: ExecType, name: str) -> bool:
         return self.get_function(executor, name) is not None
