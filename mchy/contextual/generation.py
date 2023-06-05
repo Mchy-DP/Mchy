@@ -160,7 +160,7 @@ def convert_include(
         output_path.append(config.project_namespace)
         targeting = targeting[1:]
     output_path.extend(targeting)
-    return FileInclusion(resource_path, output_path)
+    return FileInclusion(resource_path, output_path, include.loc)
 
 
 def apply_decorators(func: CtxMchyFunc, marker: MarkerDeclFunc, decorators: List[Decorator], module: CtxModule, var_scopes: List[VarScope]) -> Tuple[CtxMchyFunc, MarkerDeclFunc]:

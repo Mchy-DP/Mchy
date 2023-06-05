@@ -9,6 +9,7 @@ from mchy.stmnt.struct.linker import SmtLinker, SmtVarFlavour
 from mchy.stmnt.struct import SmtModule, SmtMchyFunc, SmtCmd, SmtCommentCmd, CommentImportance
 from mchy.common.com_cmd import ComCmd
 from mchy.stmnt.tag_cleanup import get_cleanup_stmnts
+from mchy.virtual.file_inc import include_file
 from mchy.virtual.optimize import optimize
 from mchy.virtual.vir_dirs import VirFolder, VirMCHYFile
 from mchy.virtual.vir_dp import VirDP
@@ -140,6 +141,12 @@ def convert(smt_module: SmtModule, config: Config = Config()) -> VirDP:
     for smt_func in smt_module.get_smt_mchy_funcs():
         vir_dp.mchy_func_fld.add_child(convert_mchy_func(smt_func, vir_dp, config, _extra_error_state_begin))
 
+    # performing inclusions (all files are raw to prevent the optimizer getting ideas)
+
+    for inclusion in smt_module.file_inclusions:
+        include_file(vir_dp, inclusion, config)
+
+    # optimize
     config.logger.very_verbose("VIR: Optimizing")
     vir_dp = optimize(vir_dp)
 

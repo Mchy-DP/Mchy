@@ -224,6 +224,6 @@ def test_inclusion_included():
     module = convert(ast_root, Config())
 
     assert list(module.get_inclusions()) == [
-        FileInclusion("file1.txt", ["dp_name_2"]),
-        FileInclusion("file2.txt", ["prj_ns", "tags"])
+        FileInclusion("file1.txt", ["dp_name_2"], ComLoc()),
+        FileInclusion("file2.txt", ["prj_ns", "tags"], ComLoc())
     ]
