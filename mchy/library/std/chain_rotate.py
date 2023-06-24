@@ -252,7 +252,7 @@ class ChainRotateFace(IChain):
             config.logger.very_verbose(f"Observed binding lacks expected element: {repr(clink_param_binding)}")
             raise StatementRepError("Rotational chainlink missing from own generator?")
         # generate command
-        target_location = rotate_facing_binding["target_location"]
+        target_location = rotate_facing_binding["target_loc"]
         facing_marker_register = function.new_pseudo_var(ExecType(ExecCoreTypes.ENTITY, False))
         return [
             SmtSummonCmd(facing_marker_register, target_location, "minecraft:marker", None),  # make a marker at target location
