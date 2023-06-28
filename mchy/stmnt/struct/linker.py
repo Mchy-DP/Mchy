@@ -92,7 +92,7 @@ class SmtLinker:
     def get_const_obj(self) -> str:
         return f"{self._prj_namespace}-mchy_const"
 
-    def get_debug_obj(self, objective_ending) -> str:
+    def get_debug_obj(self, objective_ending: str) -> str:
         obj = f"{self._prj_namespace}-mchy_debug-"+objective_ending
         self._special_objectives.add(obj)
         return obj
