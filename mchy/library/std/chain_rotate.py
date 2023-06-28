@@ -135,7 +135,7 @@ class ChainRotateSet(IChain):
 
     def stmnt_conv(
                 self, executor: 'SmtAtom', clink_param_binding: List[Tuple[IChainLink, Dict[str, 'SmtAtom'], List['SmtAtom']]],
-                module: 'SmtModule', function: 'SmtFunc', config: Config
+                module: 'SmtModule', function: 'SmtFunc', config: Config, loc: ComLoc
             ) -> Tuple[List['SmtCmd'], 'SmtAtom']:
         # get data
         rotate_set_binding: Optional[Dict[str, 'SmtAtom']] = None
@@ -186,7 +186,7 @@ class ChainRotateMatch(IChain):
 
     def stmnt_conv(
                 self, executor: 'SmtAtom', clink_param_binding: List[Tuple[IChainLink, Dict[str, 'SmtAtom'], List['SmtAtom']]],
-                module: 'SmtModule', function: 'SmtFunc', config: Config
+                module: 'SmtModule', function: 'SmtFunc', config: Config, loc: ComLoc
             ) -> Tuple[List['SmtCmd'], 'SmtAtom']:
         # get data
         rotate_matching_binding: Optional[Dict[str, 'SmtAtom']] = None
@@ -236,7 +236,7 @@ class ChainRotateFace(IChain):
 
     def stmnt_conv(
                 self, executor: 'SmtAtom', clink_param_binding: List[Tuple[IChainLink, Dict[str, 'SmtAtom'], List['SmtAtom']]],
-                module: 'SmtModule', function: 'SmtFunc', config: Config
+                module: 'SmtModule', function: 'SmtFunc', config: Config, loc: ComLoc
             ) -> Tuple[List['SmtCmd'], 'SmtAtom']:
         # get data
         rotate_facing_binding: Optional[Dict[str, 'SmtAtom']] = None

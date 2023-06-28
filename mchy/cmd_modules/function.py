@@ -59,9 +59,10 @@ class CtxIFunc(AbsCtxFunc):
                 extra_binding: List['SmtAtom'],
                 module: 'SmtModule',
                 function: 'SmtFunc',
-                config: Config
+                config: Config,
+                loc: ComLoc
             ) -> Tuple[List['SmtCmd'], 'SmtAtom']:
-        return self._ifunc.stmnt_conv(executor, {param.get_label(): binding for param, binding in param_binding.items()}, extra_binding, module, function, config=config)
+        return self._ifunc.stmnt_conv(executor, {param.get_label(): binding for param, binding in param_binding.items()}, extra_binding, module, function, config, loc)
 
 
 class IFunc:
@@ -95,7 +96,13 @@ class IFunc:
 
     @abstractmethod
     def stmnt_conv(
-                self, executor: 'SmtAtom', param_binding: Dict[str, 'SmtAtom'], extra_binding: List['SmtAtom'], module: 'SmtModule', function: 'SmtFunc', config: Config
+                self, executor: 'SmtAtom',
+                param_binding: Dict[str, 'SmtAtom'],
+                extra_binding: List['SmtAtom'],
+                module: 'SmtModule',
+                function: 'SmtFunc',
+                config: Config,
+                loc: ComLoc
             ) -> Tuple[List['SmtCmd'], 'SmtAtom']:
         ...
 

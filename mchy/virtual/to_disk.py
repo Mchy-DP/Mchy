@@ -1,7 +1,7 @@
 
 from mchy.common.com_cmd import ComCmd
 from mchy.errors import UnreachableError
-from mchy.virtual.vir_dirs import VirFolder, VirMCHYFile, VirRawFile
+from mchy.virtual.vir_dirs import VirBaseMCHYFile, VirFolder, VirRawFile
 import os
 
 
@@ -17,7 +17,7 @@ def to_disk(cur_folder: VirFolder, cur_path: str) -> None:
     for child in cur_folder.children:
         if isinstance(child, VirFolder):
             to_disk(child, os.path.join(cur_path, child.fs_name))
-        elif isinstance(child, VirMCHYFile):
+        elif isinstance(child, VirBaseMCHYFile):
             content = "\n".join([disk_line(line) for line in child.lines])+"\n"
             with open(os.path.join(cur_path, child.fs_name), mode="w") as file:
                 file.write(content)

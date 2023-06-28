@@ -51,7 +51,7 @@ def convert_intable_expr(ctx_expr: CtxExprNode, module: 'SmtModule', function: S
     elif isinstance(ctx_expr, CtxExprPropertyAccess):
         source_cmds, source_holder = convert_expr(ctx_expr.source, module, function, config=config)
         try:
-            prop_cmds, prop_holder = ctx_expr.prop.stmnt_conv(source_holder, module, function, config=config)
+            prop_cmds, prop_holder = ctx_expr.prop.stmnt_conv(source_holder, module, function, config=config, loc=ctx_expr.loc)
         except ConversionError as err:
             if (wrapped_data := err.intercept(ConversionError.InterceptFlags.LIBRARY_LOCLESS)):
                 err.with_loc(ctx_expr.loc)
@@ -208,7 +208,7 @@ def convert_gen_inert_expr(ctx_expr: CtxExprNode, module: 'SmtModule', function:
     elif isinstance(ctx_expr, CtxExprPropertyAccess):
         source_cmds, source_holder = convert_expr(ctx_expr.source, module, function, config=config)
         try:
-            prop_cmds, prop_holder = ctx_expr.prop.stmnt_conv(source_holder, module, function, config=config)
+            prop_cmds, prop_holder = ctx_expr.prop.stmnt_conv(source_holder, module, function, config=config, loc=ctx_expr.loc)
         except ConversionError as err:
             if (wrapped_data := err.intercept(ConversionError.InterceptFlags.LIBRARY_LOCLESS)):
                 err.with_loc(ctx_expr.loc)
@@ -250,7 +250,7 @@ def convert_exec_expr(ctx_expr: CtxExprNode, module: 'SmtModule', function: SmtF
     elif isinstance(ctx_expr, CtxExprPropertyAccess):
         source_cmds, source_holder = convert_expr(ctx_expr.source, module, function, config=config)
         try:
-            prop_cmds, prop_holder = ctx_expr.prop.stmnt_conv(source_holder, module, function, config=config)
+            prop_cmds, prop_holder = ctx_expr.prop.stmnt_conv(source_holder, module, function, config=config, loc=ctx_expr.loc)
         except ConversionError as err:
             if (wrapped_data := err.intercept(ConversionError.InterceptFlags.LIBRARY_LOCLESS)):
                 err.with_loc(ctx_expr.loc)
@@ -385,7 +385,7 @@ def convert_func_call_expr(ctx_expr: CtxExprFuncCall, module: 'SmtModule', funct
             else:
                 mchy_param_binding[param] = atom
         try:
-            func_cmds, func_return_holder = ctx_expr.function.stmnt_conv(executor_holder, mchy_param_binding, extra_atom_binding, module, function, config=config)
+            func_cmds, func_return_holder = ctx_expr.function.stmnt_conv(executor_holder, mchy_param_binding, extra_atom_binding, module, function, config, loc=ctx_expr.loc)
         except ConversionError as err:
             if (wrapped_data := err.intercept(ConversionError.InterceptFlags.LIBRARY_LOCLESS)):
                 err.with_loc(ctx_expr.loc)
@@ -420,7 +420,7 @@ def convert_chain_expr(ctx_chain: CtxExprFinalChain, module: 'SmtModule', functi
             link_param_atom_binding[link][1].append(param_atom)
     # Handle Call
     try:
-        chain_cmds, chain_return_holder = ctx_chain.stmnt_conv(executor_holder, link_param_atom_binding, module, function, config=config)
+        chain_cmds, chain_return_holder = ctx_chain.stmnt_conv(executor_holder, link_param_atom_binding, module, function, config=config, loc=ctx_chain.loc)
     except ConversionError as err:
         if (wrapped_data := err.intercept(ConversionError.InterceptFlags.LIBRARY_LOCLESS)):
             err.with_loc(ctx_chain.loc)

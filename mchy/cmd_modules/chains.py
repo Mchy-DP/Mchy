@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Dict, List, Optional, Sequence, Tuple, Type, TypeVar, Union
 from mchy.cmd_modules.docs_data import DocsData
 from mchy.cmd_modules.param import IParam, CtxIParam
+from mchy.common.com_loc import ComLoc
 
 from mchy.common.com_types import ComType, ExecType, TypeUnion, executor_prefix
 from mchy.common.config import Config
@@ -141,7 +142,7 @@ class IChain(IChainLink, abstract=True):
 
     def stmnt_conv(
                 self, executor: 'SmtAtom', clink_param_binding: List[Tuple[IChainLink, Dict[str, 'SmtAtom'], List['SmtAtom']]],
-                module: 'SmtModule', function: 'SmtFunc', config: Config
+                module: 'SmtModule', function: 'SmtFunc', config: Config, loc: ComLoc
             ) -> Tuple[List['SmtCmd'], 'SmtAtom']:
         """Will be called to provide the statements to perform this chain, if `.get_chain_type()` returns a non-constant type
 

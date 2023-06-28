@@ -6,7 +6,7 @@ from mchy.common.config import Config
 from mchy.stmnt.struct.linker import SmtLinker
 from mchy.virtual.helpers import json_dump
 from mchy.virtual.to_disk import to_disk
-from mchy.virtual.vir_dirs import VirFolder, VirMCHYFile, VirNSFolder, VirRawFile
+from mchy.virtual.vir_dirs import VirDynamicMCHYFile, VirFolder, VirMCHYFile, VirNSFolder, VirRawFile
 from os import path as os_path
 import os
 
@@ -41,7 +41,7 @@ class VirDP:
         fs_fld_imported_func_root = VirFolder("imported_root", self._generated)
         self._public_funcs = VirFolder("public", self._generated)
         self._import_param_default_init = VirMCHYFile("default_param_init.mcfunction", fs_fld_imported_func_root)
-        self._load_master = VirMCHYFile("load_master.mcfunction", fs_fld_internal_func_root)
+        self._load_master = VirDynamicMCHYFile("load_master.mcfunction", fs_fld_internal_func_root)
         self._tick_master = VirMCHYFile("tick_master.mcfunction", fs_fld_internal_func_root)
         self._mchy_func = VirFolder("mchy_func", fs_fld_internal_func_root)
         fs_fld_extra = VirFolder("extra", fs_fld_internal_func_root)
@@ -98,7 +98,7 @@ class VirDP:
         return self._mchy_func
 
     @property
-    def load_master_file(self) -> VirMCHYFile:
+    def load_master_file(self) -> VirDynamicMCHYFile:
         return self._load_master
 
     @property

@@ -81,6 +81,7 @@ class SmtLinker:
         self._var_lookup: Dict[SmtVar, SmtVarLinkage] = {}
         self._int_constants: Set[int] = set()
         self._frag_path_override: Dict[SmtFunc, str] = {}
+        self._special_objectives: Set[str] = set()  # Any objectives the linker returned unexpectedly (such as debug objectives)
 
     def add_const(self, const_value: int) -> None:
         self._int_constants.add(const_value)
@@ -90,6 +91,11 @@ class SmtLinker:
 
     def get_const_obj(self) -> str:
         return f"{self._prj_namespace}-mchy_const"
+
+    def get_debug_obj(self, objective_ending) -> str:
+        obj = f"{self._prj_namespace}-mchy_debug-"+objective_ending
+        self._special_objectives.add(obj)
+        return obj
 
     def add_func(self, func: SmtFunc, ns_loc: str, stack_level: Optional[int]) -> None:
         if stack_level is None:
@@ -180,6 +186,7 @@ class SmtLinker:
 
     def get_all_sb_objs(self) -> List[str]:
         output_objectives: Set[str] = set()
+        output_objectives.update(self._special_objectives)
         for linkage in self._var_lookup.values():
             if isinstance(linkage, SmtObjVarLinkage):
                 for stacklevel in range(0, self._recursion_limit):

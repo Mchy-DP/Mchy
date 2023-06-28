@@ -69,11 +69,8 @@ def convert(smt_module: SmtModule, config: Config = Config()) -> VirDP:
     _extra_error_state_begin.append(ComCmd(f"function {_extra_error_state_core.get_namespace_loc()}"))
     _extra_error_state_core.append(ComCmd(f"function {_extra_error_state_core.get_namespace_loc()}"))
 
-    # Add required scoreboard objectives
-    config.logger.very_verbose(f"VIR: Adding scoreboard objective creation commands to load_master file")
-    vir_dp.load_master_file.extend(SmtCommentCmd("Build Scoreboard", generator="MCHY", importance=CommentImportance.TITLE).virtualize(vir_dp.linker, 0))
-    for obj in vir_dp.linker.get_all_sb_objs():
-        vir_dp.load_master_file.append(ComCmd(f"scoreboard objectives add {obj} dummy"))
+    # Reserve a spot for the scoreboard
+    sb_obj_creation_loc = vir_dp.load_master_file.reserve_spot()
 
     # Add constants
     config.logger.very_verbose(f"VIR: Adding scoreboard const creation commands to load_master file")
@@ -141,8 +138,13 @@ def convert(smt_module: SmtModule, config: Config = Config()) -> VirDP:
     for smt_func in smt_module.get_smt_mchy_funcs():
         vir_dp.mchy_func_fld.add_child(convert_mchy_func(smt_func, vir_dp, config, _extra_error_state_begin))
 
-    # performing inclusions (all files are raw to prevent the optimizer getting ideas)
+    # Add all required scoreboard objectives (done here so that dynamic scoreboard objectives are created now that they are known)
+    config.logger.very_verbose(f"VIR: Adding scoreboard objective creation commands to beginning of load_master file")
+    sb_obj_creation_loc.extend(SmtCommentCmd("Build Scoreboard", generator="MCHY", importance=CommentImportance.TITLE).virtualize(vir_dp.linker, 0))
+    for obj in vir_dp.linker.get_all_sb_objs():
+        sb_obj_creation_loc.append(ComCmd(f"scoreboard objectives add {obj} dummy"))
 
+    # performing inclusions (all files are raw to prevent the optimizer getting ideas)
     for inclusion in smt_module.file_inclusions:
         include_file(vir_dp, inclusion, config)
 

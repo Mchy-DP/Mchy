@@ -296,7 +296,8 @@ class CtxExprFinalChain(CtxExprGenericChain):
             param_binding: Dict[CtxChainLink, Tuple[Dict[AbsCtxParam, 'SmtAtom'], List['SmtAtom']]],
             module: 'SmtModule',
             function: 'SmtFunc',
-            config: Config) -> Tuple[List['SmtCmd'], 'SmtAtom']:
+            config: Config,
+            loc: ComLoc) -> Tuple[List['SmtCmd'], 'SmtAtom']:
         user_param_binding: List[Tuple[IChainLink, Dict[str, 'SmtAtom'], List['SmtAtom']]] = []
         for chain_link, binding in param_binding.items():
             param_binding_dict: Dict[str, 'SmtAtom'] = {}
@@ -306,4 +307,4 @@ class CtxExprFinalChain(CtxExprGenericChain):
                 param_binding_dict[param.get_label()] = atom
             for arg in binding[1]:
                 extra_arg_list.append(arg)
-        return self._chain.chain.stmnt_conv(executor, user_param_binding, module, function, config)
+        return self._chain.chain.stmnt_conv(executor, user_param_binding, module, function, config, loc)

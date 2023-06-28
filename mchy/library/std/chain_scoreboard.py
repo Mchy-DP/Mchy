@@ -106,15 +106,19 @@ class SmtSbObjGetExecCmd(SmtCmd):
 
 class SmtSbObjSetExecCmd(SmtCmd):
 
-    def __init__(self, executor: SmtAtom, obj_name: str, value: SmtAtom) -> None:
+    def __init__(self, executor: SmtAtom, obj_name: str, value: SmtAtom, *, debug_operation: bool = False) -> None:
         self.executor: SmtAtom = executor
         self.obj_name: str = obj_name
         self.value: SmtAtom = value
+        self._debug_operation: bool = debug_operation
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}(executor={repr(self.executor)}, obj={self.obj_name}, value={self.value})"
 
     def virtualize(self, linker: 'SmtLinker', stack_level: int) -> List[ComCmd]:
+        objective_name: str = self.obj_name
+        if self._debug_operation:
+            objective_name = linker.get_debug_obj(objective_name)
         exec_vdat = get_exec_vdat(self.executor, linker)
 
         if isinstance(self.value, SmtVar):
@@ -122,11 +126,11 @@ class SmtSbObjSetExecCmd(SmtCmd):
             if not isinstance(value_vdat, SmtObjVarLinkage):
                 raise VirtualRepError(f"Output register for `{repr(self.value)}` does not have attached scoreboard?")
             return [ComCmd(
-                f"scoreboard players operation {exec_vdat.get_selector(stack_level)} {self.obj_name} = {value_vdat.var_name} {value_vdat.get_objective(stack_level)}"
+                f"scoreboard players operation {exec_vdat.get_selector(stack_level)} {objective_name} = {value_vdat.var_name} {value_vdat.get_objective(stack_level)}"
             )]
         elif isinstance(self.value, SmtConstInt):
             return [ComCmd(
-                f"scoreboard players set {exec_vdat.get_selector(stack_level)} {self.obj_name} {self.value.value}"
+                f"scoreboard players set {exec_vdat.get_selector(stack_level)} {objective_name} {self.value.value}"
             )]
         else:
             raise VirtualRepError(f"Unknown atom type `{type(self.value).__name__}` found in `{type(self).__name__}`")
@@ -389,7 +393,7 @@ class ChainLinkScoreboardAdd(IChain):
 
     def stmnt_conv(
                 self, executor: 'SmtAtom', clink_param_binding: List[Tuple[IChainLink, Dict[str, 'SmtAtom'], List['SmtAtom']]],
-                module: 'SmtModule', function: 'SmtFunc', config: Config
+                module: 'SmtModule', function: 'SmtFunc', config: Config, loc: ComLoc
             ) -> Tuple[List['SmtCmd'], 'SmtAtom']:
         _, add_binding, _ = get_link_of_type(clink_param_binding, ChainLinkScoreboardAdd)
         name: str = get_key_with_type(add_binding, "name", SmtConstStr).value
@@ -421,7 +425,7 @@ class ChainLinkScoreboardRemove(IChain):
 
     def stmnt_conv(
                 self, executor: 'SmtAtom', clink_param_binding: List[Tuple[IChainLink, Dict[str, 'SmtAtom'], List['SmtAtom']]],
-                module: 'SmtModule', function: 'SmtFunc', config: Config
+                module: 'SmtModule', function: 'SmtFunc', config: Config, loc: ComLoc
             ) -> Tuple[List['SmtCmd'], 'SmtAtom']:
         _, add_binding, _ = get_link_of_type(clink_param_binding, ChainLinkScoreboardRemove)
         name: str = get_key_with_type(add_binding, "name", SmtConstStr).value
@@ -482,7 +486,7 @@ class ChainLinkScoreboardConfDisplayBelowName(IChain):
 
     def stmnt_conv(
                 self, executor: 'SmtAtom', clink_param_binding: List[Tuple[IChainLink, Dict[str, 'SmtAtom'], List['SmtAtom']]],
-                module: 'SmtModule', function: 'SmtFunc', config: Config
+                module: 'SmtModule', function: 'SmtFunc', config: Config, loc: ComLoc
             ) -> Tuple[List['SmtCmd'], 'SmtAtom']:
         _, add_binding, _ = get_link_of_type(clink_param_binding, ChainLinkScoreboardConfDisplayBelowName)
         name: str = add_binding["name"].value if isinstance(add_binding["name"], SmtConstStr) else ''
@@ -513,7 +517,7 @@ class ChainLinkScoreboardConfDisplayList(IChain):
 
     def stmnt_conv(
                 self, executor: 'SmtAtom', clink_param_binding: List[Tuple[IChainLink, Dict[str, 'SmtAtom'], List['SmtAtom']]],
-                module: 'SmtModule', function: 'SmtFunc', config: Config
+                module: 'SmtModule', function: 'SmtFunc', config: Config, loc: ComLoc
             ) -> Tuple[List['SmtCmd'], 'SmtAtom']:
         _, add_binding, _ = get_link_of_type(clink_param_binding, ChainLinkScoreboardConfDisplayList)
         name: str = add_binding["name"].value if isinstance(add_binding["name"], SmtConstStr) else ''
@@ -545,7 +549,7 @@ class ChainLinkScoreboardConfDisplaySidebar(IChain):
 
     def stmnt_conv(
                 self, executor: 'SmtAtom', clink_param_binding: List[Tuple[IChainLink, Dict[str, 'SmtAtom'], List['SmtAtom']]],
-                module: 'SmtModule', function: 'SmtFunc', config: Config
+                module: 'SmtModule', function: 'SmtFunc', config: Config, loc: ComLoc
             ) -> Tuple[List['SmtCmd'], 'SmtAtom']:
         _, add_binding, _ = get_link_of_type(clink_param_binding, ChainLinkScoreboardConfDisplaySidebar)
         name: str = add_binding["name"].value if isinstance(add_binding["name"], SmtConstStr) else ''
@@ -583,7 +587,7 @@ class ChainLinkScoreboardConfJsonName(IChain):
 
     def stmnt_conv(
                 self, executor: 'SmtAtom', clink_param_binding: List[Tuple[IChainLink, Dict[str, 'SmtAtom'], List['SmtAtom']]],
-                module: 'SmtModule', function: 'SmtFunc', config: Config
+                module: 'SmtModule', function: 'SmtFunc', config: Config, loc: ComLoc
             ) -> Tuple[List['SmtCmd'], 'SmtAtom']:
         _, add_binding, extra_args = get_link_of_type(clink_param_binding, ChainLinkScoreboardConfJsonName)
         obj_name: str = get_key_with_type(add_binding, "obj_name", SmtConstStr).value
@@ -637,7 +641,7 @@ class ChainLinkScoreboardConfHearts(IChain):
 
     def stmnt_conv(
                 self, executor: 'SmtAtom', clink_param_binding: List[Tuple[IChainLink, Dict[str, 'SmtAtom'], List['SmtAtom']]],
-                module: 'SmtModule', function: 'SmtFunc', config: Config
+                module: 'SmtModule', function: 'SmtFunc', config: Config, loc: ComLoc
             ) -> Tuple[List['SmtCmd'], 'SmtAtom']:
         _, add_binding, _ = get_link_of_type(clink_param_binding, ChainLinkScoreboardConfJsonName)
         obj_name: str = get_key_with_type(add_binding, "obj_name", SmtConstStr).value
@@ -684,7 +688,7 @@ class ChainLinkScoreboardObjGet(IChain):
 
     def stmnt_conv(
                 self, executor: 'SmtAtom', clink_param_binding: List[Tuple[IChainLink, Dict[str, 'SmtAtom'], List['SmtAtom']]],
-                module: 'SmtModule', function: 'SmtFunc', config: Config
+                module: 'SmtModule', function: 'SmtFunc', config: Config, loc: ComLoc
             ) -> Tuple[List['SmtCmd'], 'SmtAtom']:
         if not matches_type(ExecType(ExecCoreTypes.ENTITY, False), executor.get_type()):
             raise LibConversionError(f"Player-Scoreboard get can only operate on single entities not groups (or world)")
@@ -718,7 +722,7 @@ class ChainLinkScoreboardObjSet(IChain):
 
     def stmnt_conv(
                 self, executor: 'SmtAtom', clink_param_binding: List[Tuple[IChainLink, Dict[str, 'SmtAtom'], List['SmtAtom']]],
-                module: 'SmtModule', function: 'SmtFunc', config: Config
+                module: 'SmtModule', function: 'SmtFunc', config: Config, loc: ComLoc
             ) -> Tuple[List['SmtCmd'], 'SmtAtom']:
         if not matches_type(ExecType(ExecCoreTypes.ENTITY, True), executor.get_type()):
             raise LibConversionError(f"Player-Scoreboard set can only operate on entities not world")
@@ -753,7 +757,7 @@ class ChainLinkScoreboardObjAdd(IChain):
 
     def stmnt_conv(
                 self, executor: 'SmtAtom', clink_param_binding: List[Tuple[IChainLink, Dict[str, 'SmtAtom'], List['SmtAtom']]],
-                module: 'SmtModule', function: 'SmtFunc', config: Config
+                module: 'SmtModule', function: 'SmtFunc', config: Config, loc: ComLoc
             ) -> Tuple[List['SmtCmd'], 'SmtAtom']:
         if not matches_type(ExecType(ExecCoreTypes.ENTITY, True), executor.get_type()):
             raise LibConversionError(f"Player-Scoreboard set can only operate on entities not world")
@@ -788,7 +792,7 @@ class ChainLinkScoreboardObjSub(IChain):
 
     def stmnt_conv(
                 self, executor: 'SmtAtom', clink_param_binding: List[Tuple[IChainLink, Dict[str, 'SmtAtom'], List['SmtAtom']]],
-                module: 'SmtModule', function: 'SmtFunc', config: Config
+                module: 'SmtModule', function: 'SmtFunc', config: Config, loc: ComLoc
             ) -> Tuple[List['SmtCmd'], 'SmtAtom']:
         if not matches_type(ExecType(ExecCoreTypes.ENTITY, True), executor.get_type()):
             raise LibConversionError(f"Player-Scoreboard set can only operate on entities not world")
@@ -821,7 +825,7 @@ class ChainLinkScoreboardObjEnable(IChain):
 
     def stmnt_conv(
                 self, executor: 'SmtAtom', clink_param_binding: List[Tuple[IChainLink, Dict[str, 'SmtAtom'], List['SmtAtom']]],
-                module: 'SmtModule', function: 'SmtFunc', config: Config
+                module: 'SmtModule', function: 'SmtFunc', config: Config, loc: ComLoc
             ) -> Tuple[List['SmtCmd'], 'SmtAtom']:
         if not matches_type(ExecType(ExecCoreTypes.ENTITY, True), executor.get_type()):
             raise LibConversionError(f"Player-Scoreboard set can only operate on entities not world")
@@ -852,7 +856,7 @@ class ChainLinkScoreboardObjReset(IChain):
 
     def stmnt_conv(
                 self, executor: 'SmtAtom', clink_param_binding: List[Tuple[IChainLink, Dict[str, 'SmtAtom'], List['SmtAtom']]],
-                module: 'SmtModule', function: 'SmtFunc', config: Config
+                module: 'SmtModule', function: 'SmtFunc', config: Config, loc: ComLoc
             ) -> Tuple[List['SmtCmd'], 'SmtAtom']:
         if not matches_type(ExecType(ExecCoreTypes.ENTITY, True), executor.get_type()):
             raise LibConversionError(f"Player-Scoreboard set can only operate on entities not world")
@@ -883,7 +887,7 @@ class ChainLinkScoreboardReset(IChain):
 
     def stmnt_conv(
                 self, executor: 'SmtAtom', clink_param_binding: List[Tuple[IChainLink, Dict[str, 'SmtAtom'], List['SmtAtom']]],
-                module: 'SmtModule', function: 'SmtFunc', config: Config
+                module: 'SmtModule', function: 'SmtFunc', config: Config, loc: ComLoc
             ) -> Tuple[List['SmtCmd'], 'SmtAtom']:
         if not matches_type(ExecType(ExecCoreTypes.ENTITY, True), executor.get_type()):
             raise LibConversionError(f"Player-Scoreboard set can only operate on entities not world")
@@ -929,7 +933,7 @@ class ChainLinkScoreboardObjPlayerGet(IChain):
 
     def stmnt_conv(
                 self, executor: 'SmtAtom', clink_param_binding: List[Tuple[IChainLink, Dict[str, 'SmtAtom'], List['SmtAtom']]],
-                module: 'SmtModule', function: 'SmtFunc', config: Config
+                module: 'SmtModule', function: 'SmtFunc', config: Config, loc: ComLoc
             ) -> Tuple[List['SmtCmd'], 'SmtAtom']:
         _, obj_binding, _ = get_link_of_type(clink_param_binding, ChainLinkScoreboardObj)
         obj_name: str = get_key_with_type(obj_binding, "obj_name", SmtConstStr).value
@@ -963,7 +967,7 @@ class ChainLinkScoreboardObjPlayerSet(IChain):
 
     def stmnt_conv(
                 self, executor: 'SmtAtom', clink_param_binding: List[Tuple[IChainLink, Dict[str, 'SmtAtom'], List['SmtAtom']]],
-                module: 'SmtModule', function: 'SmtFunc', config: Config
+                module: 'SmtModule', function: 'SmtFunc', config: Config, loc: ComLoc
             ) -> Tuple[List['SmtCmd'], 'SmtAtom']:
         _, obj_binding, _ = get_link_of_type(clink_param_binding, ChainLinkScoreboardObj)
         obj_name: str = get_key_with_type(obj_binding, "obj_name", SmtConstStr).value
@@ -998,7 +1002,7 @@ class ChainLinkScoreboardObjPlayerAdd(IChain):
 
     def stmnt_conv(
                 self, executor: 'SmtAtom', clink_param_binding: List[Tuple[IChainLink, Dict[str, 'SmtAtom'], List['SmtAtom']]],
-                module: 'SmtModule', function: 'SmtFunc', config: Config
+                module: 'SmtModule', function: 'SmtFunc', config: Config, loc: ComLoc
             ) -> Tuple[List['SmtCmd'], 'SmtAtom']:
         _, obj_binding, _ = get_link_of_type(clink_param_binding, ChainLinkScoreboardObj)
         obj_name: str = get_key_with_type(obj_binding, "obj_name", SmtConstStr).value
@@ -1033,7 +1037,7 @@ class ChainLinkScoreboardObjPlayerSub(IChain):
 
     def stmnt_conv(
                 self, executor: 'SmtAtom', clink_param_binding: List[Tuple[IChainLink, Dict[str, 'SmtAtom'], List['SmtAtom']]],
-                module: 'SmtModule', function: 'SmtFunc', config: Config
+                module: 'SmtModule', function: 'SmtFunc', config: Config, loc: ComLoc
             ) -> Tuple[List['SmtCmd'], 'SmtAtom']:
         _, obj_binding, _ = get_link_of_type(clink_param_binding, ChainLinkScoreboardObj)
         obj_name: str = get_key_with_type(obj_binding, "obj_name", SmtConstStr).value
@@ -1066,7 +1070,7 @@ class ChainLinkScoreboardObjPlayerReset(IChain):
 
     def stmnt_conv(
                 self, executor: 'SmtAtom', clink_param_binding: List[Tuple[IChainLink, Dict[str, 'SmtAtom'], List['SmtAtom']]],
-                module: 'SmtModule', function: 'SmtFunc', config: Config
+                module: 'SmtModule', function: 'SmtFunc', config: Config, loc: ComLoc
             ) -> Tuple[List['SmtCmd'], 'SmtAtom']:
         _, obj_binding, _ = get_link_of_type(clink_param_binding, ChainLinkScoreboardObj)
         obj_name: str = get_key_with_type(obj_binding, "obj_name", SmtConstStr).value
