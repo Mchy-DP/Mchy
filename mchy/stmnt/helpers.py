@@ -19,7 +19,7 @@ def smt_get_exec_vdat(executor: SmtAtom, linker: SmtLinker) -> SmtExecVarLinkage
 
 def runtime_error_tellraw_formatter(message: str, debug: bool = True) -> str:
     return (
-        r'''tellraw @p ["",'''
+        r'''tellraw @a ["",'''
         + ((
             r'''{"text":"DEBUG: ","italic":true,"color":"red","hoverEvent":'''
             + r'''{"action":"show_text","contents":[{"text":"This message was emitted because the datapack was ran in debug mode","color":"red"}]}},'''

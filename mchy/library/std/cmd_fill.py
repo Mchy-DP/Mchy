@@ -143,7 +143,7 @@ class CmdFill(IFunc):
         return NULL_CTX_TYPE
 
     def stmnt_conv(
-                self, executor: SmtAtom, param_binding: Dict[str, SmtAtom], extra_binding: List['SmtAtom'], module: SmtModule, function: SmtFunc, config: Config
+                self, executor: SmtAtom, param_binding: Dict[str, SmtAtom], extra_binding: List['SmtAtom'], module: SmtModule, function: SmtFunc, config: Config, loc: ComLoc
             ) -> Tuple[List[SmtCmd], 'SmtAtom']:
         # get fields
         pos1 = param_binding["pos1"]
@@ -177,7 +177,7 @@ class CmdAreaReplace(IFunc):
         return NULL_CTX_TYPE
 
     def stmnt_conv(
-                self, executor: SmtAtom, param_binding: Dict[str, SmtAtom], extra_binding: List['SmtAtom'], module: SmtModule, function: SmtFunc, config: Config
+                self, executor: SmtAtom, param_binding: Dict[str, SmtAtom], extra_binding: List['SmtAtom'], module: SmtModule, function: SmtFunc, config: Config, loc: ComLoc
             ) -> Tuple[List[SmtCmd], 'SmtAtom']:
         # get fields
         pos1 = param_binding["pos1"]

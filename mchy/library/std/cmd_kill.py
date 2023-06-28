@@ -4,6 +4,7 @@ from mchy.cmd_modules.function import IFunc, IParam
 from mchy.cmd_modules.helper import NULL_CTX_TYPE
 from mchy.cmd_modules.name_spaces import Namespace
 from mchy.common.com_cmd import ComCmd
+from mchy.common.com_loc import ComLoc
 from mchy.common.com_types import ComType, ExecCoreTypes, ExecType, InertCoreTypes, InertType
 from mchy.common.config import Config
 from mchy.errors import ConversionError, StatementRepError, VirtualRepError
@@ -52,6 +53,6 @@ class CmdKill(IFunc):
         return NULL_CTX_TYPE
 
     def stmnt_conv(
-                self, executor: SmtAtom, param_binding: Dict[str, SmtAtom], extra_binding: List['SmtAtom'], module: SmtModule, function: SmtFunc, config: Config
+                self, executor: SmtAtom, param_binding: Dict[str, SmtAtom], extra_binding: List['SmtAtom'], module: SmtModule, function: SmtFunc, config: Config, loc: ComLoc
             ) -> Tuple[List[SmtCmd], 'SmtAtom']:
         return [SmtKillCmd(executor)], module.get_null_const()

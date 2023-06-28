@@ -4,6 +4,7 @@ from mchy.cmd_modules.function import IFunc, IParam
 from mchy.cmd_modules.helper import NULL_CTX_TYPE, get_exec_vdat, get_key_with_type, get_struct_instance
 from mchy.cmd_modules.name_spaces import Namespace
 from mchy.common.com_cmd import ComCmd
+from mchy.common.com_loc import ComLoc
 from mchy.common.com_types import ComType, ExecCoreTypes, ExecType, InertCoreTypes, InertType
 from mchy.common.config import Config
 from mchy.errors import ConversionError, StatementRepError, VirtualRepError
@@ -86,7 +87,7 @@ class CmdBlockExists(IFunc):
         return InertType(InertCoreTypes.BOOL)
 
     def stmnt_conv(
-                self, executor: SmtAtom, param_binding: Dict[str, SmtAtom], extra_binding: List['SmtAtom'], module: SmtModule, function: SmtFunc, config: Config
+                self, executor: SmtAtom, param_binding: Dict[str, SmtAtom], extra_binding: List['SmtAtom'], module: SmtModule, function: SmtFunc, config: Config, loc: ComLoc
             ) -> Tuple[List[SmtCmd], 'SmtAtom']:
         location = param_binding["loc"]
         required_block: str = get_key_with_type(param_binding, "required_block", SmtConstStr).value
@@ -114,7 +115,7 @@ class CmdEntityExists(IFunc):
         return InertType(InertCoreTypes.BOOL)
 
     def stmnt_conv(
-                self, executor: SmtAtom, param_binding: Dict[str, SmtAtom], extra_binding: List['SmtAtom'], module: SmtModule, function: SmtFunc, config: Config
+                self, executor: SmtAtom, param_binding: Dict[str, SmtAtom], extra_binding: List['SmtAtom'], module: SmtModule, function: SmtFunc, config: Config, loc: ComLoc
             ) -> Tuple[List[SmtCmd], 'SmtAtom']:
         entity = param_binding["entity"]
         output_register = function.new_pseudo_var(InertType(InertCoreTypes.BOOL))

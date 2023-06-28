@@ -89,7 +89,7 @@ class CmdPlaySound(IFunc):
         return NULL_CTX_TYPE
 
     def stmnt_conv(
-                self, executor: SmtAtom, param_binding: Dict[str, SmtAtom], extra_binding: List['SmtAtom'], module: SmtModule, function: SmtFunc, config: Config
+                self, executor: SmtAtom, param_binding: Dict[str, SmtAtom], extra_binding: List['SmtAtom'], module: SmtModule, function: SmtFunc, config: Config, loc: ComLoc
             ) -> Tuple[List[SmtCmd], 'SmtAtom']:
         sound_location = param_binding["sound_location"]
         channel = get_key_with_type(param_binding, "channel", SmtConstStr).value

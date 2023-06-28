@@ -4,6 +4,7 @@ from mchy.cmd_modules.function import IFunc, IParam
 from mchy.cmd_modules.helper import NULL_CTX_TYPE, get_key_with_type
 from mchy.cmd_modules.name_spaces import Namespace
 from mchy.common.com_cmd import ComCmd
+from mchy.common.com_loc import ComLoc
 from mchy.common.com_types import ComType, ExecCoreTypes, ExecType, InertCoreTypes, InertType
 from mchy.common.config import Config
 from mchy.errors import ConversionError, StatementRepError, VirtualRepError
@@ -135,7 +136,7 @@ class CmdTagAdd(IFunc):
         return NULL_CTX_TYPE
 
     def stmnt_conv(
-                self, executor: SmtAtom, param_binding: Dict[str, SmtAtom], extra_binding: List['SmtAtom'], module: SmtModule, function: SmtFunc, config: Config
+                self, executor: SmtAtom, param_binding: Dict[str, SmtAtom], extra_binding: List['SmtAtom'], module: SmtModule, function: SmtFunc, config: Config, loc: ComLoc
             ) -> Tuple[List[SmtCmd], 'SmtAtom']:
         new_tag: str = get_key_with_type(param_binding, "new_tag", SmtConstStr).value
         validate_tag(new_tag)
@@ -160,7 +161,7 @@ class CmdTagRemove(IFunc):
         return NULL_CTX_TYPE
 
     def stmnt_conv(
-                self, executor: SmtAtom, param_binding: Dict[str, SmtAtom], extra_binding: List['SmtAtom'], module: SmtModule, function: SmtFunc, config: Config
+                self, executor: SmtAtom, param_binding: Dict[str, SmtAtom], extra_binding: List['SmtAtom'], module: SmtModule, function: SmtFunc, config: Config, loc: ComLoc
             ) -> Tuple[List[SmtCmd], 'SmtAtom']:
         tar_tag: str = get_key_with_type(param_binding, "target_tag", SmtConstStr).value
         validate_tag(tar_tag)
@@ -185,7 +186,7 @@ class CmdTagCount(IFunc):
         return InertType(InertCoreTypes.INT)
 
     def stmnt_conv(
-                self, executor: SmtAtom, param_binding: Dict[str, SmtAtom], extra_binding: List['SmtAtom'], module: SmtModule, function: SmtFunc, config: Config
+                self, executor: SmtAtom, param_binding: Dict[str, SmtAtom], extra_binding: List['SmtAtom'], module: SmtModule, function: SmtFunc, config: Config, loc: ComLoc
             ) -> Tuple[List[SmtCmd], 'SmtAtom']:
         output_register = function.new_pseudo_var(InertType(InertCoreTypes.INT))
         return [SmtTagCountCmd(executor, output_register)], output_register
@@ -209,7 +210,7 @@ class CmdHasTag(IFunc):
         return InertType(InertCoreTypes.BOOL)
 
     def stmnt_conv(
-                self, executor: SmtAtom, param_binding: Dict[str, SmtAtom], extra_binding: List['SmtAtom'], module: SmtModule, function: SmtFunc, config: Config
+                self, executor: SmtAtom, param_binding: Dict[str, SmtAtom], extra_binding: List['SmtAtom'], module: SmtModule, function: SmtFunc, config: Config, loc: ComLoc
             ) -> Tuple[List[SmtCmd], 'SmtAtom']:
         tag: str = get_key_with_type(param_binding, "tag", SmtConstStr).value
         validate_tag(tag)

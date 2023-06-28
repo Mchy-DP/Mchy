@@ -2,6 +2,7 @@
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, List, Tuple
 from mchy.cmd_modules.docs_data import DocsData
+from mchy.common.com_loc import ComLoc
 
 from mchy.common.com_types import ComType, ExecType
 from mchy.common.config import Config
@@ -33,7 +34,7 @@ class IProp(ABC):
         ...
 
     @abstractmethod
-    def stmnt_conv(self, executor: 'SmtAtom', module: 'SmtModule', function: 'SmtFunc', config: Config) -> Tuple[List['SmtCmd'], 'SmtAtom']:
+    def stmnt_conv(self, executor: 'SmtAtom', module: 'SmtModule', function: 'SmtFunc', config: Config, loc: ComLoc) -> Tuple[List['SmtCmd'], 'SmtAtom']:
         ...
 
     def __init_subclass__(cls) -> None:

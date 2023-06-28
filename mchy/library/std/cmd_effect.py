@@ -89,7 +89,7 @@ class CmdEffectAdd(IFunc):
         return NULL_CTX_TYPE
 
     def stmnt_conv(
-                self, executor: SmtAtom, param_binding: Dict[str, SmtAtom], extra_binding: List['SmtAtom'], module: SmtModule, function: SmtFunc, config: Config
+                self, executor: SmtAtom, param_binding: Dict[str, SmtAtom], extra_binding: List['SmtAtom'], module: SmtModule, function: SmtFunc, config: Config, loc: ComLoc
             ) -> Tuple[List[SmtCmd], 'SmtAtom']:
         # get fields
         effect = get_key_with_type(param_binding, "effect", SmtConstStr).value  # TODO: emit warning if effect is not recognized
@@ -125,7 +125,7 @@ class CmdEffectClear(IFunc):
         return NULL_CTX_TYPE
 
     def stmnt_conv(
-                self, executor: SmtAtom, param_binding: Dict[str, SmtAtom], extra_binding: List['SmtAtom'], module: SmtModule, function: SmtFunc, config: Config
+                self, executor: SmtAtom, param_binding: Dict[str, SmtAtom], extra_binding: List['SmtAtom'], module: SmtModule, function: SmtFunc, config: Config, loc: ComLoc
             ) -> Tuple[List[SmtCmd], 'SmtAtom']:
         # get fields
         effect_param = param_binding["effect"]

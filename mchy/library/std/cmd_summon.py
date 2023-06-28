@@ -4,11 +4,13 @@ from mchy.cmd_modules.function import IFunc, IParam
 from mchy.cmd_modules.helper import NULL_CTX_TYPE, get_exec_vdat, get_key_with_type, get_struct_instance
 from mchy.cmd_modules.name_spaces import Namespace
 from mchy.common.com_cmd import ComCmd
+from mchy.common.com_constants import DebugObjectives
 from mchy.common.com_loc import ComLoc
 from mchy.common.com_types import ComType, ExecCoreTypes, ExecType, InertCoreTypes, InertType, matches_type
 from mchy.common.config import Config
 from mchy.contextual.struct.expr.literals import CtxExprLitNull, CtxExprLitStr
 from mchy.errors import ConversionError, LibConversionError, StatementRepError, VirtualRepError
+from mchy.library.std.chain_scoreboard import SmtSbObjSetExecCmd
 from mchy.library.std.ns import STD_NAMESPACE
 from mchy.library.std.struct_pos import StructPos
 from mchy.stmnt.struct import SmtAtom, SmtCmd, SmtFunc, SmtModule
@@ -185,7 +187,7 @@ class CmdSummon(IFunc):
         return ExecType(ExecCoreTypes.ENTITY, group=False)
 
     def stmnt_conv(
-                self, executor: SmtAtom, param_binding: Dict[str, SmtAtom], extra_binding: List['SmtAtom'], module: SmtModule, function: SmtFunc, config: Config
+                self, executor: SmtAtom, param_binding: Dict[str, SmtAtom], extra_binding: List['SmtAtom'], module: SmtModule, function: SmtFunc, config: Config, loc: ComLoc
             ) -> Tuple[List[SmtCmd], 'SmtAtom']:
         location = param_binding["location"]
         entity_type: str = get_key_with_type(param_binding, "entity_type", SmtConstStr).value
@@ -198,4 +200,11 @@ class CmdSummon(IFunc):
         else:
             raise StatementRepError(f"Unknown param atom `{type(nbt_data_param).__name__}` expected, str/null atom")
         output_register = function.new_pseudo_var(ExecType(ExecCoreTypes.ENTITY, False))
-        return [SmtSummonCmd(output_register, location, entity_type, nbt_data)], output_register
+        cmds: List[SmtCmd] = [SmtSummonCmd(output_register, location, entity_type, nbt_data)]
+        if config.debug_mode:
+            cmds.append(SmtSbObjSetExecCmd(
+                output_register,
+                DebugObjectives.SUMMON_LINE_COUNT.value, SmtConstInt(loc.line if loc.line is not None else -1),
+                debug_operation=True
+            ))
+        return cmds, output_register

@@ -1,12 +1,13 @@
 
-from typing import List, Optional, Sequence, Tuple
+from abc import ABC, abstractmethod
+from typing import Callable, List, Optional, Sequence, Tuple, Union
 from os import path as os_path
 
 from mchy.errors import VirtualRepError
 from mchy.common.com_cmd import ComCmd
 
 
-class VirFSNode():
+class VirFSNode(ABC):
     """
     Virtual filesystem node - common parent of folders and files
     """
@@ -113,7 +114,27 @@ class VirRawFile(VirFSNode):
         return self._content
 
 
-class VirMCHYFile(VirFSNode):
+class VirBaseMCHYFile(VirFSNode):
+    """Base class for MCHY files"""
+
+    @property
+    @abstractmethod
+    def lines(self) -> Tuple[ComCmd, ...]:
+        ...
+
+    @abstractmethod
+    def append(self, line: ComCmd) -> None:
+        ...
+
+    def get_file_data(self) -> str:
+        return "\n".join(line.cmd for line in self.lines)
+
+    def extend(self, lines: Sequence[ComCmd]) -> None:
+        for line in lines:
+            self.append(line)
+
+
+class VirMCHYFile(VirBaseMCHYFile):
 
     def __init__(self, name: str, parent: Optional['VirFolder'] = None, initial_contents: Sequence[ComCmd] = ()) -> None:
         super().__init__(name, parent)
@@ -123,12 +144,60 @@ class VirMCHYFile(VirFSNode):
     def lines(self) -> Tuple[ComCmd, ...]:
         return tuple(self._lines)
 
-    def get_file_data(self) -> str:
-        return "\n".join(line.cmd for line in self._lines)
-
     def append(self, line: ComCmd) -> None:
+        if not isinstance(line, ComCmd):
+            raise VirtualRepError("Attempted to append non-command")
         self._lines.append(line)
 
-    def extend(self, lines: Sequence[ComCmd]) -> None:
-        for line in lines:
-            self.append(line)
+
+class VirDynamicMCHYFile(VirBaseMCHYFile):
+
+    class _Section:
+
+        def __init__(self, initial_contents: Sequence[ComCmd] = ()) -> None:
+            self._lines: List[ComCmd] = list(initial_contents)
+
+        def append(self, line: ComCmd):
+            self._lines.append(line)
+
+        def extend(self, lines: Sequence[ComCmd]) -> None:
+            self._lines.extend(lines)
+
+        @property
+        def lines(self) -> Tuple[ComCmd, ...]:
+            return tuple(self._lines)
+
+    class InsertionCursor:
+
+        def __init__(self, section: 'VirDynamicMCHYFile._Section'):
+            self._section: 'VirDynamicMCHYFile._Section' = section
+
+        def append(self, line: ComCmd):
+            self._section.append(line)
+
+        def extend(self, lines: Sequence[ComCmd]) -> None:
+            self._section.extend(lines)
+
+    def __init__(self, name: str, parent: Optional['VirFolder'] = None, initial_contents: Sequence[ComCmd] = ()) -> None:
+        super().__init__(name, parent)
+        self._file_sections: List[VirDynamicMCHYFile._Section] = []
+        self._active_section = self._new_section(initial_contents)
+
+    def _new_section(self, initial_contents: Sequence[ComCmd] = ()) -> _Section:
+        new_section = VirDynamicMCHYFile._Section(initial_contents)
+        self._file_sections.append(new_section)
+        return new_section
+
+    @property
+    def lines(self) -> Tuple[ComCmd, ...]:
+        return tuple(line for section in self._file_sections for line in section.lines)
+
+    def append(self, line: ComCmd) -> None:
+        if not isinstance(line, ComCmd):
+            raise VirtualRepError("Attempted to append non-command")
+        self._active_section.append(line)
+
+    def reserve_spot(self) -> InsertionCursor:
+        cursor = VirDynamicMCHYFile.InsertionCursor(self._new_section())
+        self._active_section = self._new_section()
+        return cursor

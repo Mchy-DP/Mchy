@@ -56,7 +56,7 @@ class CmdGive(IFunc):
         return NULL_CTX_TYPE
 
     def stmnt_conv(
-                self, executor: SmtAtom, param_binding: Dict[str, SmtAtom], extra_binding: List['SmtAtom'], module: SmtModule, function: SmtFunc, config: Config
+                self, executor: SmtAtom, param_binding: Dict[str, SmtAtom], extra_binding: List['SmtAtom'], module: SmtModule, function: SmtFunc, config: Config, loc: ComLoc
             ) -> Tuple[List[SmtCmd], 'SmtAtom']:
         if not matches_type(ExecType(ExecCoreTypes.PLAYER, True), executor.get_type()):
             raise VirtualRepError(f"Player-Scoreboard set can only operate on players, not `{executor.get_type().render()}`")

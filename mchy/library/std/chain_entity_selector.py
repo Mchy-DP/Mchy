@@ -1263,7 +1263,12 @@ class ChainPartialSelectorFind(IChain, abstract=True):
         return []
 
     def stmnt_conv(
-            self, executor: 'SmtAtom', clink_param_binding: List[Tuple[IChainLink, Dict[str, 'SmtAtom'], List['SmtAtom']]], module: 'SmtModule', function: 'SmtFunc', config: Config
+            self, executor: 'SmtAtom',
+            clink_param_binding: List[Tuple[IChainLink, Dict[str, 'SmtAtom'], List['SmtAtom']]],
+            module: 'SmtModule',
+            function: 'SmtFunc',
+            config: Config,
+            loc: ComLoc
             ) -> Tuple[List['SmtCmd'], 'SmtAtom']:
         # build selector
         selector_builder = SelectorBuilder()
