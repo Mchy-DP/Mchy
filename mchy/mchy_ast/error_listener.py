@@ -137,6 +137,19 @@ class MchyErrorListener(ErrorListener):
             if (offendingSymbol.type == recognizer.COLON) and ({recognizer.CBOPEN, recognizer.ARROW} == expected_toks):
                 raise MchySyntaxError("Curly braces { and } should used for scoping, not indentation/colon")
         if isinstance(ctx, (recognizer.Mchy_fileContext, recognizer.Code_blockContext)):
+            if ctx.children is None:
+                if isinstance(parent_ctx, recognizer.If_stmntContext):
+                    raise MchySyntaxError("Missing If-statement body - did you forget to include `{}`?")
+                elif isinstance(parent_ctx, recognizer.Elif_stmntContext):
+                    raise MchySyntaxError("Missing Elif-statement body - did you forget to include `{}`?")
+                elif isinstance(parent_ctx, recognizer.Else_stmntContext):
+                    raise MchySyntaxError("Missing Else-statement body - did you forget to include `{}`?")
+                else:
+                    if isinstance(ctx, recognizer.Code_blockContext):
+                        raise MchySyntaxError("Missing code block content - did you forget to include `{}`?")
+                    else:
+                        raise AbstractTreeError("Empty code block in non-codeblock?")
+
             prior_ctx: ParserRuleContext
             if isinstance(ctx, recognizer.Mchy_fileContext):
                 # prior_ctx = File.Top_Scope.Last_elem.scope
