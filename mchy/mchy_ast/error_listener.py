@@ -88,7 +88,7 @@ class MchyErrorListener(ErrorListener):
         if offendingSymbol.type == recognizer.UNKNOWN_CHAR:
             raise MchySyntaxError(f"Invalid character {get_token_text(offendingSymbol)} encountered during parsing")
         if isinstance(ctx, (recognizer.Mchy_fileContext)):  # empty file checks
-            if ctx.top is None:
+            if ctx.top is None and offendingSymbol.type == recognizer.EOF:
                 raise MchySyntaxError(f"Empty file encountered during compilation?")
 
         # === ctx based errors ===
