@@ -55,6 +55,8 @@ _TEST_CONFIG = Config(verbosity=Config.Verbosity.VV, logger=ComLogger(std_out_le
     ('def foo(){var foo: grup[Player]}', ["Invalid type", "grup[", "foo", "Group["]),
     ('def foo() -> int {\nreturn 42\n}s', ["s", "\\n"]),
     ('if true {', ["File ended unexpectedly", "closing scope", "}"]),
+    ('{', ["Cannot open code block"]),
+    ('{}', ["Cannot open code block"]),
 ])
 def test_parse_raises(code: str, error_message_match: Union[str, List[str]]):
     if isinstance(error_message_match, str):

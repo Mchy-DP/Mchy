@@ -138,6 +138,11 @@ class MchyErrorListener(ErrorListener):
                 raise MchySyntaxError("Curly braces { and } should used for scoping, not indentation/colon")
         if isinstance(ctx, (recognizer.Mchy_fileContext, recognizer.Code_blockContext)):
             if ctx.children is None:
+                # Codeblock in process of construction during error
+                if offendingSymbol.type == recognizer.CBOPEN:
+                    raise MchySyntaxError("Cannot open code block in this context.  Code blocks are only valid after if, while, def, ... - solitary code blocks are not supported.")
+
+                # Generic missing codeblock
                 if isinstance(parent_ctx, recognizer.If_stmntContext):
                     raise MchySyntaxError("Missing If-statement body - did you forget to include `{}`?")
                 elif isinstance(parent_ctx, recognizer.Elif_stmntContext):
