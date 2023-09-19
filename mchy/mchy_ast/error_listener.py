@@ -147,38 +147,36 @@ class MchyErrorListener(ErrorListener):
                 else:
                     if isinstance(ctx, recognizer.Code_blockContext):
                         raise MchySyntaxError("Missing code block content - did you forget to include `{}`?")
-                    else:
-                        raise AbstractTreeError("Empty code block in non-codeblock?")
-
-            prior_ctx: ParserRuleContext
-            if isinstance(ctx, recognizer.Mchy_fileContext):
-                # prior_ctx = File.Top_Scope.Last_elem.scope
-                prior_ctx = ctx.children[0].children[-1].children[0]
-            elif isinstance(ctx, recognizer.Code_blockContext):
-                # prior_ctx = Code_block.Last_scope
-                prior_ctx = ctx.children[-1]
             else:
-                raise UnreachableError("Instance of file or code block is neither a file or a code block")
+                prior_ctx: ParserRuleContext
+                if isinstance(ctx, recognizer.Mchy_fileContext):
+                    # prior_ctx = File.Top_Scope.Last_elem.scope
+                    prior_ctx = ctx.children[0].children[-1].children[0]
+                elif isinstance(ctx, recognizer.Code_blockContext):
+                    # prior_ctx = Code_block.Last_scope
+                    prior_ctx = ctx.children[-1]
+                else:
+                    raise UnreachableError("Instance of file or code block is neither a file or a code block")
 
-            if isinstance(prior_ctx, recognizer.StmntContext):
-                statement_body = prior_ctx.getChild(0)
-                # Raise more specific error
-                if offendingSymbol.type == recognizer.EQUAL:
-                    raise MchySyntaxError(f"Cannot assign to non-variable `{stream.getText(prior_ctx.start.start, offendingSymbol.stop)}`")
-                if offendingSymbol.type == recognizer.SBOPEN:
-                    if isinstance(statement_body, recognizer.Variable_declContext):
-                        core_type = statement_body.var_type.core_type
-                        if core_type is not None:
-                            core_type_text = assert_is_token(core_type).text
-                            if is_similar(core_type_text, "Group"):
-                                raise MchySyntaxError(
-                                    f"Invalid type `{core_type_text}[...` found in declaration of variable " +
-                                    f"{assert_is_token(statement_body.var_name).text}, did you mean 'Group[...'?"
-                                )
-            elif isinstance(prior_ctx, recognizer.Function_declContext):
-                pass  # Cannot really add more context to this as they can be too varied
-            else:
-                raise AbstractTreeError(f"Statement ending encountered outside statement while adding context to error: {msg}")
+                if isinstance(prior_ctx, recognizer.StmntContext):
+                    statement_body = prior_ctx.getChild(0)
+                    # Raise more specific error
+                    if offendingSymbol.type == recognizer.EQUAL:
+                        raise MchySyntaxError(f"Cannot assign to non-variable `{stream.getText(prior_ctx.start.start, offendingSymbol.stop)}`")
+                    if offendingSymbol.type == recognizer.SBOPEN:
+                        if isinstance(statement_body, recognizer.Variable_declContext):
+                            core_type = statement_body.var_type.core_type
+                            if core_type is not None:
+                                core_type_text = assert_is_token(core_type).text
+                                if is_similar(core_type_text, "Group"):
+                                    raise MchySyntaxError(
+                                        f"Invalid type `{core_type_text}[...` found in declaration of variable " +
+                                        f"{assert_is_token(statement_body.var_name).text}, did you mean 'Group[...'?"
+                                    )
+                elif isinstance(prior_ctx, recognizer.Function_declContext):
+                    pass  # Cannot really add more context to this as they can be too varied
+                else:
+                    raise AbstractTreeError(f"Statement ending encountered outside statement while adding context to error: {msg}")
 
         # === Specific late errors ===
         if isinstance(ctx, (recognizer.Mchy_fileContext, recognizer.Code_blockContext)):
