@@ -39,6 +39,7 @@ _TEST_CONFIG = Config()
     (r'''"DBQ-tail escape me!\""''', Root(Scope(Stmnt(ExprLitStr(r'''DBQ-tail escape me!"'''))))),
     ("3+8", Root(Scope(Stmnt(ExprPlus(ExprLitInt(3), ExprLitInt(8)))))),
     ("3 + 8", Root(Scope(Stmnt(ExprPlus(ExprLitInt(3), ExprLitInt(8)))))),
+    ("3 +\n 8", Root(Scope(Stmnt(ExprPlus(ExprLitInt(3), ExprLitInt(8)))))),
     ("3-8", Root(Scope(Stmnt(ExprMinus(ExprLitInt(3), ExprLitInt(8)))))),
     ("4/2", Root(Scope(Stmnt(ExprDiv(ExprLitInt(4), ExprLitInt(2)))))),
     ("19%7", Root(Scope(Stmnt(ExprMod(ExprLitInt(19), ExprLitInt(7)))))),

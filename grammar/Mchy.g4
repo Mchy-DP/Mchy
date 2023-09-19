@@ -49,15 +49,15 @@ expr: '(' NEWLINE* contents=expr NEWLINE* ')'                                   
     | executor=expr DOT func_name=IDENTIFIER '(' params=param_list? ')'                                                                     #ExprFuncCall
     | func_name=IDENTIFIER '(' params=param_list? COMMA? NEWLINE* ')'                                                                       #ExprWorldFuncCall
     | source=expr DOT attribute=IDENTIFIER                                                                                                  #ExprPropertyAccess
-    | <assoc=right> base=expr ('^'|'*' '*') exponent=expr                                                                                   #ExprExponent
+    | <assoc=right> base=expr ('^'|'*' '*') NEWLINE* exponent=expr                                                                          #ExprExponent
     | MINUS target=expr                                                                                                                     #ExprUnaryMinus
-    | left=expr sign=('%'|'/'|'*') right=expr                                                                                               #ExprMultDivMod
-    | left=expr sign=('+'|'-') right=expr                                                                                                   #ExprPlusMinus
-    | left=expr comparison=(EQUALITY | INEQUALITY | COMP_LTE | COMP_LT | COMP_GTE | COMP_GT) right=expr                                     #ExprRelation
-    | NOT target=expr                                                                                                                       #ExprNot
-    | left=expr AND right=expr                                                                                                              #ExprAnd
-    | left=expr OR right=expr                                                                                                               #ExprOr
-    | opt_expr=expr QUESTION_MARK QUESTION_MARK default_expr=expr                                                                           #ExprNullCoalescing
+    | left=expr sign=('%'|'/'|'*') NEWLINE* right=expr                                                                                      #ExprMultDivMod
+    | left=expr sign=('+'|'-') NEWLINE* right=expr                                                                                          #ExprPlusMinus
+    | left=expr comparison=(EQUALITY | INEQUALITY | COMP_LTE | COMP_LT | COMP_GTE | COMP_GT) NEWLINE* right=expr                            #ExprRelation
+    | NOT NEWLINE* target=expr                                                                                                              #ExprNot
+    | left=expr AND NEWLINE* right=expr                                                                                                     #ExprAnd
+    | left=expr OR NEWLINE* right=expr                                                                                                      #ExprOr
+    | opt_expr=expr QUESTION_MARK QUESTION_MARK NEWLINE* default_expr=expr                                                                  #ExprNullCoalescing
     | value=DBQ_STRING                                                                                                                      #LiteralStrDBQ
     | value=SGQ_STRING                                                                                                                      #LiteralStrSGQ
     | value=NULL                                                                                                                            #LiteralNull
