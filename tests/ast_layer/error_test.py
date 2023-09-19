@@ -11,6 +11,9 @@ _TEST_CONFIG = Config(verbosity=Config.Verbosity.VV, logger=ComLogger(std_out_le
 
 
 @pytest.mark.parametrize("code, error_message_match", [
+    ("", ["Empty file"]),
+    ("\n", ["Empty file"]),
+    ("\n\n", ["Empty file"]),
     ("fo`o", ["Invalid char", "`"]),
     ("var foo = 1", ["Missing type annotation", "foo"]),
     ("var g: int = 0\nvar foo = 1", ["Missing type annotation", "foo"]),
