@@ -1,6 +1,6 @@
 # Language Specification
 
-This file documents the language features of mchy, For specific functions and properties see the [libraries](/docs/home.md).  The examples in this file, unless otherwise noted, will assume that the [standard library](/docs/libs/std.md) is available (thus functions like `print` can be used to demonstrate the workings of code structures).
+This file documents the language features of Mchy, For specific functions and properties see the [libraries](/docs/home.md).  The examples in this file, unless otherwise noted, will assume that the [standard library](/docs/libs/std.md) is available (thus functions like `print` can be used to demonstrate the workings of code structures).
 
 ## Variables
 ### Var
@@ -65,7 +65,7 @@ These variables are also implicitly read-only even if `var` was used to define t
 
 ### Executable typed variables
 
-Variables with executable types (see [typing](#typing)) are only valid in the scope in which they are made.  This us due to minecraft potentially having unloaded some of the entities in the mean time causing problems like variables not equalling themselves.  If you do need to be able to find entities again and the normal scoping rule won't let you, you can tag the entities with [`Entities.tag_add(<TAG>)`](/docs/libs/std.md#tag_add) then reselect them in the new scope with `world.get_entities().with_tag(<TAG>).find()`.  You are responsible for ensuring TAG is unique.
+Variables with executable types (see [typing](#typing)) are only valid in the scope in which they are made.  This is due to minecraft potentially having unloaded some of the entities in the mean time causing problems like variables not equalling themselves.  If you do need to be able to find entities again and the normal scoping rule won't let you, you can tag the entities with [`Entities.tag_add(<TAG>)`](/docs/libs/std.md#tag_add) then reselect them in the new scope with `world.get_entities().with_tag(<TAG>).find()`.  You are responsible for ensuring TAG is unique.
 
 ## If-Elif-Else
 
@@ -308,7 +308,7 @@ random_player_at_level_30.say("I'm at level 30!")
 
 ## Misc
 ### Comments
-Any line begining with a `#` symbol is a code comment and will not be executed.
+Any line beginning with a `#` symbol is a code comment and will not be executed.
 ```py
 # Not a real line
 print("Real line")
@@ -323,7 +323,7 @@ print("Finished forcing speech!")
 ```
 Note: If you want to build a raw command out of Compile-time constant Strings (`str!`) then use [`world.cmd(...)`](/docs/libs/std.md#cmd) from the standard library.
 ### Structs
-Some functions & properties such as [`world.pos.constant(...)`](/docs/libs/std.md#constant) return compile-time structs.  These represent data structures more complicated than simple int's or str's are sufficient for.  Structs can usually be stored in variables.
+Some functions & properties such as [`world.pos.constant(...)`](/docs/libs/std.md#constant) return compile-time Structs.  These represent data structures more complicated than simple int's or str's are sufficient for.  Structs can usually be stored in variables.
 ```py
 let selected_color: Color = world.colors.red
 print("I am normal text, ", selected_color, "I am scary coloured text!")
@@ -388,8 +388,8 @@ var flying_pigs: Group[Entity] = world.get_entities().of_type("pig").with_score(
 flying_pigs.say("I'm a flying pig")
 ```
 
-However somtimes the only solution is to somehow downcast the type to `Entity` and execute as each entity in turn.  In such cases you can define a function that executes as the downcast type then call that function with the Goruped type.  The function will then execute once for each entity in the entity group:
-```
+However sometimes the only solution is to somehow downcast the type to `Entity` and execute as each entity in turn.  In such cases you can define a function that executes as the downcast type then call that function with the Grouped type.  The function will then execute once for each entity in the entity group:
+```py
 var pigs: Group[Entity] = world.get_entities().of_type("pig").find()
 
 def Entity pig_flight_test(){
@@ -397,15 +397,15 @@ def Entity pig_flight_test(){
         this.say("I'm a flying pig")
     }
 }
-pig.pig_flight_test()
+pigs.pig_flight_test()
 ```
 
 Note that this is often fairly inefficient and other options should be considered first.
 
 ## Typing
-There are 3 broad catagories of type in mchy: Inert types, Executable types & Struct Types.  Struct types are special types used by structures and minimal knowledge is needed about them, as such they will not be discussed here more than to acknowledge their existence.
+There are 3 broad catagories of type in Mchy: Inert types, Executable types & Struct Types.  Struct types are special types used by structures and minimal additional knowledge is needed about them, as such they will not be discussed here more than to acknowledge their existence.
 ### Inert Types
-Inert types have 5 core subtypes that come under this heading: `float`, `int`, `bool`, `str` & `null`.  Inert types have 2 variants: nullable & compile constant.  These are indicated by adding the suffixes Indicated below.
+Inert types have 5 core subtypes: `float`, `int`, `bool`, `str` & `null`.  Inert types have 2 variants: nullable & compile constant.  These are indicated by adding the suffixes Indicated below.
 | Property          | Suffix        |
 | -------------     | ------------- |
 | Nullable          | `?`           |
@@ -417,7 +417,7 @@ Any nullable type can, in addition to it's normally valid assignments, be assign
 var a: int? = null
 ```
 #### Compile Constant
-Many operations are not possible at runtime due to the limitations of Minecraft Datapacks.  However sometimes it is enough to resolve a value at compile time.  For instance: The particle command has the following syntax:
+Many operations are not possible at runtime due to the limitations of Minecraft Datapacks.  However sometimes it is useful to be able to resolve & store values at compile time even if that couldn't usually be done at runtime.  For instance: The particle command has the following syntax:
 ```MCDP
 /particle <name> [<pos>] [<delta>] <speed> <count> [force|normal]
 ```
