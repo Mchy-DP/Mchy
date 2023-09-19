@@ -11,6 +11,9 @@ _TEST_CONFIG = Config(verbosity=Config.Verbosity.VV, logger=ComLogger(std_out_le
 
 
 @pytest.mark.parametrize("code, error_message_match", [
+    ("", ["Empty file"]),
+    ("\n", ["Empty file"]),
+    ("\n\n", ["Empty file"]),
     ("fo`o", ["Invalid char", "`"]),
     ("var foo = 1", ["Missing type annotation", "foo"]),
     ("var g: int = 0\nvar foo = 1", ["Missing type annotation", "foo"]),
@@ -28,6 +31,9 @@ _TEST_CONFIG = Config(verbosity=Config.Verbosity.VV, logger=ComLogger(std_out_le
     ('if x > 5:\n    print("hello!")\n', ["{", "not indentation"]),
     ('if x > 5{}elif x < 2:\n    print("hello!")\n', ["{", "not indentation"]),
     ('if x > 5{}elif x < 2{}else:\n    print("hello!")\n', ["{", "not indentation"]),
+    ("def func_name(){if (true)}", ["Missing", "body", "{}"]),
+    ("def func_name(){if (true){} elif (true)}", ["Missing", "body", "{}"]),
+    ("def func_name(){if (true){} elif (true){} else}", ["Missing", "body", "{}"]),
     ('def f(bar){}', ["Missing type annotation", "param", "bar"]),
     ('def foo():\n    print("hi")\n', ["{", "not indentation"]),
     ('def foo(){\n    return\n}', ["Expected expression", "got '\\n'", "return null"]),
@@ -49,6 +55,8 @@ _TEST_CONFIG = Config(verbosity=Config.Verbosity.VV, logger=ComLogger(std_out_le
     ('def foo(){var foo: grup[Player]}', ["Invalid type", "grup[", "foo", "Group["]),
     ('def foo() -> int {\nreturn 42\n}s', ["s", "\\n"]),
     ('if true {', ["File ended unexpectedly", "closing scope", "}"]),
+    ('{', ["Cannot open code block"]),
+    ('{}', ["Cannot open code block"]),
 ])
 def test_parse_raises(code: str, error_message_match: Union[str, List[str]]):
     if isinstance(error_message_match, str):

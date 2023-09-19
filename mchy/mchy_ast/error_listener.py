@@ -87,6 +87,9 @@ class MchyErrorListener(ErrorListener):
         # === Early errors ===
         if offendingSymbol.type == recognizer.UNKNOWN_CHAR:
             raise MchySyntaxError(f"Invalid character {get_token_text(offendingSymbol)} encountered during parsing")
+        if isinstance(ctx, (recognizer.Mchy_fileContext)):  # empty file checks
+            if ctx.top is None and offendingSymbol.type == recognizer.EOF:
+                raise MchySyntaxError(f"Empty file encountered during compilation?")
 
         # === ctx based errors ===
         if isinstance(ctx, recognizer.Variable_declContext):
@@ -134,35 +137,51 @@ class MchyErrorListener(ErrorListener):
             if (offendingSymbol.type == recognizer.COLON) and ({recognizer.CBOPEN, recognizer.ARROW} == expected_toks):
                 raise MchySyntaxError("Curly braces { and } should used for scoping, not indentation/colon")
         if isinstance(ctx, (recognizer.Mchy_fileContext, recognizer.Code_blockContext)):
-            prior_ctx: ParserRuleContext
-            if isinstance(ctx, recognizer.Mchy_fileContext):
-                # prior_ctx = File.Top_Scope.Last_elem.scope
-                prior_ctx = ctx.children[0].children[-1].children[0]
-            elif isinstance(ctx, recognizer.Code_blockContext):
-                # prior_ctx = Code_block.Last_scope
-                prior_ctx = ctx.children[-1]
-            else:
-                raise UnreachableError("Instance of file or code block is neither a file or a code block")
+            if ctx.children is None:
+                # Codeblock in process of construction during error
+                if offendingSymbol.type == recognizer.CBOPEN:
+                    raise MchySyntaxError("Cannot open code block in this context.  Code blocks are only valid after if, while, def, ... - solitary code blocks are not supported.")
 
-            if isinstance(prior_ctx, recognizer.StmntContext):
-                statement_body = prior_ctx.getChild(0)
-                # Raise more specific error
-                if offendingSymbol.type == recognizer.EQUAL:
-                    raise MchySyntaxError(f"Cannot assign to non-variable `{stream.getText(prior_ctx.start.start, offendingSymbol.stop)}`")
-                if offendingSymbol.type == recognizer.SBOPEN:
-                    if isinstance(statement_body, recognizer.Variable_declContext):
-                        core_type = statement_body.var_type.core_type
-                        if core_type is not None:
-                            core_type_text = assert_is_token(core_type).text
-                            if is_similar(core_type_text, "Group"):
-                                raise MchySyntaxError(
-                                    f"Invalid type `{core_type_text}[...` found in declaration of variable " +
-                                    f"{assert_is_token(statement_body.var_name).text}, did you mean 'Group[...'?"
-                                )
-            elif isinstance(prior_ctx, recognizer.Function_declContext):
-                pass  # Cannot really add more context to this as they can be too varied
+                # Generic missing codeblock
+                if isinstance(parent_ctx, recognizer.If_stmntContext):
+                    raise MchySyntaxError("Missing If-statement body - did you forget to include `{}`?")
+                elif isinstance(parent_ctx, recognizer.Elif_stmntContext):
+                    raise MchySyntaxError("Missing Elif-statement body - did you forget to include `{}`?")
+                elif isinstance(parent_ctx, recognizer.Else_stmntContext):
+                    raise MchySyntaxError("Missing Else-statement body - did you forget to include `{}`?")
+                else:
+                    if isinstance(ctx, recognizer.Code_blockContext):
+                        raise MchySyntaxError("Missing code block content - did you forget to include `{}`?")
             else:
-                raise AbstractTreeError(f"Statement ending encountered outside statement while adding context to error: {msg}")
+                prior_ctx: ParserRuleContext
+                if isinstance(ctx, recognizer.Mchy_fileContext):
+                    # prior_ctx = File.Top_Scope.Last_elem.scope
+                    prior_ctx = ctx.children[0].children[-1].children[0]
+                elif isinstance(ctx, recognizer.Code_blockContext):
+                    # prior_ctx = Code_block.Last_scope
+                    prior_ctx = ctx.children[-1]
+                else:
+                    raise UnreachableError("Instance of file or code block is neither a file or a code block")
+
+                if isinstance(prior_ctx, recognizer.StmntContext):
+                    statement_body = prior_ctx.getChild(0)
+                    # Raise more specific error
+                    if offendingSymbol.type == recognizer.EQUAL:
+                        raise MchySyntaxError(f"Cannot assign to non-variable `{stream.getText(prior_ctx.start.start, offendingSymbol.stop)}`")
+                    if offendingSymbol.type == recognizer.SBOPEN:
+                        if isinstance(statement_body, recognizer.Variable_declContext):
+                            core_type = statement_body.var_type.core_type
+                            if core_type is not None:
+                                core_type_text = assert_is_token(core_type).text
+                                if is_similar(core_type_text, "Group"):
+                                    raise MchySyntaxError(
+                                        f"Invalid type `{core_type_text}[...` found in declaration of variable " +
+                                        f"{assert_is_token(statement_body.var_name).text}, did you mean 'Group[...'?"
+                                    )
+                elif isinstance(prior_ctx, recognizer.Function_declContext):
+                    pass  # Cannot really add more context to this as they can be too varied
+                else:
+                    raise AbstractTreeError(f"Statement ending encountered outside statement while adding context to error: {msg}")
 
         # === Specific late errors ===
         if isinstance(ctx, (recognizer.Mchy_fileContext, recognizer.Code_blockContext)):
